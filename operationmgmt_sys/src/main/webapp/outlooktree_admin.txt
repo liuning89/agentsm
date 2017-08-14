@@ -1,0 +1,72 @@
+﻿[
+	{id:"root",text:"经纪人后台管理系统"},
+		
+		
+			
+		{id:"houseMng",text:"房源管理",pid:"root"},
+			{id:"houseList",text:"房源管理",pid:"houseMng",url:"houseResource/sell/houseListPage.action"},
+			
+			{id:"houseFollowUplist",text:"房源跟进记录",pid:"houseMng",url:"houseResource/getLfHouseFollowUpPageAll.action"},
+			{id:"agentRecentlySeeList",text:"带看记录",pid:"houseMng",url:"agent/agentRecentlySeeList.action"},
+			
+	
+		{id:"ruleMng",text:"规则",pid:"root"},
+				
+				{id:"publicRule",text:"公客规则",pid:"ruleMng",url:"ruleMng/showPublicRule.action"},
+			
+			
+		{id:"opMng",text:"运营管理",pid:"root"},
+		
+			{id:"houseVideoList",text:"视频审核",pid:"opMng",url:"houseVideo/gotoHouseVideo.action"},
+			
+			{id:"agentOperateLog",text:"经纪人操作日志",pid:"opMng",url:"agent/gotoagentLog.action"},
+			{id:"messageList",text:"消息push功能",pid:"opMng",url:"message/gotomessageList.action"},
+			
+		
+			
+			{id:"houseImageAuditList",text:"实景图片审核列表",pid:"opMng",url:"houseImage/gotohouseimageaudit.action"},
+		
+			{id:"houseFollowUP",text:"黑名单",pid:"opMng",url:"refuse/refuseshow.action"},
+			
+			{id:"phoneunlock",text:"手机解锁",pid:"opMng",url:"refuse/phoneunlock.action"},
+		
+		{id:"landlordMng",text:"房东审核",pid:"root"},
+			{id:"landlordVideoList",text:"房东视频审核",pid:"landlordMng",url:"houseVideo/gotoLandlordHouseVideo.action"},
+			{id:"landlordImageAuditList",text:"房东实景图片审核列表",pid:"landlordMng",url:"houseImage/gotoLandlordImageaudit.action"},
+		
+			
+		{id:"marketMng",text:"活动管理",pid:"root"},
+			{id:"marketActivity",text:"营销活动配置",pid:"marketMng",url:"market/showMarketActivity.action"},
+			
+			
+		
+		{id:"inform",text:"举报管理",pid:"root"},
+			{id:"imageInform",text:"图片举报管理",pid:"inform",url:"inform/gotoImageInform.action"},
+			{id:"sellPointInform",text:"卖点举报管理",pid:"inform",url:"inform/gotosellPointInform.action"},
+
+
+		{id:"transferMng",text:"合作伙伴管理",pid:"root"},
+        			
+        			{id:"franchisee",text:"合作伙伴列表",pid:"transferMng",url:"transferMng/gotoFranchisee.action"},
+        			{id:"agentTransfer",text:"经纪人资源转移",pid:"transferMng",url:"transferMng/gotoTransferMng.action"},
+        			
+
+		{id:"commissionrulesMng",text:"佣金规则",pid:"root"},
+            {id:"commissionruleList",text:"佣金分配角色",pid:"commissionrulesMng",url:"pages/commissionrule/list.jsp"},
+
+		/**{id:"positionMng",text:"职位管理",pid:"root"},
+			{id:"positionList",text:"职位列表",pid:"positionMng",url:"pages/position2/list.jsp"},*/
+		
+		{id:"areaOrgMng",text:"组织架构管理",pid:"root"},
+			{id:"cityList",text:"城市列表",pid:"areaOrgMng",url:"pages/areaOrg/city/list.jsp"},
+			{id:"areaList",text:"区域列表",pid:"areaOrgMng",url:"pages/areaOrg/area/list.jsp"},
+			{id:"storeList",text:"门店列表",pid:"areaOrgMng",url:"pages/areaOrg/store/list.jsp"},
+		
+		/**{id:"priMng",text:"开发专用",pid:"root"},
+			{id:"priList",text:"功能列表",pid:"priMng",url:"pages/priFunction/list.jsp"},
+			{id:"menList",text:"菜单列表",pid:"priMng",url:"pages/menu/list.jsp"}
+			{id:"menList",text:"菜单列表",pid:"priMng",url:"pages/menu/list.jsp"},
+		{id:"report",text:"报表",pid:"root"},
+			{id:"reportList",text:"报表",pid:"report",url:"pages/report/list.jsp"}*/
+
+]

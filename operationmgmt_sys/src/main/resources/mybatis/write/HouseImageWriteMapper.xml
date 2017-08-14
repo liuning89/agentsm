@@ -1,0 +1,303 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lifang.agentsm.dao.write.HouseImageWriteMapper">
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+        delete from house_image
+        where id = #{id,jdbcType=BIGINT}
+    </delete>
+    <insert id="insert" parameterType="com.lifang.agentsm.entity.HouseImage" useGeneratedKeys="true" keyProperty="id">
+        insert into house_image (id, houseId, type,
+        imgKey, `desc`, status,
+        takePhotoTime, createTime, updateTime,
+        sourceId, agentId)
+        values (#{id,jdbcType=BIGINT}, #{houseId,jdbcType=INTEGER}, #{type,jdbcType=INTEGER},
+        #{imgKey,jdbcType=VARCHAR}, #{desc,jdbcType=VARCHAR}, #{status,jdbcType=TINYINT},
+        #{takePhotoTime,jdbcType=TIMESTAMP}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP},
+        #{sourceId,jdbcType=INTEGER}, #{agentId,jdbcType=BIGINT})
+    </insert>
+    <insert id="insertSelective" parameterType="com.lifang.agentsm.entity.HouseImage">
+        insert into house_image
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="houseId != null">
+                houseId,
+            </if>
+            <if test="type != null">
+                type,
+            </if>
+            <if test="imgKey != null">
+                imgKey,
+            </if>
+            <if test="desc != null">
+                `desc`,
+            </if>
+            <if test="status != null">
+                status,
+            </if>
+            <if test="takePhotoTime != null">
+                takePhotoTime,
+            </if>
+            <if test="createTime != null">
+                createTime,
+            </if>
+            <if test="updateTime != null">
+                updateTime,
+            </if>
+            <if test="sourceId != null">
+                sourceId,
+            </if>
+            <if test="agentId != null">
+                agentId,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="houseId != null">
+                #{houseId,jdbcType=INTEGER},
+            </if>
+            <if test="type != null">
+                #{type,jdbcType=INTEGER},
+            </if>
+            <if test="imgKey != null">
+                #{imgKey,jdbcType=VARCHAR},
+            </if>
+            <if test="desc != null">
+                #{desc,jdbcType=VARCHAR},
+            </if>
+            <if test="status != null">
+                #{status,jdbcType=TINYINT},
+            </if>
+            <if test="takePhotoTime != null">
+                #{takePhotoTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateTime != null">
+                #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="sourceId != null">
+                #{sourceId,jdbcType=INTEGER},
+            </if>
+            <if test="agentId != null">
+                #{agentId,jdbcType=BIGINT},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.lifang.agentsm.entity.HouseImage">
+        update house_image
+        <set>
+            <if test="houseId != null">
+                houseId = #{houseId,jdbcType=INTEGER},
+            </if>
+            <if test="type != null">
+                type = #{type,jdbcType=INTEGER},
+            </if>
+            <if test="imgKey != null">
+                imgKey = #{imgKey,jdbcType=VARCHAR},
+            </if>
+            <if test="desc != null">
+                `desc` = #{desc,jdbcType=VARCHAR},
+            </if>
+            <if test="status != null">
+                status = #{status,jdbcType=TINYINT},
+            </if>
+            <if test="takePhotoTime != null">
+                takePhotoTime = #{takePhotoTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="createTime != null">
+                createTime = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateTime != null">
+                updateTime = #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="sourceId != null">
+                sourceId = #{sourceId,jdbcType=INTEGER},
+            </if>
+            <if test="agentId != null">
+                agentId = #{agentId,jdbcType=BIGINT},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.lifang.agentsm.entity.HouseImage">
+        update house_image
+        set houseId = #{houseId,jdbcType=INTEGER},
+        type = #{type,jdbcType=INTEGER},
+        imgKey = #{imgKey,jdbcType=VARCHAR},
+        `desc` = #{desc,jdbcType=VARCHAR},
+        status = #{status,jdbcType=TINYINT},
+        takePhotoTime = #{takePhotoTime,jdbcType=TIMESTAMP},
+        createTime = #{createTime,jdbcType=TIMESTAMP},
+        updateTime = #{updateTime,jdbcType=TIMESTAMP},
+        sourceId = #{sourceId,jdbcType=INTEGER},
+        agentId = #{agentId,jdbcType=BIGINT}
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    
+    <update id="updateByKeySelective" parameterType="com.lifang.agentsm.entity.HouseImage">
+        update house_image
+        <set>
+            <if test="houseId != null">
+                houseId = #{houseId,jdbcType=INTEGER},
+            </if>
+            <if test="type != null">
+                type = #{type,jdbcType=INTEGER},
+            </if>
+            <if test="imgKey != null">
+                imgKey = #{imgKey,jdbcType=VARCHAR},
+            </if>
+            <if test="desc != null">
+                `desc` = #{desc,jdbcType=VARCHAR},
+            </if>
+            <if test="status != null">
+                status = #{status,jdbcType=TINYINT},
+            </if>
+            <if test="takePhotoTime != null">
+                takePhotoTime = #{takePhotoTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="createTime != null">
+                createTime = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateTime != null">
+                updateTime = #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="sourceId != null">
+                sourceId = #{sourceId,jdbcType=INTEGER},
+            </if>
+            <if test="agentId != null">
+                agentId = #{agentId,jdbcType=BIGINT},
+            </if>
+        </set>
+        where imgKey = #{imgKey,jdbcType=VARCHAR}
+    </update>
+    
+    <delete id="deleteHouseImageByKey" parameterType="string">
+        DELETE FROM house_image WHERE house_image.`imgKey` = #{_paramter}
+    </delete>
+    
+    <update id="updateByTypeSelective" parameterType="com.lifang.agentsm.entity.HouseImage">
+        update house_image
+        <set>
+            <if test="houseId != null">
+                houseId = #{houseId,jdbcType=INTEGER},
+            </if>
+            <if test="type != null">
+                type = #{type,jdbcType=INTEGER},
+            </if>
+            <if test="imgKey != null">
+                imgKey = #{imgKey,jdbcType=VARCHAR},
+            </if>
+            <if test="desc != null">
+                `desc` = #{desc,jdbcType=VARCHAR},
+            </if>
+            <if test="status != null">
+                status = #{status,jdbcType=TINYINT},
+            </if>
+            <if test="takePhotoTime != null">
+                takePhotoTime = #{takePhotoTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="createTime != null">
+                createTime = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateTime != null">
+                updateTime = #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="sourceId != null">
+                sourceId = #{sourceId,jdbcType=INTEGER},
+            </if>
+            <if test="agentId != null">
+                agentId = #{agentId,jdbcType=BIGINT},
+            </if>
+        </set>
+        where type = #{type,jdbcType=TINYINT}
+        And houseId = #{houseId,jdbcType=INTEGER}
+    </update>
+    
+    <!--更改houseInfo的有效图片数量-->
+    <update id="updateHouseInfoPicNum" parameterType="map">
+        UPDATE house_info
+        SET house_info.picNum = house_info.picNum + #{count}
+        WHERE house_info.houseid = #{houseId}
+    </update>
+    
+    
+    <!-- 插入house_image表,传入list -->
+    <insert id="insertimagebatch" parameterType="java.util.List">  
+    
+     <selectKey resultType="long" keyProperty="id" order="AFTER">  
+        SELECT  
+        LAST_INSERT_ID()  
+    </selectKey>  
+    
+    INSERT INTO house_image (houseId,`type`,`imgKey`,`desc`,`status`,takePhotoTime,sourceId,agentId,guestId)
+     values  
+    <foreach collection="list" item="item" index="index"  
+        separator=",">  
+        (#{item.houseId},#{item.type},
+        #{item.imgKey},#{item.desc},
+        #{item.status},#{item.takePhotoTime},
+        
+        #{item.sourceId},#{item.agentId},#{item.guestId}
+        )
+    </foreach>  
+  </insert>  
+  
+     <!-- 插入lf_agent_operation表,传入list -->
+    <insert id="insertAgentOperation" parameterType="java.util.List">  
+    
+     <selectKey resultType="long" keyProperty="id" order="AFTER">  
+        SELECT  
+        LAST_INSERT_ID()  
+    </selectKey>  
+    
+    INSERT INTO lf_agent_operation (operationType,operator,houseId,`status`,createTime,updateTime) VALUE 
+    <foreach collection="list" item="item" index="index"  
+        separator=",">  
+        (#{item.operationType},#{item.operator},
+        #{item.houseId},#{item.status},
+      	 now(),now())
+    </foreach>  
+  </insert>  
+  
+  <!-- 插入一条为2的数据 -->
+  <insert id="insertAgentOperationF" parameterType="map" >
+    INSERT INTO lf_agent_operation (operationType,operator,houseId,`status`) VALUE 
+     (5, #{agentId}, #{houseId}, 
+      1)
+  </insert>
+  
+  
+  <!-- 更新house_image_audit已审核 -->
+   <update id="updateHouseImageAudit" parameterType="map">
+       UPDATE house_image_audit SET `audit_status` = #{status} ,employee_id =  #{employeeId},audit_time =now()
+       <if test="rejectreason != null">
+       		,rejectreason=#{rejectreason}
+       </if>
+        WHERE houseid = #{houseId} 
+        <if test="agentId != null">
+             
+        </if>
+        <choose>
+        	<when test="agentId != null and agentId != 'null' and agentId != ''">
+        		and agentId = #{agentId} 
+        	</when>
+        	<otherwise>
+        		and guestId = #{guestId}
+        	</otherwise>
+        </choose>
+        
+        and batchTime = #{createTime}
+         
+    </update>
+      <!-- 图片审核通过后插入一条数据 house_edit_record 表-->
+  <insert id="inserteditrecord" parameterType="map" >
+	INSERT INTO house_edit_record (houseId,agentId,editType,`count`) VALUE(
+	#{houseId},#{agentId},6,#{count})
+  </insert>
+  
+</mapper>

@@ -1,0 +1,354 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lifang.agentsm.dao.read.RulePublicReadMapper">
+
+  <select id="selectRulePublic" resultType="com.lifang.agentsm.model.RulePublic" >
+    select 
+	   		
+	publicToStore,
+	storeToArea,
+	storeCount,areaCount,
+	viewStoreCount,
+	viewAreaCount
+    from lf_public_rule
+
+  </select>
+<!-- 店公客 -->
+ <select id="findPubCustomerByTime" resultType="com.lifang.agentsm.model.LfPubCustomer" parameterType="map">
+		select t.* from lf_pub_customer t where t.status =1
+  </select>
+
+<!-- 私客 -->
+  <select id="findCustomerByTime" resultType="com.lifang.agentsm.model.Customer" parameterType="map">
+		select t.* from lf_customer t where t.createTime &gt; #{storeTime} and t.status =1; 
+  </select>
+<!-- 店公客带看 -->
+  <select id="findHouseSeeByTime" resultType="com.lifang.agentsm.model.RuleModel" parameterType="map">
+			
+	select dd.id storeId,b.id houseSeeId,c.id followUpId,d.id cusGuestId,e.id bidOrderId,a.mobile,a.id customerId,a.agentId,a.name,a.createTime,a.gender,a.source,d.createTime custime,a.isCallBackCus 
+	from lf_customer a 
+		
+		inner join lf_employee aa on a.agentId = aa.id and aa.status =1
+		left join sso_userpositionrelate  bb on aa.id = bb.refId
+		left join sso_userpositionorgrelate cc on bb.id = cc.id
+		left join lf_area_org dd on cc.refOrgID = dd.id
+		
+	
+		left join lf_customer_house_see b on a.id = b.customerid and b.createTime &gt; #{time} and b.status =1
+		
+		left join lf_customer_follow_up c on a.id = c.customerId and c.createtime &gt; #{time} and c.status=1
+	
+		left join cus_guest d on d.phoneNum = a.mobile  
+		left join cus_house_bid_order e on e.guestId = d.id 
+		where a.status =1 
+		and length(a.mobile) &lt; 14 
+		and b.id is null and c.id is null and e.id is null and  a.mobile not in
+
+(select tt.customermobile from lf_pub_customer tt where tt.status=1)
+			
+  </select>
+  
+  <!-- 区公客带看 -->
+  <select id="findHouseSeeAreaByTime" resultType="com.lifang.agentsm.model.LfPubCustomer" parameterType="map">
+			
+	select t.*,b.id houseSeeId,c.id followUpId,d.id cusGuestId,e.id bidOrderId,a.mobile,a.id customerId,a.agentId,a.name,a.gender,a.source,a.isCallBackCus 
+	
+	FROM lf_pub_customer t
+		inner join lf_customer a on a.mobile = t.customermobile and a.status =1
+
+		left join lf_customer_house_see b on a.id = b.customerid and b.createTime &gt; #{areaTime} and b.status =1
+		
+		left join lf_customer_follow_up c on a.id = c.customerId and c.createtime &gt; #{areaTime} and c.status=1
+	
+	left join cus_guest d on d.phoneNum = a.mobile  
+		left join cus_house_bid_order e on e.guestId = d.id
+			
+			where t.status = '1' and t.customerType = '1' and a.createtime>'2013-05-01' and length(a.mobile) &lt; 14 
+			
+  </select>
+  <!-- 跟进 -->
+  
+    <select id="findFollowByTime" resultType="com.lifang.agentsm.model.HouseSeeRequest" parameterType="map">
+			
+		select a.*,b.mobile from lf_customer_house_see a
+			inner join lf_customer b on a.customerId = b.id
+  </select>
+  <!-- 查找客户需求 -->
+  
+   <select id="findCustomerRequirementById" resultType="com.lifang.agentsm.model.CustomerRequirement" parameterType="long">
+             select
+                
+				
+				CONCAT(
+	                case
+	                    when ifnull(lf_customer_requirement.minPrice,0) != 0 and ifnull(lf_customer_requirement.maxPrice,0) != 0 then
+	                        CONCAT(ifnull(lf_customer_requirement.minPrice,0),'-',ifnull(lf_customer_requirement.maxPrice,0),'万 ')
+	                    ELSE
+	                        ''
+	                end,
+	                case
+	                    WHEN ifnull(lf_customer_requirement.bedRoomSum,0) != 0 THEN
+	                        CONCAT(ifnull(lf_customer_requirement.bedRoomSum,0), '室 ')
+	                    ELSE
+	                        ''
+	                end,
+	                case
+	                    WHEN ifnull(lf_customer_requirement.livingRoomSum,0) != 0 THEN
+	                        CONCAT(ifnull(lf_customer_requirement.livingRoomSum,0), '厅 ')
+	                    ELSE
+	                        ''
+	                end,
+	                case
+	                    WHEN ifnull(lf_customer_requirement.wcSum,0) != 0 THEN
+	                        CONCAT(ifnull(lf_customer_requirement.wcSum,0), '卫 ')
+	                    ELSE
+	                        ''
+	                end,
+	                case
+	                    when ifnull(lf_customer_requirement.minFloorage,0) != 0 and ifnull(lf_customer_requirement.maxFloorage,0) != 0 then
+	                        CONCAT(ifnull(lf_customer_requirement.minFloorage,0),'-',ifnull(lf_customer_requirement.maxFloorage,0),'平米 ')
+	                    ELSE
+	                        ''
+	                end
+	            ) customerReq
+
+                 from lf_customer_requirement where cusId =#{id} 	and `status` = 1 order by createtime desc limit 0,1
+            
+  </select>
+  
+   <!-- 查找客户总带看 -->
+    <select id="findCountSee" resultType="int" parameterType="long">
+		select count(1) from lf_customer_house_see t where t.customerId =#{id}
+
+  </select>
+  
+   <!-- 查找客户最后跟进时间 -->
+    <select id="findDateSee" resultType="date" parameterType="long">
+		select createTime from lf_customer_house_see where customerId =#{id} order by createtime desc limit 0,1
+		
+  </select>
+  
+    <!-- 查找转过来的私客是否已经存在店公客中 -->
+    <select id="findPubCustomerByMobile" resultType="int" parameterType="string">
+		select count(1) from lf_pub_customer t where t.customerMobile =#{mobile} and t.status =1 
+
+  </select>
+  <!-- 查找所有的上海区域id -->
+  
+  <select id="findAreaIdBySH" resultType="string">
+		select  id from lf_area_org where  level = '70' and status = '1' and type='1' and cityid= '43'
+
+  </select>
+  
+   <select id="selectPubReport" resultType="com.lifang.agentsm.model.PublicReport" parameterType="string">
+	<!-- select a.employeeId agentId,
+			sum(case when a.type = 1 then 1 else 0 end) storerl, 
+			sum(case when a.type = 2 then 1 else 0 end) arearl,
+			sum(case when a.type = 3 then 1 else 0 end) viewstore,
+			sum(case when a.type = 4 then 1 else 0 end) viewarea 
+		from lf_pub_cus_claim_log a group by a.employeeId 
+		where a.statisticsTime  &lt; CONCAT(#{data},' 23:59:59') and a.statisticsTime   &gt; CONCAT(#{data},' 00:00:00') -->
+		
+		
+		<!--select b.employeeId agentId,b.arearl,b.storerl,b.viewarea,b.viewstore,count(c.id) storepub,count(d.id) areapub from -->
+		<!--(-->
+		<!--select a.employeeId,count(*),-->
+		<!--sum(case when a.type = 1 then 1 else 0 end) storerl, -->
+		<!--sum(case when a.type = 2 then 1 else 0 end) arearl,-->
+		<!--sum(case when a.type = 3 then 1 else 0 end) viewstore,-->
+		<!--sum(case when a.type = 4 then 1 else 0 end) viewarea -->
+		<!--from lf_pub_cus_claim_log a -->
+		<!--where a.statisticsTime  &lt;= CONCAT(#{data},' 23:59:59') and a.statisticsTime   &gt;= CONCAT(#{data},' 00:00:00') -->
+		<!--group by a.employeeId -->
+		<!--) b -->
+		<!--left join lf_customer c on b.employeeId = c.agentId and c.mobile in (select a1.customerMobile from lf_pub_customer a1 where a1.customertype=1) and c.createtime  &lt; CONCAT(#{data},' 23:59:59') and c.createtime &gt;= CONCAT(#{data},' 00:00:00') -->
+		<!--left join lf_customer d on b.employeeId = d.agentId and d.mobile in (select a2.customerMobile from lf_pub_customer a2 where a2.customertype=2) and d.createtime  &lt; CONCAT(#{data},' 23:59:59') and d.createtime &gt;= CONCAT(#{data},' 00:00:00') -->
+		<!--group by b.employeeId-->
+	   select a.employeeId agentId,
+	   sum(case when a.type = 1 then 1 else 0 end) storerl,
+	   sum(case when a.type = 2 then 1 else 0 end) arearl,
+	   sum(case when a.type = 3 then 1 else 0 end) viewstore,
+	   sum(case when a.type = 4 then 1 else 0 end) viewarea
+	   from lf_pub_cus_claim_log a
+	   where a.statisticsTime   &lt;= CONCAT(#{data},' 23:59:59') and a.statisticsTime   &gt;= CONCAT(#{data},' 00:00:00')
+	   group by a.employeeId
+
+
+   </select>
+
+<!--店公客数-->
+	<select id="selectStoreCount" resultType="com.lifang.agentsm.model.PublicReport" parameterType="string">
+
+		select a.agentId,count(a.mobile) storepub from lf_pub_customer t
+			inner join lf_customer a on t.customerMobile = a.mobile and a.status = '1'
+		where t.customertype=1 and t.status=1
+ 		and t.createTime &lt;= CONCAT(#{data},' 23:59:59') and t.createtime &gt;= CONCAT(#{data},' 00:00:00')
+		group by a.agentId
+
+	</select>
+
+
+	<!--区公客数-->
+	<select id="selectAreaCount" resultType="com.lifang.agentsm.model.PublicReport" parameterType="string">
+
+		select a.agentId,count(a.mobile) areapub from lf_pub_customer t
+		inner join lf_customer a on t.customerMobile = a.mobile and a.status = '1'
+		where t.customertype=2 and t.status=1
+		and t.createTime &lt;= CONCAT(#{data},' 23:59:59') and t.createtime &gt;= CONCAT(#{data},' 00:00:00')
+		group by a.agentId
+
+	</select>
+	<!-- 查询数据是否存在-->
+
+	<select id="findpubReport" resultType="int" parameterType="map">
+
+		select count(1) from lf_public_report  where agentId=#{agentId} and reportDate=#{dates}
+	</select>
+
+	<select id="findisfalgpubReport" resultType="int" parameterType="map">
+
+		select count(1) from lf_public_report  where reportDate=#{date}
+	</select>
+	<!--有效房源数-->
+	<select id="findHouseSellCount" resultType="com.lifang.agentsm.model.HouseCountTown" >
+		select COUNT(DISTINCT h.houseid) sellcount,town.`id` townId,dis.`id` areaId,city.`id` cityId,city. NAME cityName,town. NAME townName,dis. NAME areaName
+		from house_info h
+		INNER JOIN house_sell_resource hr on h.houseId = hr.houseid
+		LEFT JOIN dic_area_new town on h.townid = town.id
+		LEFT JOIN dic_area_new dis on dis.id = town.parentId
+		LEFT JOIN dic_area_new city on city.id = dis.parentId
+		where h.`status` = 1
+		and hr.`status` = 1
+		and ((hr.actionType=1 and hr.checkState =1) or (hr.actionType=2 and hr.checkState =2))
+
+		GROUP BY h.townid;
+
+	</select>
+
+	<!-- 待审批下架房源数-->
+	<select id="findHouseAuditcount" resultType="com.lifang.agentsm.model.HouseCountTown" parameterType="string">
+
+		select count(DISTINCT h.houseid) auditcount,town.`id` townId,dis.`id` areaId,city.`id` cityId,city. NAME cityName,town. NAME townName,dis. NAME areaName from house_info h
+		INNER JOIN house_sell_resource hr on h.houseId = hr.houseid
+		inner join lf_audit_invalid b on h.houseId=b.houseId and b.`status`=1
+		LEFT JOIN dic_area_new town on h.townid = town.id
+		LEFT JOIN dic_area_new dis on dis.id = town.parentId
+		LEFT JOIN dic_area_new city on city.id = dis.parentId
+		where h.`status`=1
+		and ((hr.actionType=1 and hr.checkState =1) or (hr.actionType=2 and hr.checkState =2))
+		
+		group by h.townid;
+
+	</select>
+
+
+
+	<!-- 实景房源数-->
+	<select id="findHousePicturecount" resultType="com.lifang.agentsm.model.HouseCountTown" parameterType="string">
+
+		select count(DISTINCT h.houseid) picturecount,town.`id` townId,dis.`id` areaId,city.`id` cityId,city. NAME cityName,town. NAME townName,dis. NAME areaName  from
+		house_info h
+		INNER JOIN house_sell_resource hr on h.houseId = hr.houseid
+		inner join lf_agent_operation a on h.houseId = a.houseId and a.`status`=1 and a.operationType='5'
+		LEFT JOIN dic_area_new town on h.townid = town.id
+		LEFT JOIN dic_area_new dis on dis.id = town.parentId
+		LEFT JOIN dic_area_new city on city.id = dis.parentId
+		where h.`status`=1
+and ((hr.actionType=1 and hr.checkState =1) or (hr.actionType=2 and hr.checkState =2))
+
+		group by h.townid;
+
+	</select>
+
+
+	<!-- 视频房源数-->
+	<select id="findHouseVideocount" resultType="com.lifang.agentsm.model.HouseCountTown" parameterType="string">
+
+		select count(DISTINCT h.houseid) videocount,town.`id` townId,dis.`id` areaId,city.`id` cityId,city. NAME cityName,town. NAME townName,dis. NAME areaName   from
+		house_info h
+				INNER JOIN house_sell_resource hr on h.houseId = hr.houseid
+		
+		inner join house_video t on h.houseId=t.houseId and t.status=1 and t.videoStatus=5
+		LEFT JOIN dic_area_new town on h.townid = town.id
+		LEFT JOIN dic_area_new dis on dis.id = town.parentId
+		LEFT JOIN dic_area_new city on city.id = dis.parentId
+		where h.`status`=1
+and ((hr.actionType=1 and hr.checkState =1) or (hr.actionType=2 and hr.checkState =2))
+
+		group by h.townid;
+
+	</select>
+
+
+
+	<!-- 描述数房源数-->
+	<select id="findHouseSellPointcount" resultType="com.lifang.agentsm.model.HouseCountTown" parameterType="string">
+
+  		select count(DISTINCT h.houseid) sellPointcount,town.`id` townId,dis.`id` areaId,city.`id` cityId,city. NAME cityName,town. NAME townName,dis. NAME areaName   from
+		house_info h
+						INNER JOIN house_sell_resource hr on h.houseId = hr.houseid
+		
+		inner join house_sell_resource a on h.houseId = a.houseId and a.`status`=1 and a.sellPoint is not null
+		LEFT JOIN dic_area_new town on h.townid = town.id
+		LEFT JOIN dic_area_new dis on dis.id = town.parentId
+		LEFT JOIN dic_area_new city on city.id = dis.parentId
+		where h.`status`=1
+and ((hr.actionType=1 and hr.checkState =1) or (hr.actionType=2 and hr.checkState =2))
+
+		group by h.townid;
+
+	</select>
+
+
+	<!-- 速消数房源数-->
+	<select id="findHouseCommcount" resultType="com.lifang.agentsm.model.HouseCountTown" parameterType="string">
+		select count(DISTINCT h.houseid) commcount,town.`id` townId,dis.`id` areaId,city.`id` cityId,city. NAME cityName,town. NAME townName,dis. NAME areaName  from
+		house_info h
+						INNER JOIN house_sell_resource hr on h.houseId = hr.houseid
+		
+		inner join lf_agent_operation a on h.houseId = a.houseId and a.`status`=1 and a.operationType='3'
+		LEFT JOIN dic_area_new town on h.townid = town.id
+		LEFT JOIN dic_area_new dis on dis.id = town.parentId
+		LEFT JOIN dic_area_new city on city.id = dis.parentId
+		where h.`status`=1
+and ((hr.actionType=1 and hr.checkState =1) or (hr.actionType=2 and hr.checkState =2))
+
+		group by h.townid;
+
+	</select>
+
+
+
+	<!-- 钥匙房源数-->
+	<select id="findHouseKeycount" resultType="com.lifang.agentsm.model.HouseCountTown" parameterType="string">
+		select count(DISTINCT h.houseid) keycount,town.`id` townId,dis.`id` areaId,city.`id` cityId,city. NAME cityName,town. NAME townName,dis. NAME areaName  from
+		house_info h
+						INNER JOIN house_sell_resource hr on h.houseId = hr.houseid
+
+		inner join lf_agent_operation a on h.houseId = a.houseId and a.`status`=1 and a.operationType='4'
+
+		LEFT JOIN dic_area_new town on h.townid = town.id
+		LEFT JOIN dic_area_new dis on dis.id = town.parentId
+		LEFT JOIN dic_area_new city on city.id = dis.parentId
+		where h.`status`=1
+and ((hr.actionType=1 and hr.checkState =1) or (hr.actionType=2 and hr.checkState =2))
+
+		group by h.townid;
+
+	</select>
+
+
+	<!-- 无效数房源数-->
+	<select id="findHouseStatecount" resultType="com.lifang.agentsm.model.HouseCountTown" parameterType="string">
+		select count(DISTINCT h.houseid) houseStatecount,town.`id` townId,dis.`id` areaId,city.`id` cityId,city. NAME cityName,town. NAME townName,dis. NAME areaName  from house_info h
+		inner join house_sell_resource t on h.houseId=t.houseid and houseState=4 and t.`status` =1
+		
+		LEFT JOIN dic_area_new town on h.townid = town.id
+		LEFT JOIN dic_area_new dis on dis.id = town.parentId
+		LEFT JOIN dic_area_new city on city.id = dis.parentId
+		where h.`status`=1
+		group by h.townid;
+	</select>
+
+
+</mapper>

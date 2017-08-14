@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lifang.agentsm.dao.read.MessagePushReadMapper">
+	<resultMap id="BaseResultMap" type="com.lifang.agentsm.entity.MessagePush">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result column="pushPlatform" property="pushPlatform" jdbcType="INTEGER" />
+		<result column="iosVersion" property="iosVersion" jdbcType="INTEGER" />
+		<result column="pushUserId" property="pushUserId" jdbcType="INTEGER" />
+		<result column="pushContent" property="pushContent" jdbcType="VARCHAR" />
+		<result column="pushStatus" property="pushStatus" jdbcType="INTEGER" />
+		<result column="status" property="status" jdbcType="INTEGER" />
+		<result column="pushTime" property="pushTime" jdbcType="TIMESTAMP" />
+		<result column="createUserId" property="createUserId" jdbcType="INTEGER" />
+		<result column="createTime" property="createTime" jdbcType="TIMESTAMP" />
+		<result column="updateTime" property="updateTime" jdbcType="TIMESTAMP" />
+		<result column="timingPushTime" property="timingPushTime" jdbcType="TIMESTAMP" />
+	</resultMap>
+
+	<sql id="Base_Column_List">
+		id, pushPlatform, iosVersion, pushUserId, pushContent, pushStatus, status, pushTime, createUserId, createTime, updateTime, timingPushTime
+	</sql>
+	
+	
+	 <!-- 审核房屋视频审核sql条件 -->
+    <sql id="searchMessagePush">
+  		<if test="pushContent != null and pushContent !=''">
+			and pushContent like CONCAT('%',#{pushContent,jdbcType=VARCHAR},'%')
+		</if>
+		<if test="pushstatus != null and pushstatus !='' and pushstatus != 0">
+			and pushstatus = #{pushstatus,jdbcType=VARCHAR}
+		</if>
+      
+ 	 </sql>
+
+
+ <!-- 获取推送消息数量 -->
+       <select id="getMessagePushCount" resultType="java.lang.Integer" parameterType="java.util.Map">
+			select COUNT(1) from lf_message_push
+			where isdelete =1
+			<include refid="searchMessagePush" />
+  </select>
+  
+  
+  
+  <!-- 获取房屋审核视频列表 -->
+       <select id="getMessagePushList" resultType="com.lifang.agentsm.entity.MessagePush" parameterType="java.util.Map">
+  		
+			select * from lf_message_push
+			where isdelete =1
+			
+	<include refid="searchMessagePush" />
+		ORDER BY `createTime` 
+		
+		limit #{start,jdbcType=INTEGER},#{end,jdbcType=INTEGER}
+  </select>
+  
+  
+   <!-- 获取房屋审核视频列表 -->
+       <select id="findMobileList" resultType="string">
+  		
+	select t.mobile from lf_employee t 
+  </select>
+  
+  <!-- 查询所有待发送的消息 -->
+  
+<select id="searchTimeMessages" resultType="com.lifang.agentsm.entity.MessagePush" parameterType="map">
+		select
+			c.title,
+			c.pushcontent,
+			c.id,
+			c.pushPlatform
+		from
+			lf_message_push c
+		where
+			c.istiming=1 and c.pushstatus=1 and c.isdelete=1
+			and c.pushtime &gt;= #{startDate} and c.pushtime &lt;=#{endDate}
+	</select>
+  
+  
+  <select id="getCompanyAndCityList" resultType="com.lifang.agentsm.model.LfMessagePushLimit" parameterType="com.lifang.agentsm.model.LfMessagePushLimit">
+		  	SELECT
+		  	t1.id,
+			t1.abbreviation as companyname,
+			t4.id cityAreaId ,
+			t4.name  as cityName,
+			t4.cityId
+		FROM
+			lf_franchisee_info t1
+			JOIN lf_franchisee_city t2 ON t1.id = t2.franchiseeId AND t2.status = 1
+			JOIN lf_area_org t4 ON t2.cityId = t4.id AND t4.status = 1 AND t4.`level` = 90
+		
+  		where 1=1
+  		<if test="cityId!=null and cityId !=0">
+  			and t4.id=#{cityId}
+  		</if>
+  		<if test="companyId!=null and companyId!=0">
+  			and t1.id=#{companyId}
+  		</if>
+  </select>
+  <select id="getMessageById" resultType="com.lifang.agentsm.model.LfMessagePush">
+		SELECT * from lf_message_push where id=#{id}	
+  </select>
+  
+  <select id="getCompanyAndCityByMsgId" resultType="com.lifang.agentsm.model.LfMessagePushLimit">
+  		SELECT
+  t1.abbreviation as companyname,t.cityId,t.companyId as id,
+	d.name  as cityName from lf_message_push_limit t
+	JOIN lf_franchisee_info t1 on t.companyId=t1.id and t.`status`=1
+	JOIN dic_area_new d on d.id=t.cityId and d.`level`=3 
+  	where pushId=#{pushId} and t.status=1
+  </select>
+</mapper>

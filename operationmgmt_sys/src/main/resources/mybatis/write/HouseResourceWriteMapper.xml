@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lifang.agentsm.dao.write.HouseResourceWriteMapper" >
+  	<update id="saveUpdateAgent">
+		UPDATE lf_sell_house_agent 
+			SET ${flag} = #{houseAgentId}
+		where houseId=#{houseId} 
+		<if test="id!=0">
+			and id=#{id}
+		</if>
+	</update>
+	<update id="deleteAgent">
+		UPDATE lf_sell_house_agent 
+			SET ${flag} = null
+		where houseId=#{houseId} 
+		<if test="id!=0">
+			and id=#{id}
+		</if>
+	</update>
+	
+	<update id="updateAgentOperation">
+		update lf_agent_operation set status =0 where houseId= #{houseId} and operationType=#{type}
+	</update>
+	
+	<update id="updateCommAgent" parameterType="int">
+		update lf_entrust_info set status =0 where houseId=#{houseId}
+	</update>
+	<insert id="insertCommAgent" parameterType="int">
+		INSERT INTO  lf_agent_operation  ( operationType, operator, houseId, status, createTime, updateTime) values (
+				#{operationType},#{operatorId},#{houseId},#{status},now(),now()
+		)
+	</insert>
+	<insert id="add" parameterType="int">
+		INSERT INTO lf_sell_house_agent
+	( `houseId`, `updateTime`, `createTime`,`status`)
+ 	VALUES (#{houseId`},now(),now(),1)
+	</insert>
+	
+	<insert id="saveHouseEditRecord">
+		INSERT INTO house_edit_record (
+			`houseId`,
+			 `agentId`,
+			 `otherOperation`,
+			 `editType`,
+			 `before`, 
+			 `after`,
+			 `count`, 
+			 `createTime`)
+		 VALUES (#{houseId}, #{agentId},#{otherOperation}, #{editType}, #{before}, #{after}, NULL, #{createTime});
+	</insert>
+		<!-- 更改房源信息 -->
+	<update id="updateHouseInfoStatus">
+		UPDATE house_info h
+			SET h.status = #{status}
+			where
+		 h.houseId =#{houseId}
+	</update>
+	<!-- 增加房东联系电话查看日志 -->
+	<insert id="saveHouseContactLog">
+		INSERT INTO `house_contact_see_log` ( `agentId`, `agentName`, `houseId`, `houseContactTel`, `createTime`,ip) VALUES (#{agentId},#{agentName},#{houseId},#{houseContactTel},now(),#{ip});
+	</insert>
+	
+	<!-- 房源设置无效增加原因 -->
+	<insert id="saveUnstatusReason">
+		INSERT INTO house_invalid_reason_record ( houseId, reason, memo,agentId,agentName,cityId) VALUES (#{houseId},#{reason},#{memo},#{agentId},#{agentName},#{cityId});
+	</insert>
+	<!-- 跟进屏蔽 -->
+	<update id="updateShield"  parameterType="map">
+		update lf_house_follow_up set shield=#{shield} where id =#{id}
+	</update>
+</mapper>

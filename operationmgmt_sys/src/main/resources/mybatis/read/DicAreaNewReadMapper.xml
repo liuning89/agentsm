@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lifang.agentsm.dao.read.DicAreaNewReadMapper" >
+  <resultMap id="BaseResultMap" type="com.lifang.agentsm.entity.DicAreaNew" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="parentId" property="parentId" jdbcType="BIGINT" />
+    <result column="level" property="level" jdbcType="TINYINT" />
+    <result column="status" property="status" jdbcType="TINYINT" />
+    <result column="remark" property="remark" jdbcType="VARCHAR" />
+    <result column="createTime" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="updateTime" property="updateTime" jdbcType="TIMESTAMP" />
+    <result column="sort" property="sort" jdbcType="VARCHAR" />
+  </resultMap>
+  <resultMap id="ResultMapWithBLOBs" type="com.lifang.agentsm.entity.DicAreaNew" extends="BaseResultMap" >
+    <result column="path" property="path" jdbcType="LONGVARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, name, parentId, level, status, remark, createTime, updateTime, sort
+  </sql>
+  <sql id="Blob_Column_List" >
+    path
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from dic_area_new
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  
+    <select id="selectCity" resultMap="BaseResultMap">
+   SELECT * FROM dic_area_new WHERE LEVEL=3 and status = 1
+  </select>
+  
+  <select id="selectDistrictidByCity" resultMap="BaseResultMap" parameterType="java.util.Map">
+     SELECT * FROM dic_area_new 
+      <where>
+           status = 1
+          <if test="parentId!=null and parentId!=0">
+          and parentId=#{parentId,jdbcType=INTEGER}
+          </if>
+      </where> 
+  </select>
+  
+  <!--获取可用的城市简单信息列表 ,ck-->
+  <select id="getEnableCitySimpleList" resultType="com.lifang.agentsm.model.MiniuiEntity">
+  	select id,name text,parentid from dic_area_new where status = 1 and level = 3
+  	<if test="cityId!=null and cityId!=0">
+  		and id = #{cityId}
+  	</if>
+  </select>
+
+<select id="getEnableCity" resultType="com.lifang.agentsm.model.MiniuiEntity">
+  	select id,name text,parentid from dic_area_new where status = 1 
+  		and id = #{cityId}
+  </select>
+	<!-- 根据上级区域，获取下级区域 -->
+	<select id="getDicAreaNewByParentId" parameterType="int"
+		resultType="com.lifang.agentsm.model.MiniuiEntity">
+		SELECT
+			id,
+			name text
+		FROM
+			dic_area_new
+		WHERE
+			status = 1
+			AND parentId = #{parentId}
+	</select>
+	<select id="getEnableCityUsedArea" resultType="com.lifang.agentsm.model.MiniuiEntity">
+	  	select id,name text,parentid from dic_area_new where status in (1,4) and level = 3
+	  	<if test="cityId!=null and cityId!=0">
+	  		and id = #{cityId}
+	  	</if>
+  </select>
+	
+</mapper>

@@ -1,0 +1,1034 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lifang.agentsm.dao.read.TransferReadMapper">
+  <resultMap id="BaseResultMap" type="com.lifang.agentsm.model.LfFranchiseeInfo">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="cityId" jdbcType="INTEGER" property="cityId" />
+    <result column="townid" jdbcType="INTEGER" property="townid" />
+    <result column="Abbreviation" jdbcType="VARCHAR" property="abbreviation" />
+    <result column="companyname" jdbcType="VARCHAR" property="companyname" />
+    <result column="corporate" jdbcType="VARCHAR" property="corporate" />
+    <result column="corporatephone" jdbcType="VARCHAR" property="corporatephone" />
+    <result column="partner1" jdbcType="VARCHAR" property="partner1" />
+    <result column="partnerphone1" jdbcType="VARCHAR" property="partnerphone1" />
+    <result column="partner2" jdbcType="VARCHAR" property="partner2" />
+    <result column="partnerphone2" jdbcType="VARCHAR" property="partnerphone2" />
+    <result column="address" jdbcType="VARCHAR" property="address" />
+    <result column="cooperationstart" jdbcType="TIMESTAMP" property="cooperationstart" />
+    <result column="cooperationend" jdbcType="TIMESTAMP" property="cooperationend" />
+    <result column="isseed" jdbcType="CHAR" property="isseed" />
+    <result column="status" jdbcType="CHAR" property="status" />
+    <result column="deposit" jdbcType="DOUBLE" property="deposit" />
+    <result column="brandcost" jdbcType="DOUBLE" property="brandcost" />
+    <result column="cooperationcost" jdbcType="DOUBLE" property="cooperationcost" />
+    <result column="status" jdbcType="CHAR" property="status" />
+    <result column="updateTime" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="createBy" jdbcType="BIGINT" property="createBy" />
+    <result column="createTime" jdbcType="TIMESTAMP" property="createTime" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    DISTINCT  a.id, b.name cityName,a.cityid, c.name townName,a.townid, a.abbreviation, a.companyname, a.corporate, a.corporatephone, a.partner1,
+    a.partnerphone1, a.partner2, a.partnerphone2,a.bd,a.bdphone,a.bp,a.bpphone, a.address, a.cooperationstart, a.cooperationend, 
+    a.isseed, a.deposit, a.brandcost, a.cooperationcost, a.status, a.updateTime, a.createBy, a.createTime,
+    a.townid tid,a.ispush,a.franchiseePhone,a.status
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from lf_franchisee_info
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+
+  
+  <sql id="basesql">
+  		<if test="cityId != null and cityId !='' and cityId != 0 and cityId != 1">
+			<!--and (a.cityId = #{cityId} or b.cityId =#{cityId})-->
+			and (d.cityId = #{cityId} )
+		</if>
+
+	  <if test="abbreviation != null and abbreviation !=''">
+		  and a.abbreviation like CONCAT('%',#{abbreviation},'%')
+	  </if>
+
+		<if test="corporate != null and corporate !=''">
+			and a.corporate like CONCAT('%',#{corporate},'%')
+		</if>
+		<if test="corporatephone != null and corporatephone !='' and corporatephone != 0">
+			and a.corporatephone = #{corporatephone}
+		</if>
+		<if test="repetitionimage != null and repetitionimage !=''">
+			and a.isseed = #{repetitionimage}
+		</if>
+	
+		order by a.id desc
+      <!--   <if test="code != null and code !=''">
+          and #{code} like CONCAT(a.cityId,'%')
+        </if> -->
+  </sql>
+  
+   <select id="findFranchiseeListCount" resultType="int" parameterType="map">
+    select 
+    count(DISTINCT a.id)
+    from lf_Franchisee_info a
+   
+    
+    
+	left join lf_area_org b on a.cityid = b.id
+	
+	left join lf_area_org c on a.townid = c.code
+
+	   left join lf_franchisee_city d on a.id = d.franchiseeid
+    
+    
+    where a.status='1' 
+	<include refid="basesql" />
+
+  </select>
+
+
+  <select id="findCode" resultType="string" parameterType="java.util.Map">
+
+    select c.`code`
+    from lf_employee a
+    inner join lf_position b on a.positionId = b.id
+    inner join lf_area_org c on c.id = b.areaOrgId
+    where a.id= #{agentCode}
+
+  </select>
+
+  <!-- 查询供应商list -->
+  <select id="findFranchiseeList" resultMap="BaseResultMap" parameterType="map">
+    select 
+    <include refid="Base_Column_List" />
+    from lf_Franchisee_info a
+    
+    
+	left join lf_area_org b on a.cityid = b.id
+	
+	left join lf_area_org c on a.townid = c.code
+	  left join lf_franchisee_city d on a.id = d.franchiseeid
+	where 1=1 
+	<include refid="basesql" />
+	LIMIT #{start,jdbcType=INTEGER},#{end,jdbcType=INTEGER}
+  </select>
+  
+  <!-- 查询供应商list -->
+  <select id="findFranchiseeById" resultMap="BaseResultMap" parameterType="map">
+    select 
+    <include refid="Base_Column_List" />
+    from lf_Franchisee_info a
+    
+    
+	left join lf_area_org b on a.cityid = b.id 
+	
+	left join lf_area_org c on a.townid = c.code
+    
+    where a.id = #{id} and a.status='1'
+  </select>
+  
+  
+    <select id="findFranchiseeStoreCount" resultType="int" parameterType="map">
+		    
+		<!-- select count(*)  
+		from lf_area_org a 
+		left join lf_Franchisee_store b on a.code = b.storeCode 
+		where a.code like CONCAT(#{code},'%')
+		and level = '60' -->
+		select count(1) from lf_area_org a 
+			left join lf_franchisee_store b on a.id = b.storecode
+			left join lf_franchisee_area c on a.parentid = c.areaId
+			where c.franchiseeId =#{franchiseeId}
+		and level = '60'
+			and a.status = '1'
+		<!--LIMIT #{start,jdbcType=INTEGER},#{end,jdbcType=INTEGER}-->
+  </select>
+  <select id="findFranchiseeStoreList" resultType="com.lifang.agentsm.model.LfFranchiseeStore" parameterType="map">
+		    
+		<!-- select b.id,a.name,b.chartername,b.storeaddress,b.townid,a.code from lf_area_org a 
+		left join lf_Franchisee_store b on a.code = b.storeCode 
+		where a.code like CONCAT(#{code},'%')
+		and level = '60'
+		LIMIT #{start,jdbcType=INTEGER},#{end,jdbcType=INTEGER} -->
+		
+		select a.id,a.name,b.id storeId,b.storeCode,b.chartername,b.storeaddress,c.franchiseeId,c.areaId from lf_area_org a 
+			left join lf_franchisee_store b on a.id = b.storecode
+			left join lf_franchisee_area c on a.parentid = c.areaId
+			where c.franchiseeId =#{franchiseeId}
+		and level = '60'
+		and a.status = '1'
+		LIMIT #{start,jdbcType=INTEGER},#{end,jdbcType=INTEGER}
+		
+		
+  </select>
+  
+    <select id="findAreaOrg" resultType="string" parameterType="map">
+		    
+		
+		select name from lf_area_org where id=#{storeId}
+  </select>
+
+
+	<select id="findIdByCityId" resultType="string" parameterType="map">
+
+
+		select id from lf_area_org where cityId=#{cityId} and level = 90
+	</select>
+
+
+	<select id="findNameById" resultType="com.lifang.agentsm.model.TransferStore" parameterType="map">
+
+    select t.chartername,t.storeaddress from lf_franchisee_store t where t.id=#{id}
+
+  </select>
+   <select id="findFranchiseeStoreById" resultType="int" parameterType="map">
+		    
+		SELECT count(*) from lf_franchisee_store  where id=#{id}
+
+  </select>
+
+	<select id="findFranchinseeByName" resultType="string" parameterType="map">
+
+		select t.abbreviation from lf_franchisee_info t
+
+	</select>
+  <select id="findTransferList" resultType="com.lifang.agentsm.model.LfTownInfo" parameterType="map">
+		SELECT
+			h.name townname,
+			h.id townid,
+			COUNT(DISTINCT g.houseid) houseCount
+			
+		FROM
+			lf_area_org a 
+			JOIN lf_area_org b ON b.`status` = 1 AND b.code like CONCAT(a.code, '%')
+			JOIN lf_position c ON b.id = c.areaOrgId AND c.`status` = 1
+			JOIN lf_employee e ON c.id = e.positionId AND e.`status` = 1
+			JOIN lf_sell_house_agent f ON (
+				e.id = f.publishAgent OR e.id = f.pictureAgent OR e.id = f.keyAgent or
+				e.id = f.commAgent OR e.id = f.maintainAgent
+			) AND f.status = 1
+			JOIN house_info g ON f.houseId = g.houseid AND g.status = 1
+			
+			JOIN dic_area_new h ON g.townid = h.id
+		WHERE
+			a.`level` = 70
+			AND a.type = 2
+			AND a.id =#{parentId}
+		GROUP BY h.id
+
+  </select>
+  
+  <select id="findAllCountList" resultType="com.lifang.agentsm.model.LfTownInfo" parameterType="map">
+		SELECT
+			b.`name` storeNmae,
+			(   select count(*) 
+				from lf_agent_estate
+				inner join lf_employee on lf_agent_estate.agentId = lf_employee.id
+				inner join lf_position on lf_employee.positionId = lf_position.id
+				inner join lf_area_org on lf_area_org.id = lf_position.areaOrgId
+				where lf_area_org.`code` like CONCAT(b.code, '%') )	 as estateCount,
+			(   select count(*) 
+				from lf_customer
+				inner join lf_employee on lf_customer.agentId = lf_employee.id
+				inner join lf_position on lf_employee.positionId = lf_position.id
+				inner join lf_area_org on lf_area_org.id = lf_position.areaOrgId
+				where lf_area_org.`code` like CONCAT(b.code, '%') )	 as customerCount,
+			(   select count(*) 
+				from cus_see_house_order
+				inner join lf_employee on cus_see_house_order.agentId = lf_employee.id
+				inner join lf_position on lf_employee.positionId = lf_position.id
+				inner join lf_area_org on lf_area_org.id = lf_position.areaOrgId
+				where cus_see_house_order.`status` in (1,2)
+				and lf_area_org.`code` like CONCAT(b.code, '%') ) as cusSeeCount
+			FROM
+				lf_area_org a 
+				JOIN lf_area_org b ON b.`status` = 1 and b.parentId = a.id
+			WHERE a.`level` = 70
+				AND a.type = 2
+				and a.id =#{parentId}
+
+  </select>
+  <!-- 根据板块ID查出对应房源数量 -->
+  
+  <select id="findHouseCount" resultType="int" parameterType="map">
+		
+		select count(DISTINCT t.houseId) houseCount from lf_sell_house_agent t
+			where t.publishAgent in
+			
+			<foreach collection="agentIdIn" item="item" index="index" open="(" separator="," close=")" >
+				        ${item.id}
+				    </foreach>	
+			or t.pictureAgent  in 
+			<foreach collection="agentIdIn" item="item" index="index" open="(" separator="," close=")" >
+							        ${item.id}
+							    </foreach>	
+			
+			or t.keyAgent in 
+			
+			<foreach collection="agentIdIn" item="item" index="index" open="(" separator="," close=")" >
+							        ${item.id}
+							    </foreach>	
+			
+			or t.commAgent in 
+			<foreach collection="agentIdIn" item="item" index="index" open="(" separator="," close=")" >
+							        ${item.id}
+							    </foreach>	
+			
+			or t.maintainAgent in
+			 <foreach collection="agentIdIn" item="item" index="index" open="(" separator="," close=")" >
+				        ${item.id}
+				    </foreach>	
+
+  </select>
+  <!-- 查找板块对应的小区数 -->
+  <select id="findEaste" resultType="int" parameterType="string">
+		select count(DISTINCT t.id) count from lf_agent_estate t where t.agentId in (
+			select a.id from lf_employee  a
+					left join lf_position b on a.positionId = b.id
+					left join lf_area_org c on b.areaOrgId = c.id 
+					where  c.code like CONCAT(#{orgCodeIn},'%')
+
+	)
+  </select>
+ <!-- 转入 对应的客源 -->
+ <select id="findcustomerListOut" resultType="com.lifang.agentsm.model.TransferResouce" parameterType="map">
+			SELECT
+			h.id customerTownid,
+			see.agentId customerAgentId
+
+		FROM
+			lf_area_org a 
+			JOIN lf_area_org b ON b.`status` = 1 AND b.code like CONCAT(a.code, '%')
+			JOIN lf_position c ON b.id = c.areaOrgId AND c.`status` = 1
+			JOIN lf_employee e ON c.id = e.positionId AND e.`status` = 1
+			JOIN lf_sell_house_agent f ON (
+				e.id = f.publishAgent OR e.id = f.pictureAgent OR e.id = f.keyAgent or
+				e.id = f.commAgent OR e.id = f.maintainAgent
+			) AND f.status = 1
+			JOIN house_info g ON f.houseId = g.houseid AND g.status = 1
+			
+		left join lf_agent_estate lfe on e.id = lfe.agentId and lfe.status=1
+		left join lf_customer lfc on (e.id = lfc.agentId) and lfc.`status`=1
+		left join cus_see_house_order see on see.agentId = e.id and see.`status` in ('1','2')
+		
+			JOIN dic_area_new h ON g.townid = h.id
+		WHERE
+			a.`level` = 70
+			AND a.type = 2
+			AND a.id=#{parentIdOut}
+		GROUP BY h.id;		
+
+
+  </select>
+  
+  <!-- 查找板块对应的客源数 -->
+  
+  <select id="findCustomer" resultType="int" parameterType="string">
+		select count(DISTINCT t.id) count from lf_customer t 
+			where t.agentId in (
+				select a.id from lf_employee  a
+					left join lf_position b on a.positionId = b.id
+					left join lf_area_org c on b.areaOrgId = c.id 
+					where  c.code like CONCAT(#{orgCodeIn},'%')
+	)
+  </select>
+  <!-- 查找板块对应的未带看 -->
+  
+  <select id="findcusSee" resultType="int" parameterType="string">
+		select count(distinct t.id) count from cus_see_house_order t where t.agentId in (
+	select a.id from lf_employee  a
+				left join lf_position b on a.positionId = b.id
+				left join lf_area_org c on b.areaOrgId = c.id 
+				where  c.code like CONCAT(#{orgCodeIn},'%')
+	) 
+	
+	<!-- and t.status in ('1','2') -->
+  </select>
+  <!-- 转出钥匙人对应的数据 -->
+  <select id="findtransferKeyAgentInList" resultType="com.lifang.agentsm.model.TransferResouce" parameterType="map">
+		    
+		select t.houseId keyAgentHouseId,t.id keyAgentId,t.keyAgent keyAgentIn from lf_sell_house_agent t
+			where keyAgent in 
+			<!-- <foreach index="index" open="(" separator="," close=")" collection="agentIdOut"> 
+    		#{agentIdOut[${index}]} 
+        </foreach>  -->
+		<foreach collection="agentIdIn" item="item" index="index" open="(" separator="," close=")" >
+				        ${item.id}
+				    </foreach>	
+  </select>
+  <!-- 发布人转入对应的经纪人ID -->
+   <select id="findtransferKeyAgentList" resultType="com.lifang.agentsm.model.TransferResouce" parameterType="map">
+		    
+        <!-- select a.id from lf_employee  a
+        left join lf_position b on a.positionId = b.id
+        left join lf_area_org c on b.areaOrgId = c.id
+        where  c.code like CONCAT(#{orgCode},'%') -->
+        
+		SELECT
+			h.id publishAgentTownid,
+			e.id publishAgent
+		FROM
+			lf_area_org a 
+			JOIN lf_area_org b ON b.`status` = 1 AND b.code like CONCAT(a.code, '%')
+			JOIN lf_position c ON b.id = c.areaOrgId AND c.`status` = 1
+			JOIN lf_employee e ON c.id = e.positionId AND e.`status` = 1
+			JOIN lf_sell_house_agent f ON (
+				e.id = f.publishAgent 
+			) AND f.status = 1
+			JOIN house_info g ON f.houseId = g.houseid AND g.status = 1
+		
+			JOIN dic_area_new h ON g.townid = h.id
+		WHERE
+			a.`level` = 70
+			AND a.type = 2
+			AND a.id =#{parentIdOut}
+        order by h.id
+        
+  </select>
+  
+  <!-- 实景人转入对应的经纪人ID -->
+   <select id="findPictureAgentListList" resultType="com.lifang.agentsm.model.TransferResouce" parameterType="map">
+		    
+        <!-- select a.id from lf_employee  a
+        left join lf_position b on a.positionId = b.id
+        left join lf_area_org c on b.areaOrgId = c.id
+        where  c.code like CONCAT(#{orgCode},'%') -->
+        
+		SELECT
+			h.id pictureAgentTownid,
+			e.id pictureAgent
+		FROM
+			lf_area_org a 
+			JOIN lf_area_org b ON b.`status` = 1 AND b.code like CONCAT(a.code, '%')
+			JOIN lf_position c ON b.id = c.areaOrgId AND c.`status` = 1
+			JOIN lf_employee e ON c.id = e.positionId AND e.`status` = 1
+			JOIN lf_sell_house_agent f ON (
+				e.id = f.pictureAgent 
+			) AND f.status = 1
+			JOIN house_info g ON f.houseId = g.houseid AND g.status = 1
+		
+			JOIN dic_area_new h ON g.townid = h.id
+		WHERE
+			a.`level` = 70
+			AND a.type = 2
+			AND a.id =#{parentIdOut}
+        order by h.id
+        
+  </select>
+  <!-- 速消人转入对应的经纪人ID -->
+   <select id="findCommAgentListOut" resultType="com.lifang.agentsm.model.TransferResouce" parameterType="map">
+		    
+        <!-- select a.id from lf_employee  a
+        left join lf_position b on a.positionId = b.id
+        left join lf_area_org c on b.areaOrgId = c.id
+        where  c.code like CONCAT(#{orgCode},'%') -->
+        
+		SELECT
+			h.id commAgentTownid,
+			e.id commAgent
+		FROM
+			lf_area_org a 
+			JOIN lf_area_org b ON b.`status` = 1 AND b.code like CONCAT(a.code, '%')
+			JOIN lf_position c ON b.id = c.areaOrgId AND c.`status` = 1
+			JOIN lf_employee e ON c.id = e.positionId AND e.`status` = 1
+			JOIN lf_sell_house_agent f ON (
+				e.id = f.commAgent 
+			) AND f.status = 1
+			JOIN house_info g ON f.houseId = g.houseid AND g.status = 1
+		
+			JOIN dic_area_new h ON g.townid = h.id
+		WHERE
+			a.`level` = 70
+			AND a.type = 2
+			AND a.id =#{parentIdOut}
+        order by h.id
+        
+  </select>
+  
+  <!-- 维护人转入对应的经纪人ID -->
+   <select id="findMaintainAgentListListOut" resultType="com.lifang.agentsm.model.TransferResouce" parameterType="map">
+		    
+        <!-- select a.id from lf_employee  a
+        left join lf_position b on a.positionId = b.id
+        left join lf_area_org c on b.areaOrgId = c.id
+        where  c.code like CONCAT(#{orgCode},'%') -->
+        
+		SELECT
+			h.id maintainAgentTownid,
+			e.id maintainAgent
+		FROM
+			lf_area_org a 
+			JOIN lf_area_org b ON b.`status` = 1 AND b.code like CONCAT(a.code, '%')
+			JOIN lf_position c ON b.id = c.areaOrgId AND c.`status` = 1
+			JOIN lf_employee e ON c.id = e.positionId AND e.`status` = 1
+			JOIN lf_sell_house_agent f ON (
+				e.id = f.maintainAgent 
+			) AND f.status = 1
+			JOIN house_info g ON f.houseId = g.houseid AND g.status = 1
+		
+			JOIN dic_area_new h ON g.townid = h.id
+		WHERE
+			a.`level` = 70
+			AND a.type = 2
+			AND a.id =#{parentIdOut}
+        order by h.id
+        
+  </select>
+  
+  <!-- 钥匙人转入对应的经纪人ID -->
+   <select id="findkeyAgentListOut" resultType="com.lifang.agentsm.model.TransferResouce" parameterType="map">
+		    
+        <!-- select a.id from lf_employee  a
+        left join lf_position b on a.positionId = b.id
+        left join lf_area_org c on b.areaOrgId = c.id
+        where  c.code like CONCAT(#{orgCode},'%') -->
+        
+		SELECT
+			h.id keyAgentTownid,
+			e.id keyAgent
+		FROM
+			lf_area_org a 
+			JOIN lf_area_org b ON b.`status` = 1 AND b.code like CONCAT(a.code, '%')
+			JOIN lf_position c ON b.id = c.areaOrgId AND c.`status` = 1
+			JOIN lf_employee e ON c.id = e.positionId AND e.`status` = 1
+			JOIN lf_sell_house_agent f ON (
+				e.id = f.keyAgent 
+			) AND f.status = 1
+			JOIN house_info g ON f.houseId = g.houseid AND g.status = 1
+		
+			JOIN dic_area_new h ON g.townid = h.id
+		WHERE
+			a.`level` = 70
+			AND a.type = 2
+			AND a.id =#{parentIdOut}
+        order by h.id
+        
+  </select>
+  <!-- 转出发布经纪人对应的数据 -->
+  <select id="findPublishInList" resultType="com.lifang.agentsm.model.TransferResouce" parameterType="map">
+		    
+		select t.houseId publishAgentHouseId,t.id publishAgentId,t.publishAgent publishAgentIn from lf_sell_house_agent t
+			where t.publishAgent in 
+			<!-- <foreach index="index" open="(" separator="," close=")" collection="agentIdOut"> 
+    		#{agentIdOut[${index}]} 
+        </foreach>  -->
+        
+        <foreach collection="agentIdIn" item="item" index="index" open="(" separator="," close=")" >
+				        ${item.id}
+				    </foreach>
+
+  </select>
+  
+  <!-- 转出实景人对应的数据 -->
+  <select id="findPictureAgentList" resultType="com.lifang.agentsm.model.TransferResouce" parameterType="map">
+		    
+		select t.houseId pictureAgentHouseId,t.id pictureAgentId,t.pictureAgent pictureAgentIn from lf_sell_house_agent t
+			where t.pictureAgent in
+		<!-- <foreach index="index" open="(" separator="," close=")" collection="agentIdOut"> 
+    		#{agentIdOut[${index}]} 
+        </foreach>  -->
+		<foreach collection="agentIdIn" item="item" index="index" open="(" separator="," close=")" >
+				        ${item.id}
+				    </foreach>
+		
+  </select>
+  
+  <!-- 转出速消人对应的数据 -->
+  <select id="findCommAgentList" resultType="com.lifang.agentsm.model.TransferResouce" parameterType="map">
+		    
+		select t.houseId commAgentHouseId,t.id commAgentId,t.commAgent commAgentIn from lf_sell_house_agent t
+			where t.commAgent in 
+		<!-- <foreach index="index" open="(" separator="," close=")" collection="agentIdOut"> 
+    		#{agentIdOut[${index}]} 
+        </foreach>  -->
+		 <foreach collection="agentIdIn" item="item" index="index" open="(" separator="," close=")" >
+				        ${item.id}
+				    </foreach>
+  </select>
+  
+  <!-- 转出维护人对应的数据 -->
+  <select id="findMaintainAgentList" resultType="com.lifang.agentsm.model.TransferResouce" parameterType="map">
+		    
+		select t.houseId maintainAgentHouseId,t.id maintainAgentId,t.maintainAgent maintainAgentIn from lf_sell_house_agent t
+			where t.maintainAgent in 
+			<!-- <foreach index="index" open="(" separator="," close=")" collection="agentIdOut"> 
+    		#{agentIdOut[${index}]} 
+        </foreach>  -->
+				 <foreach collection="agentIdIn" item="item" index="index" open="(" separator="," close=")" >
+				        ${item.id}
+				    </foreach>
+  </select>
+  
+  <!-- 转出客源对应的数据 -->
+  <select id="findCustomerList" resultType="com.lifang.agentsm.model.TransferResouce" parameterType="map">
+		    
+	select t.id customerId,t.`name` customerName,t.agentId customerIn from lf_customer t  
+		where t.agentId in 
+	<!-- <foreach index="index" open="(" separator="," close=")" collection="agentIdOut"> 
+    		#{agentIdOut[${index}]} 
+        </foreach>  -->
+		<foreach collection="agentIdIn" item="item" index="index" open="(" separator="," close=")" >
+				        ${item.id}
+				    </foreach>	
+  </select>
+  
+   <!-- 转出小区对应的数据 -->
+  <select id="findEstateList" resultType="com.lifang.agentsm.model.TransferResouce" parameterType="map">
+		    
+	select t.id estateId,t.subEstateId,t.agentId estateAgent from lf_agent_estate t where t.agentId in 
+	<!-- <foreach index="index" open="(" separator="," close=")" collection="agentIdOut"> 
+    		#{agentIdOut[${index}]} 
+        </foreach>  -->
+	<foreach collection="agentIdIn" item="item" index="index" open="(" separator="," close=")" >
+				        ${item.id}
+				    </foreach>	
+  </select>
+  
+   <!-- 转出为带看对应的数据 -->
+  <select id="findCusSeeList" resultType="com.lifang.agentsm.model.TransferResouce" parameterType="map">
+		    
+	select t.id cusSeeId,t.agentId cusSeeAgent,t.houseId cusSeeHouseId from cus_see_house_order t where 
+		 <!-- t.status in ('1','2') and --> 
+		 t.agentId in 
+		<!-- <foreach index="index" open="(" separator="," close=")" collection="agentIdOut"> 
+    		#{agentIdOut[${index}]} 
+        </foreach>  -->
+        <foreach collection="agentIdIn" item="item" index="index" open="(" separator="," close=")" >
+				        ${item.id}
+				    </foreach>	
+  </select>
+  
+  
+  <!-- 转出专属经纪人对应的数据 -->
+  <select id="findCusGuestList" resultType="com.lifang.agentsm.model.TransferResouce" parameterType="map">
+		    
+	select t.id cusGuestId,t.agentId cusGuestAgent from cus_guest_appoint_agent t where 
+		  t.agentId in 
+        <foreach collection="agentIdIn" item="item" index="index" open="(" separator="," close=")" >
+				        ${item.id}
+				    </foreach>	
+  </select>
+  
+  <!-- 带看 -->
+  <select id="findHouseSeeList" resultType="com.lifang.agentsm.model.TransferResouce" parameterType="map">
+		    
+	select t.id houseSeeId,t.agentId houseSeeAgent from lf_customer_house_see t where 
+		  t.agentId in 
+        <foreach collection="agentIdIn" item="item" index="index" open="(" separator="," close=")" >
+				        ${item.id}
+				    </foreach>	
+  </select>
+  
+  <!-- 客户需求 -->
+  <select id="findRequirementListList" resultType="com.lifang.agentsm.model.TransferResouce" parameterType="map">
+		    
+	select t.id requirementId,t.agentId requirementAgent from lf_customer_requirement t where 
+		  t.agentId in 
+        <foreach collection="agentIdIn" item="item" index="index" open="(" separator="," close=")" >
+				        ${item.id}
+				    </foreach>	
+  </select>
+  <!-- *************************************************************仅仅用来判断是否资源转移   接口 start******************************************************************  -->
+  <select id="findPublishInBoolean" resultType="com.lifang.agentsm.model.TransferResouce" parameterType="map">
+		    
+		select t.houseId publishHouseId from lf_sell_house_agent t
+			where t.publishAgent in
+			
+			<foreach collection="agentIdOut" item="item" index="index" open="(" separator="," close=")" >
+				        ${item.id}
+				    </foreach>	
+		
+  </select>
+  
+  
+    <select id="findPictureInBoolean" resultType="com.lifang.agentsm.model.TransferResouce" parameterType="map">
+		    
+		select t.houseId publishHouseId from lf_sell_house_agent t
+			where t.pictureAgent in
+			
+			<foreach collection="agentIdOut" item="item" index="index" open="(" separator="," close=")" >
+				        ${item.id}
+				    </foreach>	
+		
+  </select>
+  
+  
+  <select id="findKeyInBoolean" resultType="com.lifang.agentsm.model.TransferResouce" parameterType="map">
+		    
+		select t.houseId publishHouseId from lf_sell_house_agent t
+			where t.keyAgent in
+			
+			<foreach collection="agentIdOut" item="item" index="index" open="(" separator="," close=")" >
+				        ${item.id}
+				    </foreach>	
+		
+  </select>
+  
+  
+  <select id="findCommInBoolean" resultType="com.lifang.agentsm.model.TransferResouce" parameterType="map">
+		    
+		select t.houseId publishHouseId from lf_sell_house_agent t
+			where t.commAgent in
+			
+			<foreach collection="agentIdOut" item="item" index="index" open="(" separator="," close=")" >
+				        ${item.id}
+				    </foreach>	
+		
+  </select>
+  
+   <select id="findMaintainInBoolean" resultType="com.lifang.agentsm.model.TransferResouce" parameterType="map">
+		    
+		select t.houseId publishHouseId from lf_sell_house_agent t
+			where t.maintainAgent in
+			
+			<foreach collection="agentIdOut" item="item" index="index" open="(" separator="," close=")" >
+				        ${item.id}
+				    </foreach>	
+		
+  </select>
+  
+   <select id="findCusGuestInBoolean" resultType="int" parameterType="map">
+    	select count(id)  from cus_guest_appoint_agent   t where t.agentId in
+    	<foreach collection="agentIdOut" item="item" index="index" open="(" separator="," close=")" >
+				        ${item.id}
+				    </foreach>	
+    </select>
+    
+  
+    <select id="findhouseSeeInBoolean" resultType="int" parameterType="map">
+    	select count(id)  from lf_customer_house_see   t where t.agentId in
+    	<foreach collection="agentIdOut" item="item" index="index" open="(" separator="," close=")" >
+				        ${item.id}
+				    </foreach>	
+    </select>
+    
+    <select id="findCustomerInBoolean" resultType="int" parameterType="map">
+    	select count(id)  from lf_customer_requirement   t where t.agentId in
+    	<foreach collection="agentIdOut" item="item" index="index" open="(" separator="," close=")" >
+				        ${item.id}
+				    </foreach>	
+    </select>
+    
+    <select id="findCInBoolean" resultType="int" parameterType="map">
+    	select count(id) from lf_customer  t where t.agentId in
+    	<foreach collection="agentIdOut" item="item" index="index" open="(" separator="," close=")" >
+				        ${item.id}
+				    </foreach>	
+    </select>
+    
+    <select id="findEstateInBoolean" resultType="int" parameterType="map">
+    	select count(id) from lf_agent_estate t where t.agentId in
+    	<foreach collection="agentIdOut" item="item" index="index" open="(" separator="," close=")" >
+				        ${item.id}
+				    </foreach>	
+    </select>
+    
+     <select id="findcusSeeInBoolean" resultType="int" parameterType="map">
+    	select count(id)  from cus_see_house_order   t where t.agentId in
+    	<foreach collection="agentIdOut" item="item" index="index" open="(" separator="," close=")" >
+				        ${item.id}
+				    </foreach>	
+    </select>
+    
+  <!-- *************************************************************仅仅用来判断是否资源转移   接口  end******************************************************************  -->
+ <!-- 转出客源对应的数据 -->
+  <select id="findCustomerBoolean" resultType="com.lifang.agentsm.model.TransferResouce" parameterType="map">
+		    
+	select t.id customerId,t.`name` customerName,t.agentId customerIn from lf_customer t  
+		where t.agentId in (
+			select a.id from lf_employee  a
+				left join lf_position b on a.positionId = b.id
+				left join lf_area_org c on b.areaOrgId = c.id 
+				where  c.code like CONCAT(#{orgCodeIn},'%')
+	)
+		
+  </select>
+ <!-- 转出小区对应的数据 -->
+  <select id="findEstateBoolean" resultType="com.lifang.agentsm.model.TransferResouce" parameterType="map">
+		    
+	select t.id estateId,t.subEstateId,t.agentId estateAgent from lf_agent_estate t where t.agentId in (
+		select a.id from lf_employee  a
+					left join lf_position b on a.positionId = b.id
+					left join lf_area_org c on b.areaOrgId = c.id 
+					where  c.code like CONCAT(#{orgCodeIn},'%')
+	)
+
+  </select>
+  <!-- 转出为带看对应的数据 -->
+  <select id="findCusSeeBoolean" resultType="com.lifang.agentsm.model.TransferResouce" parameterType="map">
+		    
+	select t.id cusSeeId,t.agentId cusSeeAgent,t.houseId cusSeeHouseId from cus_see_house_order t where t.agentId in (
+	select a.id from lf_employee  a
+				left join lf_position b on a.positionId = b.id
+				left join lf_area_org c on b.areaOrgId = c.id 
+				where  c.code like CONCAT(#{orgCodeIn},'%')
+	) and t.status in ('1','2')
+
+  </select>
+  <!--*************************************************************************************************************************************************  -->
+   <!-- 查出所有转入的townid -->
+  <select id="findTownIdIn" resultType="string" parameterType="map">
+	SELECT
+	distinct c.townId
+FROM
+	lf_area_org a
+	JOIN lf_area_org b ON b.parentId = a.id AND b.`status` = 1
+	JOIN lf_store_town_relation c ON b.id = c.storeId AND c.`status` = 1
+WHERE
+	
+	
+		<if test="corporatephone != null and corporatephone !='' and corporatephone != 0">
+			and a.corporatephone = #{corporatephone}
+		</if>
+		
+		<choose>
+			<when test="storeId != '' and storeId != null">
+				c.storeId =#{storeId}
+			</when>
+			<otherwise>
+				a.id = #{parentIdIn}
+			</otherwise>
+		</choose>
+	
+	AND a.status = 1;
+
+  </select>
+  
+   <!-- 查出所有转出的townid -->
+  <select id="findTownIdOutList" resultType="string" parameterType="map">
+	SELECT
+	distinct c.townId
+FROM
+	lf_area_org a
+	JOIN lf_area_org b ON b.parentId = a.id AND b.`status` = 1
+	JOIN lf_store_town_relation c ON b.id = c.storeId AND c.`status` = 1
+WHERE
+	<choose>
+			<when test="storeIdIn != '' and storeIdIn != null">
+				c.storeId =#{storeIdIn}
+			</when>
+			<otherwise>
+				a.id = #{parentIdOut}
+			</otherwise>
+		</choose>
+	
+	
+	AND a.status = 1;
+
+  </select>
+  <!-- 根据townID查找转入的经纪人ID -->
+  
+  <select id="findAgentIdInList" resultType="string" parameterType="map">
+	SELECT
+	d.id
+FROM
+	lf_area_org a
+	JOIN lf_area_org b ON b.code like CONCAT(a.code,'%') AND b.`status` = 1
+	JOIN lf_position c ON b.id = c.areaOrgId AND c.`status` = 1
+	JOIN lf_employee d oN c.id = d.positionId AND d.`status` = 1
+	JOIN lf_store_town_relation e ON e.`status` = 1 AND e.storeId = b.id AND b.`level` = 60
+WHERE
+	a.id = #{parentIdIn}
+	AND a.status = 1
+	AND e.townId =#{townid}
+	
+  </select>
+  
+  <select id="findAgentIdOutList" resultType="string" parameterType="map">
+	SELECT
+	d.id
+FROM
+	lf_area_org a
+	JOIN lf_area_org b ON b.code like CONCAT(a.code,'%') AND b.`status` = 1
+	JOIN lf_position c ON b.id = c.areaOrgId AND c.`status` = 1
+	JOIN lf_employee d oN c.id = d.positionId AND d.`status` = 1
+	JOIN lf_store_town_relation e ON e.`status` = 1 AND e.storeId = b.id AND b.`level` = 60
+WHERE
+	a.id = #{parentIdOut}
+	AND a.status = 1
+	AND e.townId=#{townid}
+
+  </select>
+  
+   <select id="findTownIdById" resultType="string" parameterType="string">
+	select name from dic_area_new where id = #{townId}
+
+  </select>
+  <!--查找小区数 -->
+    <select id="findEstateCount" resultType="int" parameterType="map">
+    	select count(id) from lf_agent_estate t where t.agentId in
+    	<foreach collection="agentIdIn" item="item" index="index" open="(" separator="," close=")" >
+				        ${item.id}
+				    </foreach>	
+    </select>
+    
+    <!--查找客源数 -->
+    <select id="findCustomerCount" resultType="int" parameterType="map">
+    	select count(id) from lf_customer  t where t.agentId in
+    	<foreach collection="agentIdIn" item="item" index="index" open="(" separator="," close=")" >
+				        ${item.id}
+				    </foreach>	
+    </select>
+    
+    <!--查找未带看数 -->
+    <select id="findCusSeeCount" resultType="int" parameterType="map">
+    	select count(id)  from cus_see_house_order   t where t.status in ('1','2') and t.agentId in
+    	<foreach collection="agentIdIn" item="item" index="index" open="(" separator="," close=")" >
+				        ${item.id}
+				    </foreach>	
+    </select>
+    
+    
+    <!--专属经济人数 -->
+    <select id="findCusGuestCount" resultType="int" parameterType="map">
+    	select count(id)  from cus_guest_appoint_agent   t where t.agentId in
+    	<foreach collection="agentIdIn" item="item" index="index" open="(" separator="," close=")" >
+				        ${item.id}
+				    </foreach>	
+    </select>
+    
+    
+    <!--带看数 -->
+    <select id="findHouseSeeCount" resultType="int" parameterType="map">
+    	select count(id)  from lf_customer_house_see   t where t.agentId in
+    	<foreach collection="agentIdIn" item="item" index="index" open="(" separator="," close=")" >
+				        ${item.id}
+				    </foreach>	
+    </select>
+    
+      <!--带看数 -->
+    <select id="findRequirementCount" resultType="int" parameterType="map">
+    	select count(id)  from lf_customer_requirement   t where t.agentId in
+    	<foreach collection="agentIdIn" item="item" index="index" open="(" separator="," close=")" >
+				        ${item.id}
+				    </foreach>	
+    </select>
+    <!-- 加载可选区域 -->
+    
+    <select id="getAreaByCityId" parameterType="int"
+		resultType="com.lifang.agentsm.entity.FranchiseeDic">
+		select t.id,t.name from lf_area_org t where t.parentid =#{cityId}
+			and  status = '1'
+		
+		
+		</select>
+
+<select id="findFranchiseeArea" resultType="com.lifang.agentsm.model.FranchiseeArea" parameterType="map">
+	<!-- 		select c.id areaId,c.`name` areaName  from lf_franchisee_area a
+     			left join lf_franchisee_info b on a.franchiseeid = b.id
+     			left join lf_area_org c on a.areaid = c.id
+     		where a.status = '1' and a.franchiseeId = #{id}-->
+    select c.id cityId,c.`name` cityName  from lf_franchisee_city a
+                left join lf_franchisee_info b on a.franchiseeid = b.id
+                left join lf_area_org c on a.cityId = c.id
+            where a.status = '1' and a.franchiseeId = #{id}
+      </select>
+
+      <!-- 查询已选区域列表 -->
+   <select id="getData2AreaByAreaId" resultType="com.lifang.agentsm.entity.FranchiseeDic" parameterType="list">
+    	<!-- select count(id)  from lf_customer_requirement   t where t.agentId in
+    	<foreach collection="agentIdIn" item="item" index="index" open="(" separator="," close=")" >
+				        ${item.id}
+				    </foreach>	
+				     -->
+		
+		select DISTINCT c.id id,c.`name` text from lf_franchisee_city a
+			left join lf_franchisee_info b on a.franchiseeid = b.id
+			left join lf_area_org c on a.cityId = c.id
+		where a.status = '1' and a.cityId in
+		   <foreach collection="list" item="item" index="index" open="(" separator="," close=")" >
+	        ${item}
+	    </foreach>	 
+    </select>
+    <!-- 根据合作伙伴id查询已经存在的区域 -->
+      <select id="findAreaById" resultType="string" parameterType="string">
+		select a.areaId from lf_franchisee_area a where franchiseeId =#{string}
+			
+    </select>
+
+	<!-- 根据城市编号或者加盟商列表 -->
+	<select id="getSimpleFranchiseeListByCityId" parameterType="int"
+		resultType="com.lifang.agentsm.model.MiniuiEntity">
+		SELECT
+			a.id,
+			a.abbreviation text
+		FROM
+			lf_franchisee_info a
+			JOIN lf_franchisee_city b ON a.id = b.franchiseeId AND b.status = 1
+		WHERE
+			a.status = 1
+			AND b.cityId = #{cityId}
+	</select>
+
+<!--查看公客报表数  -->
+   <select id="findPubReportCount" resultType="int" parameterType="map">
+		select count(1) from lf_public_report a
+		where 1=1
+        <!-- <if test="agentId != null and agentId != ''">
+            AND e.id = ${agentId}
+        </if> -->
+        <if test="queryTimeBegin != null and queryTimeBegin != ''">
+            <![CDATA[AND a.reportDate >= #{queryTimeBegin}]]>
+        </if>
+        <if test="queryTimeEnd != null and queryTimeEnd != ''">
+            <![CDATA[AND a.reportDate <= #{queryTimeEnd}]]>
+        </if>
+        and a.agentId in 
+		<foreach collection="agentIdList" item="item" index="index" open="(" separator="," close=")" >
+		        ${item.id}
+		    </foreach>
+		    
+        order by a.reportDate desc
+
+ 	<!--   LIMIT #{start,jdbcType=INTEGER},#{end,jdbcType=INTEGER}-->
+    </select>
+    
+    
+    <select id="findPubReport" parameterType="map"
+		resultType="com.lifang.agentsm.model.PublicReport">
+		select * from lf_public_report a
+		where 1=1
+       <!--  <if test="agentId != null and agentId != ''">
+            AND e.id = ${agentId}
+        </if> -->
+        <if test="queryTimeBegin != null and queryTimeBegin != ''">
+            <![CDATA[AND a.reportDate >= #{queryTimeBegin}]]>
+        </if>
+        <if test="queryTimeEnd != null and queryTimeEnd != ''">
+            <![CDATA[AND a.reportDate <= #{queryTimeEnd}]]>
+        </if>
+        and a.agentId in 
+		<foreach collection="agentIdList" item="item" index="index" open="(" separator="," close=")" >
+		        ${item.id}
+		    </foreach>
+		    
+        order by a.reportDate desc
+
+		<if test="start != null">
+			LIMIT #{start,jdbcType=INTEGER},#{end,jdbcType=INTEGER}
+		</if>
+
+	</select>
+
+		<!--合计  -->
+   <select id="findPubReportByParm" resultType="com.lifang.agentsm.model.PublicReport" parameterType="map">
+		select sum(areapub) areapub,sum(storepub) storepub,sum(arearl) arearl,sum(viewarea) viewarea,sum(storerl) storerl,sum(viewstore) viewstore from lf_public_report a
+		where 1=1
+        <!-- <if test="agentId != null and agentId != ''">
+            AND e.id = ${agentId}
+        </if> -->
+        <if test="queryTimeBegin != null and queryTimeBegin != ''">
+            <![CDATA[AND a.reportDate >= #{queryTimeBegin}]]>
+        </if>
+        <if test="queryTimeEnd != null and queryTimeEnd != ''">
+            <![CDATA[AND a.reportDate <= #{queryTimeEnd}]]>
+        </if>
+        and a.agentId in 
+		<foreach collection="agentIdList" item="item" index="index" open="(" separator="," close=")" >
+		        ${item.id}
+		    </foreach>
+		    
+        order by a.reportDate desc
+
+    </select>
+
+</mapper>

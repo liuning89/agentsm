@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lifang.bzsm.console.report.write.HouseCountWriteMapper" >
+<insert id="insertHouseSellCount" parameterType="list">
+		INSERT INTO lf_houseCount_town (
+		`cityId`,
+		`areaId`,
+		`townId`,
+		`sellcount`,
+		`auditcount`,
+		`picturecount`,
+		`videocount`,
+		`sellPointcount`,
+		`commcount`,
+		`keycount`,
+		`houseStatecount`,
+		`status`,
+		cityName,
+	areaName,
+	townName
+		)
+		VALUES
+		<foreach collection="list" item="item" index="index" separator="," >
+			(#{item.cityId},#{item.areaId},#{item.townId},#{item.sellcount},#{item.auditcount},#{item.picturecount},#{item.videocount},#{item.sellPointcount},#{item.commcount},#{item.keycount},#{item.houseStatecount},'1',#{item.cityName},#{item.areaName},#{item.townName})
+		</foreach>
+
+	</insert>
+</mapper>

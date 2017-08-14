@@ -1,0 +1,37 @@
+#parse("/common/constants.vm")
+<!DOCTYPE html>
+<html>
+<!--[if IE 8]>
+<html lang="en" class="ie8 no-js"> <![endif]-->
+<!--[if IE 9]>
+<html lang="en" class="ie9 no-js"> <![endif]-->
+<!--[if !IE]><!-->
+<html lang="en" class="no-js">
+<!--<![endif]-->
+<!-- BEGIN HEAD -->
+<head>
+#parse("/common/head.vm")
+</head>
+<!-- END HEAD -->
+<!-- BEGIN BODY -->
+<body class="page-header-fixed page-sidebar-fixed page-footer-fixed">
+#parse("/common/header.vm")
+<div class="clearfix">
+</div>
+<!-- BEGIN CONTAINER -->
+<div class="page-container">
+	#parse("/common/menu.vm")
+	<div class="page-content-wrapper">
+		<div class="page-content">
+			<!-- BEGIN PAGE_CONTENT -->
+			#parse($inner_page)
+			<!-- END PAGE_CONTENT -->
+			<iframe name="crm_report_main_pic_hidden_frame_bankmergerpay" id="crm_report_user_pic_hidden_frame_bankmergerpay" style="display:none"></iframe>
+		</div>
+	</div>
+</div>
+<!-- END CONTAINER -->
+#parse("/common/footer.vm")
+</body>
+<!-- END BODY -->
+</html>

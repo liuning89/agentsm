@@ -1,0 +1,58 @@
+<!-- BEGIN SIDEBAR -->
+<div class="page-sidebar-wrapper">
+<div class="page-sidebar navbar-collapse collapse">
+<!-- BEGIN SIDEBAR MENU -->
+#set($role = $session.getAttribute("login_session").role )
+<ul class="page-sidebar-menu" data-auto-scroll="true" data-slide-speed="200">
+	<li class="sidebar-toggler-wrapper">
+		<!-- BEGIN SIDEBAR TOGGLER BUTTON -->
+		<div class="sidebar-toggler hidden-phone">
+		</div>
+		<!-- BEGIN SIDEBAR TOGGLER BUTTON -->
+	</li>
+	
+	<li class="start last ">
+		<a href="javascript:;">
+		<i class="fa fa-folder-open"></i>
+		<span class="title">用户管理</span>
+		</a>
+		<ul class="sub-menu">
+			
+			#if(  $role == 1  || $role == 2 || $test == 1 )
+			<li>
+				<a href="${rc.contextPath}/employee/index.action">
+					<i class="fa fa-file-o"></i>用户管理</a>
+			</li>
+			#end
+			
+			
+		</ul>
+	</li>
+	<li class="start last ">
+		<a href="javascript:;">
+		<i class="fa fa-folder-open"></i>
+		<span class="title">工单管理</span>
+		</a>
+		<ul class="sub-menu">
+			#if( ($role == 1 || $role ==2 ) || $test == 1 )
+			<li>
+				<a href="${rc.contextPath}/orderCheckRent/checkRentIndex.action">
+					<i class="fa fa-file-o"></i>出租工单管理</a>
+			</li>
+			<li>
+				<a href="${rc.contextPath}/orderCheckSell/checkSellIndex.action">
+					<i class="fa fa-file-o"></i>出售工单管理</a>
+			</li>
+			
+			
+			#end
+		</ul>
+	</li>
+	
+	
+	
+	
+</ul>
+<!-- END SIDEBAR MENU -->
+</div>
+</div>

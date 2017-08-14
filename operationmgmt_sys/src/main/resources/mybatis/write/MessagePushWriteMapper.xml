@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lifang.agentsm.dao.write.MessagePushWriteMapper">
+	
+	 <!-- 插入审核记录 -->
+  
+  <insert id="insertSendMessage" parameterType="map">
+  		<selectKey resultType="java.lang.Integer" keyProperty="id">
+			SELECT LAST_INSERT_ID()
+		</selectKey>
+		insert into lf_message_push
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+				id,title,pushContent,createtime,updatetime,pushtime,istiming,pushstatus,isdelete,createuserid,pushuserid,iosversion,pushplatform
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+				#{id},#{title},#{pushContent},now(),now(),
+			<choose>
+				<when test="pushtime != null and pushtime != '' ">
+					#{pushtime},
+				</when>
+				<otherwise>
+					now(),
+				</otherwise>
+			</choose>
+			#{istiming},#{pushstatus},#{isdelete},#{createUserId},#{pushUserId},3,#{pushPlatform}
+			
+		</trim>
+	</insert>
+	
+	
+	<update id="pushMessage">
+		update lf_message_push
+		<set>
+			<!-- <if test="pushUserId != null">
+				pushUserId = #{pushUserId, jdbcType=INTEGER},
+			</if> -->
+			<if test="pushstatus != null">
+				pushstatus = #{pushstatus, jdbcType=INTEGER},
+			</if>
+			<if test="pushTime != null">
+				updateTime = #{pushTime,jdbcType=TIMESTAMP},
+			</if>
+		</set>
+		where id in 
+		<foreach collection="messageIds" item="id" index="index" open="(" close=")" separator=",">
+			#{id}
+		</foreach>
+	</update>
+	
+	<update id="updateSendMessage">
+		update lf_message_push
+		
+		<set>
+			 <if test="pushContent != null">
+				pushUserId = #{pushUserId, jdbcType=INTEGER},
+			</if> 
+			<if test="pushContent != null">
+				pushContent = #{pushContent, jdbcType=INTEGER},
+			</if>
+			
+			<if test="pushtime != null and pushtime != '' ">
+				updateTime = now(),
+			</if>
+			
+			<if test="pushtime != null and pushtime != '' ">
+				pushtime = #{pushtime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="pushstatus != null and pushstatus != '' ">
+				pushstatus = #{pushstatus,jdbcType=TIMESTAMP},
+			</if>
+			<if test="istiming != null">
+				istiming = #{istiming, jdbcType=INTEGER},
+			</if>
+			<if test="title != null">
+				title = #{title, jdbcType=INTEGER},
+			</if>
+			
+		</set>
+		where id=#{id}
+	</update>
+	
+	<update id="deleteMessage">
+		update lf_message_push
+		
+		<set>
+			 <if test="isdelete != null">
+				isdelete = #{isdelete, jdbcType=INTEGER},
+			</if> 
+		</set>
+		where id=#{id}
+	</update>
+	
+	<insert id="insertSendMsgLimit" parameterType="com.lifang.agentsm.model.LfMessagePushLimit">
+		INSERT INTO `lf_message_push_limit` (`pushId`, `companyId`, `cityId`) VALUES (#{pushId},#{companyId},#{cityId});
+	
+	</insert>
+	
+	<delete id="deleteMessageLimitByPushId">
+		delete from lf_message_push_limit where pushid=#{pushId}
+	</delete>
+</mapper>

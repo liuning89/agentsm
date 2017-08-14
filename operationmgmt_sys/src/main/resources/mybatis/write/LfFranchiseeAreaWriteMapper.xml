@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lifang.agentsm.dao.write.LfFranchiseeAreaWriteMapper">
+
+	<!-- 添加 -->
+	<insert id="add">
+		INSERT INTO lf_franchisee_area (
+			franchiseeId, areaId, status
+		) VALUES (
+			#{franchiseeId}, #{areaId}, 1
+		)
+	</insert>
+
+	<!-- 删除 -->
+	<update id="delete">
+		UPDATE
+			lf_franchisee_area
+		SET
+			status = 0
+		WHERE
+			status = 1
+			AND areaId = #{areaId}
+	</update>
+
+</mapper>

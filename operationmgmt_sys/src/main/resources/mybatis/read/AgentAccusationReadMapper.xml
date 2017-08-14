@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lifang.agentsm.dao.read.AgentAccusationReadMapper">
+	
+	<select id="selectBy" parameterType="map" resultType="com.lifang.agentsm.model.AccusAtion">
+		SELECT 
+		d.`sellPoint`,
+		<!-- o.accusationAgentId,
+		 o.beAccusationAgentId, -->
+		  o.*
+		 <!--  e.`positionId`, 
+		  e1.`positionId` positionId1,
+		  e2.name aname -->
+	FROM
+	  lf_agent_accusation o 
+	  <!-- LEFT JOIN lf_employee e ON o.`beAccusationAgentId` = e.`id` -->
+   		<!-- LEFT JOIN lf_employee e1 ON o.`accusationAgentId` = e1.`id`
+   		LEFT JOIN lf_employee e2 ON o.`auditor` = e2.`id` -->
+   		LEFT JOIN house_sell_resource d ON o.houseId = d.`houseid` 
+   		
+   		<!-- INNER JOIN lf_position lfb ON e1.positionId = lfb.id
+		INNER JOIN lf_area_org lfc ON lfc.id = lfb.areaOrgId
+   		
+		
+		WHERE 1=1 and lfc.code like CONCAT(#{code},'%')  -->
+		
+		where o.accusationAgentId in 
+		<foreach collection="agentCityList" item="item" index="index" open="(" separator="," close=")" >
+	        ${item.id}
+	    </foreach>
+		
+		<if test="auditSatus != null and auditSatus != 0 ">
+			 and o.auditSatus = #{auditSatus}
+		</if>
+
+		<if test="accusationReasonId != null">
+			and o.accusationReasonId in 
+			
+			<foreach item="item" index="index" collection="list" 
+	            open="(" separator="," close=")">
+	            #{item}
+        	</foreach>
+			
+		</if>
+		and o.status=1
+		and o.accusationType = #{accusationType}
+			order by  o.createTime desc	 
+			
+	LIMIT #{start,jdbcType=INTEGER},#{end,jdbcType=INTEGER}			
+	</select>
+	
+	<select id="selectByCount" parameterType="map" resultType="int">
+		SELECT 
+		count(1)
+	FROM
+	  lf_agent_accusation o 
+	 <!--  LEFT JOIN lf_employee e ON o.`beAccusationAgentId` = e.`id` -->
+   		<!-- LEFT JOIN lf_employee e1 ON o.`accusationAgentId` = e1.`id`
+   		LEFT JOIN lf_employee e2 ON o.`auditor` = e2.`id` -->
+   		LEFT JOIN house_sell_resource d ON o.houseId = d.`houseid` 
+   		
+   		<!-- INNER JOIN lf_position lfb ON e1.positionId = lfb.id
+		INNER JOIN lf_area_org lfc ON lfc.id = lfb.areaOrgId
+   		
+		
+		WHERE 1=1 and lfc.code like CONCAT(#{code},'%')  -->
+		where o.accusationAgentId in 
+		<foreach collection="agentCityList" item="item" index="index" open="(" separator="," close=")" >
+	        ${item.id}
+	    </foreach>
+		<if test="auditSatus != null and auditSatus != 0 ">
+			 and o.auditSatus = #{auditSatus}
+		</if>
+
+		<if test="accusationReasonId != null">
+			and o.accusationReasonId in 
+			
+			<foreach item="item" index="index" collection="list" 
+	            open="(" separator="," close=")">
+	            #{item}
+        	</foreach>
+			
+		</if>
+		and o.status=1
+		and o.accusationType = #{accusationType}
+	</select>
+	
+</mapper>

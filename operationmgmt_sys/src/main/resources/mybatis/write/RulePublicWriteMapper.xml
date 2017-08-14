@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lifang.agentsm.dao.write.RulePublicWriteMapper">
+
+  <insert id="insertPublicRule" parameterType="map">
+    insert into lf_public_rule (publicToStore, storeToArea,
+      storeCount, areaCount, createby,viewStoreCount,viewAreaCount)
+    values (#{publicToStore}, #{storeToArea}, #{storeCount},
+      #{areaCount}, #{createby},#{viewStoreCount},#{viewAreaCount})
+  </insert>
+
+    <update id="updatePublicRule" parameterType="map">
+        UPDATE
+        lf_public_rule
+        SET
+        publicToStore = #{publicToStore},
+        storeToArea = #{storeToArea},
+        storeCount = #{storeCount},
+        areaCount = #{areaCount},
+        createby = #{createby},
+        viewStoreCount=#{viewStoreCount},
+        viewAreaCount=#{viewAreaCount}
+
+    </update>
+
+
+	<!-- 将店公客数据变为无效 -->
+	<update id="updatePubCustomer" parameterType="map">
+        UPDATE
+        lf_pub_customer t
+        SET
+        t.status =0 
+        where id in
+        <foreach collection="pubList" item="item" index="index" open="(" separator="," close=")" >
+		      ${item.id}
+		</foreach>	
+
+    </update>
+    
+    
+    <!-- 插入区公客数据 -->
+     <insert id="insertPubCustomer" parameterType="map">  
+    INSERT INTO lf_pub_customer (
+		`customerName`,
+		  `customerMobile`,
+		  `customerGender`,
+		  `customerReq`,
+		  `houseSeeCount`,
+		  `lastSeeTime`,
+		  `sourceFrom`,
+		  `storeId`,
+		  `areaId`,
+		  `status`,
+		  `customerType`,
+	  `changeType`
+	)
+    VALUES   
+    <foreach collection="pubList" item="item" index="index" separator="," >  
+        (#{item.customerName},#{item.customerMobile},#{item.customerGender},#{item.customerReq},#{item.houseSeeCount},#{item.lastSeeTime},#{item.sourceFrom},#{item.storeId},#{item.areaId},'1','2','2')  
+    </foreach>  
+</insert> 
+
+   <!-- 插入店公客数据 -->
+     <insert id="insertPubCustomerStore" parameterType="map">  
+    INSERT INTO lf_pub_customer (
+		`customerName`,
+		  `customerMobile`,
+		  `customerGender`,
+		  `customerReq`,
+		  `houseSeeCount`,
+		  `lastSeeTime`,
+		  `sourceFrom`,
+		  `storeId`,
+		  `areaId`,
+		  `status`,
+		  `customerType`,
+	  `changeType`
+	)
+    VALUES   
+    <foreach collection="lfpcList" item="item" index="index" separator="," >  
+        (#{item.customerName},#{item.customerMobile},#{item.customerGender},#{item.customerReq},#{item.houseSeeCount},#{item.lastSeeTime},#{item.sourceFrom},#{item.storeId},#{item.areaId},'1',#{item.customerType},#{item.changeType})  
+    </foreach>  
+    
+</insert> 
+
+ <insert id="insertPubreport" parameterType="map">  
+    INSERT INTO lf_public_report (
+		`reportDate`,
+		  `agentId`,
+		  `arearl`,
+		  `viewarea`,
+		  `storerl`,
+		  `viewstore`,
+		  `pubcusid`
+		  
+	)
+    VALUES   
+    <foreach collection="prList" item="item" index="index" separator="," >  
+        (#{date},#{item.agentId},#{item.arearl},#{item.viewarea},#{item.storerl},#{item.viewstore},#{item.pubcusid})
+    </foreach>  
+</insert> 
+<!--更新-->
+
+    <update id="updatePubReport" parameterType="map">
+        UPDATE
+         lf_public_report
+        SET
+        storepub = #{storepub}
+       where agentid = #{agentId} and reportDate=#{dates}
+
+    </update>
+
+    <!-- 插入-->
+
+    <insert id="insertPubreportrl" parameterType="map">
+        INSERT INTO lf_public_report (
+        `reportDate`,
+        storepub,
+        agentId
+        )
+        VALUES
+            (#{dates},#{storepub},#{agentId})
+
+    </insert>
+
+    <!--更新-->
+
+    <update id="updateAreaReport" parameterType="map">
+        UPDATE
+        lf_public_report
+        SET
+
+        areapub = #{areapub}
+        where agentid = #{agentId} and reportDate=#{dates}
+
+    </update>
+
+    <!-- 插入-->
+
+    <insert id="insertAreaReportrl" parameterType="map">
+        INSERT INTO lf_public_report (
+        `reportDate`,
+        areapub,
+        agentId
+        )
+        VALUES
+        (#{dates},#{areapub},#{agentId})
+
+    </insert>
+</mapper>

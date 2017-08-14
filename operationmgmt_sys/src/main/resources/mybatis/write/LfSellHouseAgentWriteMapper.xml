@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lifang.agentsm.dao.write.LfSellHouseAgentWriteMapper" >
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from lf_sell_house_agent
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.lifang.agentsm.entity.LfSellHouseAgent" >
+    insert into lf_sell_house_agent (id, houseId, keyAgent, 
+      publishAgent, commAgent, buyAgentId, 
+      allowContact, updateTime, createTime, 
+      contactAgentId, status, proCommAgent, 
+      isExclusive, updateAgent, pictureAgent, 
+      recordAgent, sourceId)
+    values (#{id,jdbcType=BIGINT}, #{houseId,jdbcType=BIGINT}, #{keyAgent,jdbcType=BIGINT}, 
+      #{publishAgent,jdbcType=BIGINT}, #{commAgent,jdbcType=BIGINT}, #{buyAgentId,jdbcType=BIGINT}, 
+      #{allowContact,jdbcType=TINYINT}, #{updateTime,jdbcType=TIMESTAMP}, #{createTime,jdbcType=TIMESTAMP}, 
+      #{contactAgentId,jdbcType=BIGINT}, #{status,jdbcType=TINYINT}, #{proCommAgent,jdbcType=BIGINT}, 
+      #{isExclusive,jdbcType=TINYINT}, #{updateAgent,jdbcType=BIGINT}, #{pictureAgent,jdbcType=BIGINT}, 
+      #{recordAgent,jdbcType=BIGINT}, #{sourceId,jdbcType=BIGINT})
+  </insert>
+  <insert id="insertSelective" parameterType="com.lifang.agentsm.entity.LfSellHouseAgent" >
+    insert into lf_sell_house_agent
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="houseId != null" >
+        houseId,
+      </if>
+      <if test="keyAgent != null" >
+        keyAgent,
+      </if>
+      <if test="publishAgent != null" >
+        publishAgent,
+      </if>
+      <if test="commAgent != null" >
+        commAgent,
+      </if>
+      <if test="buyAgentId != null" >
+        buyAgentId,
+      </if>
+      <if test="allowContact != null" >
+        allowContact,
+      </if>
+      <if test="updateTime != null" >
+        updateTime,
+      </if>
+      <if test="createTime != null" >
+        createTime,
+      </if>
+      <if test="contactAgentId != null" >
+        contactAgentId,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="proCommAgent != null" >
+        proCommAgent,
+      </if>
+      <if test="isExclusive != null" >
+        isExclusive,
+      </if>
+      <if test="updateAgent != null" >
+        updateAgent,
+      </if>
+      <if test="pictureAgent != null" >
+        pictureAgent,
+      </if>
+      <if test="recordAgent != null" >
+        recordAgent,
+      </if>
+      <if test="sourceId != null" >
+        sourceId,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="houseId != null" >
+        #{houseId,jdbcType=BIGINT},
+      </if>
+      <if test="keyAgent != null" >
+        #{keyAgent,jdbcType=BIGINT},
+      </if>
+      <if test="publishAgent != null" >
+        #{publishAgent,jdbcType=BIGINT},
+      </if>
+      <if test="commAgent != null" >
+        #{commAgent,jdbcType=BIGINT},
+      </if>
+      <if test="buyAgentId != null" >
+        #{buyAgentId,jdbcType=BIGINT},
+      </if>
+      <if test="allowContact != null" >
+        #{allowContact,jdbcType=TINYINT},
+      </if>
+      <if test="updateTime != null" >
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="contactAgentId != null" >
+        #{contactAgentId,jdbcType=BIGINT},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=TINYINT},
+      </if>
+      <if test="proCommAgent != null" >
+        #{proCommAgent,jdbcType=BIGINT},
+      </if>
+      <if test="isExclusive != null" >
+        #{isExclusive,jdbcType=TINYINT},
+      </if>
+      <if test="updateAgent != null" >
+        #{updateAgent,jdbcType=BIGINT},
+      </if>
+      <if test="pictureAgent != null" >
+        #{pictureAgent,jdbcType=BIGINT},
+      </if>
+      <if test="recordAgent != null" >
+        #{recordAgent,jdbcType=BIGINT},
+      </if>
+      <if test="sourceId != null" >
+        #{sourceId,jdbcType=BIGINT},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.lifang.agentsm.entity.LfSellHouseAgent" >
+    update lf_sell_house_agent
+    <include refid="setSql" />
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.lifang.agentsm.entity.LfSellHouseAgent" >
+    update lf_sell_house_agent
+    set houseId = #{houseId,jdbcType=BIGINT},
+      keyAgent = #{keyAgent,jdbcType=BIGINT},
+      publishAgent = #{publishAgent,jdbcType=BIGINT},
+      commAgent = #{commAgent,jdbcType=BIGINT},
+      buyAgentId = #{buyAgentId,jdbcType=BIGINT},
+      allowContact = #{allowContact,jdbcType=TINYINT},
+      updateTime = #{updateTime,jdbcType=TIMESTAMP},
+      createTime = #{createTime,jdbcType=TIMESTAMP},
+      contactAgentId = #{contactAgentId,jdbcType=BIGINT},
+      status = #{status,jdbcType=TINYINT},
+      proCommAgent = #{proCommAgent,jdbcType=BIGINT},
+      isExclusive = #{isExclusive,jdbcType=TINYINT},
+      updateAgent = #{updateAgent,jdbcType=BIGINT},
+      pictureAgent = #{pictureAgent,jdbcType=BIGINT},
+      recordAgent = #{recordAgent,jdbcType=BIGINT},
+      sourceId = #{sourceId,jdbcType=BIGINT}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateKeyAgentToNew" parameterType="com.lifang.agentsm.entity.ResourceTransferRequest">
+  	update lf_sell_house_agent
+  	set keyAgent = #{newAgentId,jdbcType=BIGINT}
+  	where keyAgent = #{oldAgentId,jdbcType=BIGINT}
+  </update>
+  <update id="updatePublishAgentToNew" parameterType="com.lifang.agentsm.entity.ResourceTransferRequest">
+  	update lf_sell_house_agent
+  	set publishAgent = #{newAgentId,jdbcType=BIGINT}
+  	where publishAgent = #{oldAgentId,jdbcType=BIGINT}
+  </update>
+  <update id="updateCommAgenttToNew" parameterType="com.lifang.agentsm.entity.ResourceTransferRequest">
+  	update lf_sell_house_agent
+  	set commAgent = #{newAgentId,jdbcType=BIGINT}
+  	where commAgent = #{oldAgentId,jdbcType=BIGINT}
+  </update>
+  <update id="updatePictureAgentToNew" parameterType="com.lifang.agentsm.entity.ResourceTransferRequest">
+  	update lf_sell_house_agent
+  	set pictureAgent = #{newAgentId,jdbcType=BIGINT}
+  	where pictureAgent = #{oldAgentId,jdbcType=BIGINT}
+  </update>
+  <update id="updateBuyAgentIdToNew" parameterType="com.lifang.agentsm.entity.ResourceTransferRequest">
+  	update lf_customer
+  	set agentId = #{newAgentId,jdbcType=BIGINT}
+  	where agentId = #{oldAgentId,jdbcType=BIGINT}
+  </update>
+  <update id="updateCustRequirement" parameterType="com.lifang.agentsm.entity.ResourceTransferRequest">
+  	update lf_customer_requirement 
+  	set agentId = #{newAgentId,jdbcType=BIGINT}
+  	where agentId = #{oldAgentId,jdbcType=BIGINT}
+  </update>
+  <update id="updateHouseSeeAgentToNew" parameterType="com.lifang.agentsm.entity.ResourceTransferRequest">
+    update lf_customer_house_see 
+    set agentId = #{newAgentId,jdbcType=BIGINT}
+    where agentId = #{oldAgentId,jdbcType=BIGINT}
+  </update>
+   <!--更改lf_sell_house_agent照片人字段 pictureAgent-->
+    <update id="updateHouseAgent" parameterType="map">
+        UPDATE lf_sell_house_agent
+	        SET pictureAgent = #{agentId}
+	        WHERE houseid = #{houseId} and status = 1 and pictureagent IS NULL
+	        and franchiseeAreaOrgId =#{franchiseeAreaOrgId}
+    </update>
+  <sql id="setSql">
+  	<set>
+      <if test="houseId != null" >
+        houseId = #{houseId,jdbcType=BIGINT},
+      </if>
+      <if test="keyAgent != null" >
+        keyAgent = #{keyAgent,jdbcType=BIGINT},
+      </if>
+      <if test="publishAgent != null" >
+        publishAgent = #{publishAgent,jdbcType=BIGINT},
+      </if>
+      <if test="commAgent != null" >
+        commAgent = #{commAgent,jdbcType=BIGINT},
+      </if>
+      <if test="buyAgentId != null" >
+        buyAgentId = #{buyAgentId,jdbcType=BIGINT},
+      </if>
+      <if test="allowContact != null" >
+        allowContact = #{allowContact,jdbcType=TINYINT},
+      </if>
+      <if test="updateTime != null" >
+        updateTime = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createTime != null" >
+        createTime = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="contactAgentId != null" >
+        contactAgentId = #{contactAgentId,jdbcType=BIGINT},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=TINYINT},
+      </if>
+      <if test="proCommAgent != null" >
+        proCommAgent = #{proCommAgent,jdbcType=BIGINT},
+      </if>
+      <if test="isExclusive != null" >
+        isExclusive = #{isExclusive,jdbcType=TINYINT},
+      </if>
+      <if test="updateAgent != null" >
+        updateAgent = #{updateAgent,jdbcType=BIGINT},
+      </if>
+      <if test="pictureAgent != null" >
+        pictureAgent = #{pictureAgent,jdbcType=BIGINT},
+      </if>
+      <if test="recordAgent != null" >
+        recordAgent = #{recordAgent,jdbcType=BIGINT},
+      </if>
+      <if test="sourceId != null" >
+        sourceId = #{sourceId,jdbcType=BIGINT},
+      </if>
+    </set>
+   </sql> 
+   
+     <!-- lf_sell_house_agent没有数据的时候插入一条数据 -->
+  <insert id="insertHouseAgent" parameterType="map" >
+<!--     INSERT INTO lf_sell_house_agent (houseId,updateTime,createTime,STATUS,updateAgent,pictureAgent,franchiseeAreaOrgId) VALUE(#{houseId},NOW(),NOW(),1,#{employeeId},#{agentId},#{franchiseeAreaOrgId})-->
+INSERT INTO lf_house_picture_agent (houseId,STATUS,agentId,companyId) VALUE(#{houseId},1,#{agentId},#{franchiseeAreaOrgId})
+  </insert>
+</mapper>

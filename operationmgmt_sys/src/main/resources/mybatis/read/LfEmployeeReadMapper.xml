@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lifang.agentsm.dao.read.LfEmployeeReadMapper">
+    <resultMap id="BaseResultMap" type="com.lifang.agentsm.entity.LfEmployee">
+        <id column="id" property="id" jdbcType="INTEGER" />
+         <result column="name" property="name" jdbcType="VARCHAR" />
+        <result column="workNumber" property="workNumber" jdbcType="VARCHAR" />
+        <result column="passWord" property="passWord" jdbcType="VARCHAR" />
+        <result column="status" property="status" jdbcType="INTEGER" />
+
+        <result column="createTime" property="createTime" jdbcType="TIMESTAMP" />
+        <result column="updateTime" property="updateTime" jdbcType="TIMESTAMP" />
+        <result column="mobile" property="mobile" jdbcType="VARCHAR" />
+        <result column="gender" property="gender" jdbcType="INTEGER" />
+         <result column="cityId" property="cityId" jdbcType="INTEGER" />
+    </resultMap>
+    <sql id="Base_Column_List">
+        id,name, workNumber, passWord, status, createTime, updateTime,mobile,department,gender,cityId,positionId
+    </sql>
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+        select
+        <include refid="Base_Column_List" />
+        from lf_employee
+        where id = #{id,jdbcType=INTEGER}
+    </select>
+
+    <select id="loginCheck" resultMap="BaseResultMap" parameterType="java.util.Map">
+        select
+        <include refid="Base_Column_List" />
+        from lf_employee
+        where status = 1 and mobile = #{loginName,jdbcType=VARCHAR} and password = #{password,jdbcType=VARCHAR}
+    </select>
+    
+    <select id="checkEmployeeExists" resultType="int" parameterType="map">
+        select
+        count(*)
+        from lf_employee
+        where name = #{loginName,jdbcType=VARCHAR}
+    </select>
+
+    <select id="selectEmployeeListByPage" resultMap="BaseResultMap" parameterType="map">
+        select
+        <include refid="Base_Column_List" />
+        from lf_employee
+        where 1 = 1
+        <if test="loginName != null and loginName != '' ">
+            and name like CONCAT('%' , #{loginName} , '%')
+        </if>
+        <if test="phone != null and phone != ''">
+            and mobile = #{phone}
+        </if>
+        order by createTime desc
+        limit #{start,jdbcType=INTEGER},#{end,jdbcType=INTEGER}
+    </select>
+
+    <select id="selectEmployeeListCount" resultType="int" parameterType="map">
+        select
+        count(*)
+        from lf_employee
+        where 1 = 1
+        <if test="loginName != null and loginName != '' ">
+            and name like CONCAT('%' , #{loginName} , '%')
+        </if>
+        <if test="phone != null and phone != ''">
+            and mobile = #{phone}
+        </if>
+    </select>
+
+    <select id="getByAreaOrg" resultMap="BaseResultMap" parameterType="java.util.Map" >
+        SELECT e.id,e.name FROM lf_agent a
+        LEFT JOIN lf_employee e ON(a.id = e.id)
+        LEFT JOIN lf_position p ON(e.positionId = p.id)
+        LEFT JOIN lf_area_org o ON(p.areaOrgId = o.id)
+        WHERE 1=1
+        <if test="cityId != null and cityId != 0">
+            and o.cityId = ${cityId}
+        </if>
+        <if test="level != null and level != 0">
+            and o.level = ${level}
+        </if>
+        <if test="code != null and code != 0">
+            AND o.code LIKE '${code}%'
+        </if>
+
+    </select>
+</mapper>

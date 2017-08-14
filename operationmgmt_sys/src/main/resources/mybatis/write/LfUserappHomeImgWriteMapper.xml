@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lifang.agentsm.dao.write.LfUserappHomeImgWriteMapper">
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+        delete from lf_userapp_home_img
+        where id = #{id,jdbcType=BIGINT}
+    </delete>
+    <insert id="insert" parameterType="com.lifang.agentsm.entity.LfUserappHomeImg">
+        insert into lf_userapp_home_img (id, type, url,
+        imgKey, stauts, createBy,
+        createTime, updateBy, updateTime
+        )
+        values (#{id,jdbcType=BIGINT}, #{type,jdbcType=INTEGER}, #{url,jdbcType=VARCHAR},
+        #{imgKey,jdbcType=VARCHAR}, #{stauts,jdbcType=INTEGER}, #{createBy,jdbcType=INTEGER},
+        #{createTime,jdbcType=TIMESTAMP}, #{updateBy,jdbcType=INTEGER}, #{updateTime,jdbcType=TIMESTAMP}
+        )
+    </insert>
+    <insert id="insertSelective" parameterType="com.lifang.agentsm.entity.LfUserappHomeImg">
+        insert into lf_userapp_home_img
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="type != null">
+                type,
+            </if>
+            <if test="url != null">
+                url,
+            </if>
+            <if test="imgKey != null">
+                imgKey,
+            </if>
+            <if test="stauts != null">
+                stauts,
+            </if>
+            <if test="createBy != null">
+                createBy,
+            </if>
+            <if test="createTime != null">
+                createTime,
+            </if>
+            <if test="updateBy != null">
+                updateBy,
+            </if>
+            <if test="updateTime != null">
+                updateTime,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="type != null">
+                #{type,jdbcType=INTEGER},
+            </if>
+            <if test="url != null">
+                #{url,jdbcType=VARCHAR},
+            </if>
+            <if test="imgKey != null">
+                #{imgKey,jdbcType=VARCHAR},
+            </if>
+            <if test="stauts != null">
+                #{stauts,jdbcType=INTEGER},
+            </if>
+            <if test="createBy != null">
+                #{createBy,jdbcType=INTEGER},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateBy != null">
+                #{updateBy,jdbcType=INTEGER},
+            </if>
+            <if test="updateTime != null">
+                #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.lifang.agentsm.entity.LfUserappHomeImg">
+        update lf_userapp_home_img
+        <set>
+            <if test="type != null">
+                type = #{type,jdbcType=INTEGER},
+            </if>
+            <if test="url != null">
+                url = #{url,jdbcType=VARCHAR},
+            </if>
+            <if test="imgKey != null">
+                imgKey = #{imgKey,jdbcType=VARCHAR},
+            </if>
+            <if test="stauts != null">
+                stauts = #{stauts,jdbcType=INTEGER},
+            </if>
+            <if test="createBy != null">
+                createBy = #{createBy,jdbcType=INTEGER},
+            </if>
+            <if test="createTime != null">
+                createTime = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateBy != null">
+                updateBy = #{updateBy,jdbcType=INTEGER},
+            </if>
+            <if test="updateTime != null">
+                updateTime = #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.lifang.agentsm.entity.LfUserappHomeImg">
+        update lf_userapp_home_img
+        set type = #{type,jdbcType=INTEGER},
+        url = #{url,jdbcType=VARCHAR},
+        imgKey = #{imgKey,jdbcType=VARCHAR},
+        stauts = #{stauts,jdbcType=INTEGER},
+        createBy = #{createBy,jdbcType=INTEGER},
+        createTime = #{createTime,jdbcType=TIMESTAMP},
+        updateBy = #{updateBy,jdbcType=INTEGER},
+        updateTime = #{updateTime,jdbcType=TIMESTAMP}
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    
+    
+    <update id="updateByType" parameterType="com.lifang.agentsm.entity.LfUserappHomeImg">
+        update lf_userapp_home_img
+        <set>
+            <if test="type != null">
+                type = #{type,jdbcType=INTEGER},
+            </if>
+            <if test="url != null">
+                url = #{url,jdbcType=VARCHAR},
+            </if>
+            <if test="imgKey != null">
+                imgKey = #{imgKey,jdbcType=VARCHAR},
+            </if>
+            <if test="stauts != null">
+                stauts = #{stauts,jdbcType=INTEGER},
+            </if>
+            <if test="createBy != null">
+                createBy = #{createBy,jdbcType=INTEGER},
+            </if>
+            <if test="createTime != null">
+                createTime = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateBy != null">
+                updateBy = #{updateBy,jdbcType=INTEGER},
+            </if>
+            <if test="updateTime != null">
+                updateTime = #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        where type = #{type,jdbcType=INTEGER}
+    </update>
+</mapper>

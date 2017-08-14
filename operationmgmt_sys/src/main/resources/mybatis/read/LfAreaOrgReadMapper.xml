@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lifang.agentsm.dao.read.LfAreaOrgReadMapper">
+
+    <resultMap id="BaseResultMap" type="com.lifang.agentsm.entity.LfAreaOrg">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="name" property="name" jdbcType="VARCHAR"/>
+        <result column="cityId" property="cityId" jdbcType="INTEGER"/>
+        <result column="parentId" property="parentId" jdbcType="INTEGER"/>
+        <result column="level" property="level" jdbcType="INTEGER"/>
+        <result column="code" property="code" jdbcType="VARCHAR"/>
+        <result column="status" property="status" jdbcType="TINYINT"/>
+        <result column="createTime" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="updateTime" property="updateTime" jdbcType="TIMESTAMP"/>
+        <result column="memo" property="memo" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, name, cityId, parentId, level, code, status, createTime, updateTime, memo
+    </sql>
+
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long">
+        select
+        <include refid="Base_Column_List"/>
+        from lf_area_org
+        where status = 1 and id = #{id,jdbcType=BIGINT}
+    </select>
+
+   <!--  <select id="selectBy" resultMap="BaseResultMap" parameterType="java.util.Map">
+        SELECT * FROM lf_area_org
+        <where>
+            status = 1
+            <if test="level != null and level != 0">
+                and level = ${level}
+            </if>
+            <if test="cityId != null and cityId != 0">
+                and cityId = ${cityId}
+            </if>
+            <if test="code != null and code != 0">
+                and code like '${code}%'
+            </if>
+        </where>
+    </select> -->
+      <select id="selectBy" resultMap="BaseResultMap" parameterType="java.util.Map">
+        SELECT * FROM lf_area_org 
+        where lf_area_org.status = 1
+        <if test="level != null and level != 0">
+            and lf_area_org.level = ${level}
+        </if>
+        <if test="parentId != null and parentId != 0">
+            AND lf_area_org.parentId = ${parentId}
+        </if>
+    </select>
+    <select id="selectByCode" resultMap="BaseResultMap" parameterType="string">
+        select
+        <include refid="Base_Column_List"/>
+        from lf_area_org
+        where status = 1 and code = #{_parameter} limit 0,1;
+    </select>
+    
+    <select id="selectByParentId" resultMap="BaseResultMap" parameterType="string">
+        select
+        <include refid="Base_Column_List"/>
+        from lf_area_org
+        where status = 1 and id = #{_parameter} limit 0,1;
+    </select>
+    <select id="selectAgent" resultMap="BaseResultMap" parameterType="string">
+ 
+		   SELECT lf_employee.`id`,lf_employee.`name`,lf_employee.`positionId`,lf_area_org.`cityId` FROM lf_employee
+		 INNER JOIN lf_position ON lf_employee.`positionId` = lf_position.`id`
+		 INNER JOIN lf_area_org ON lf_position.`areaOrgId` = lf_area_org.`id`
+		 WHERE lf_employee.`department` = 1
+		 AND lf_area_org.`code` LIKE CONCAT(#{parentId},'%')
+		
+        
+    </select>
+      <select id="selectByEmployeeId" resultMap="BaseResultMap" parameterType="int">
+        SELECT lf_area_org.* FROM lf_employee
+        INNER JOIN lf_position ON lf_employee.`positionId` = lf_position.`id`
+        INNER JOIN lf_area_org ON lf_position.`areaOrgId` = lf_area_org.`id`
+        WHERE lf_employee.`id` = #{_parameter}
+    </select>
+    
+    <select id="selectByType" resultMap="BaseResultMap" parameterType="java.util.Map">
+        SELECT * FROM lf_area_org 
+        where lf_area_org.status = 1 
+        <if test="level != null and level != 0">
+            and lf_area_org.level = ${level}
+        </if>
+        <if test="parentId != null and parentId != 0">
+            AND lf_area_org.parentId = ${parentId}
+        </if>
+         <if test="type != null and type != 0">
+            AND lf_area_org.type = ${type}
+        </if>
+        
+    </select>
+    
+    <select id="selectOnlyByType" resultMap="BaseResultMap" parameterType="java.util.Map">
+        SELECT * FROM lf_area_org 
+       where lf_area_org.status = 1 and lf_area_org.type=${type}
+        <if test="level != null and level != 0">
+            and lf_area_org.level = ${level}
+        </if>
+        <if test="parentId != null and parentId != 0">
+            AND lf_area_org.parentId = ${parentId}
+        </if>
+        and lf_area_org.`id` not in (select t.areaid from lf_franchisee_area t) 
+    </select>
+    <select id="selectByCodeAndLevel" resultMap="BaseResultMap" parameterType="map">
+        SELECT * FROM lf_area_org
+        <!--
+        INNER JOIN lf_position ON lf_position.`areaOrgId` = lf_area_org.`id`
+        WHERE lf_position.`department` = 1
+        AND lf_area_org.status = 1 -->
+        WHERE lf_area_org.status = 1
+        <if test="orgCode != null and orgCode != 0">
+            AND lf_area_org.code like concat(#{orgCode}, '%')
+        </if>
+        <if test="level != null and level != 0">
+            and lf_area_org.level = ${level}
+        </if>
+    </select>
+</mapper>

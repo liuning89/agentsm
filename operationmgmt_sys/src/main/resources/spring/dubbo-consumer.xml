@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://code.alibabatech.com/schema/dubbo
+        http://code.alibabatech.com/schema/dubbo/dubbo.xsd
+        ">
+    <dubbo:application name="agent_server" />
+    
+    <!-- zookeeper注册中心 -->
+    <dubbo:registry protocol="zookeeper" address="${dubboAddress}" />
+    
+    <dubbo:protocol name="dubbo" port="-1"/>
+
+    <!-- 和本地bean一样实现服务 -->
+    <dubbo:service interface="com.lifang.agentsm.dubbo.service.TransferDubboService" ref="transferService" />
+    
+    <bean id="transferService" class="com.lifang.agentsm.dubbo.service.impl.TransferDubboImpl" />
+    
+    
+    <!-- 消费 -->
+    <dubbo:reference id="agentSOAServer" interface="com.lifang.agentsoa.facade.AgentSOAServer" timeout="10000" check="false"/>
+    
+    <dubbo:monitor protocol="registry" />
+    
+    <dubbo:reference id="houseConcatService" interface="com.lifang.housesoa.facade.service.HouseConcatService" timeout="10000" check="false"/>
+    <!-- 资源转移发布人. -->
+    <dubbo:reference id="houseService" interface="com.lifang.housesoa.facade.service.HouseService" timeout="10000" check="false"/>
+	
+    <!-- 白名单-->
+    <dubbo:reference id="callSOAService" interface="com.lifang.callsoa.facade.CallSOAService" timeout="10000" check="false"/>
+    
+    <!-- 人事 -->
+    <dubbo:reference id="employeeServiceTest" interface="com.lifang.hr.facade.EmployeeService" timeout="10000" check="false"/>
+    
+    <!-- 短信 -->
+    <dubbo:reference id="smsDubboService" interface="com.lifang.sms.service.SmsDubboService" timeout="10000" check="false"/>
+    <!-- imgsoa -->
+    <dubbo:reference id="imageServiceTest" interface="com.lifang.imgsoa.facade.ImageService" timeout="10000" check="false"/>
+    <!-- 消息推送-->
+    <dubbo:reference id="miPushSOAServer" interface="com.lifang.mipushsoa.facade.MiPushSOAServer" timeout="10000" check="false"/>
+    
+    <dubbo:reference interface="com.lifang.paysoa.facade.WalletFacadeService" timeout="10000" id="walletFacadeService" check="false"/>
+	<dubbo:reference interface="com.lifang.paysoa.facade.PayWXFacadeService" timeout="10000" id="payWXFacadeService" check="false"/>
+	<dubbo:reference check="false" id="agentCommonService" interface="com.lifang.agentcommsoa.service.AgentCommonService" /><!-- 有房有客 -->
+	
+</beans>

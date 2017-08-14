@@ -1,0 +1,404 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lifang.agentsm.dao.read.ReportReadMapper">
+<!-- 取小区和板块 -->
+	<select id="getEstateAndDic" resultType="com.lifang.agentsm.model.EstateInfoAboutData" >
+	SELECT
+		es.id as subEstateId,city.`name` as cityName,city.id as cityId, dic.`name` as dicName, dic.id as dicId,town.`name` as townName, town.id as townId,IF(es.subestateName is null,es.estateName,CONCAT(es.estateName,es.subEstateName)) as estateName
+		,DATE_FORMAT(es.createTime,'%Y-%m-%d %h:%i') as createTime
+		FROM  estate_sub es
+			JOIN dic_area_new town ON town.id = es.townid AND town.level = 5
+			JOIN dic_area_new dic ON dic.id = town.parentid AND dic.level = 4
+			JOIN dic_area_new city ON city.id = dic.parentid AND city.level = 3
+		where  town.status = 1 and es.hasNewHouse = 2 and es.`status` = 1 
+		<if test="cityId!=null and cityId!=''">
+			and town.cityId=#{cityId}
+		</if>
+		<if test="districtId!=null and districtId!=''">
+			and dic.id=#{districtId}
+		</if>
+		<if test="townId!=null and townId!=''">
+			and town.id=#{townId}		
+		</if>
+		<if test="estateName!=null and estateName!=''">
+			and (es.subEstateName like concat('%',#{estateName},'%') or es.estateName like concat('%',#{estateName},'%')) 
+		</if>
+		<if test="startTime != null">
+			and es.createTime >= #{startTime,jdbcType=TIMESTAMP}
+		</if>
+		<if test="endTime != null">
+			and es.createTime &lt;= DATE_ADD(date_format(#{endTime}, '%Y-%m-%d'),INTERVAL 1 DAY)
+		</if>
+		 order by es.id asc
+		 <if test="pageIndex!=null and pageSize!=null">
+			 limit #{pageIndex},#{pageSize}
+		</if>
+		
+	</select>
+
+<!-- 有效库存数 -->
+<select id="getyxkcNum" resultType="com.lifang.agentsm.model.EstateInfoAboutData" >
+<!-- 	SELECT count(1) from  house_info h where h.subEstateId=#{subEstateId} and h.townid=#{townId}
+ -->
+ 	  SELECT yxkcNum,subEstateId from ( SELECT
+			count(hsr.id) as yxkcNum,es.id as subEstateId
+		FROM  estate_sub es 
+			JOIN dic_area_new town ON town.id = es.townid AND town.level = 5
+			JOIN dic_area_new dic ON dic.id = town.parentid AND dic.level = 4
+			JOIN dic_area_new city ON city.id = dic.parentid AND city.level = 3
+			left join house_info h on (h.subEstateId = es.id and h.status = 1)
+			left join house_sell_resource hsr on (h.houseid=hsr.houseid  and hsr.houseState=2)
+		where  town.status = 1 and es.hasNewHouse = 2 and es.`status` = 1
+		<if test="cityId!=null and cityId!=''">
+			and town.cityId=#{cityId}
+		</if>
+		<if test="districtId!=null and districtId!=''">
+			and dic.id=#{districtId}
+		</if>
+		<if test="townId!=null and townId!=''">
+			and town.id=#{townId}		
+		</if>
+		<if test="estateName!=null and estateName!=''">
+			and (es.subEstateName like concat('%',#{estateName},'%') or es.estateName like concat('%',#{estateName},'%')) 
+		</if>
+		  group BY es.id  
+		
+		) t ORDER BY t.subEstateId
+ 		<if test="pageIndex!=null and pageSize!=null">
+			 limit #{pageIndex},#{pageSize}
+		</if>
+ </select>
+
+<!-- 浏览数 -->
+<select id="getllNum" resultType="com.lifang.agentsm.model.EstateInfoAboutData" >
+<!-- 	SELECT sum(hia.hclickcount) from house_info_accessory hia LEFT JOIN   house_info h on h.houseid=hia.houseid where h.subEstateId=#{subEstateId} and h.townid=#{townId}
+ -->
+ 		select sum(b.hclickcount) as llNum,b.subEstateId from (
+    SELECT
+			hia.hclickcount,es.id as subEstateId
+		FROM  estate_sub es 
+			JOIN dic_area_new town ON town.id = es.townid AND town.level = 5
+			JOIN dic_area_new dic ON dic.id = town.parentid AND dic.level = 4
+			JOIN dic_area_new city ON city.id = dic.parentid AND city.level = 3			left join house_info h on (h.subEstateId = es.id and h.status = 1)
+			left join house_sell_resource hsr on (h.houseid=hsr.houseid  and hsr.houseState=2)
+			left join house_info_accessory hia on hsr.houseid=hia.houseid
+		where  town.status = 1 and es.hasNewHouse = 2 and es.`status` = 1
+		<if test="cityId!=null and cityId!=''">
+			and town.cityId=#{cityId}
+		</if>
+		<if test="districtId!=null and districtId!=''">
+			and dic.id=#{districtId}
+		</if>
+		<if test="townId!=null and townId!=''">
+			and town.id=#{townId}		
+		</if>
+		<if test="estateName!=null and estateName!=''">
+			and (es.subEstateName like concat('%',#{estateName},'%') or es.estateName like concat('%',#{estateName},'%')) 
+		</if>
+		
+		ORDER BY es.id ) b  group BY b.subEstateId
+		<if test="pageIndex!=null and pageSize!=null">
+			 limit #{pageIndex},#{pageSize}
+		</if>
+ </select>
+
+<!-- 实景数 -->
+<select id="getsjNum" resultType="com.lifang.agentsm.model.EstateInfoAboutData" >
+<!-- 	SELECT count(1) from lf_sell_house_agent  la  LEFT JOIN house_info hi on  la.houseid = hi.houseid and la.status=1 and la.pictureAgent is not null where hi.subEstateId=#{subEstateId} and hi.townid=#{townId}
+ -->
+ 	SELECT sjNum,subEstateId  from ( SELECT
+			count(la.id) as sjNum,es.id as subEstateId
+		FROM  estate_sub es 
+			JOIN dic_area_new town ON town.id = es.townid AND town.level = 5
+			JOIN dic_area_new dic ON dic.id = town.parentid AND dic.level = 4
+			JOIN dic_area_new city ON city.id = dic.parentid AND city.level = 3			left join house_info h on (h.subEstateId = es.id and h.status = 1)
+			left join house_sell_resource hsr on (h.houseid=hsr.houseid  and hsr.houseState=2)
+			left join lf_sell_house_agent  la on ( la.houseid = hsr.houseid and la.status=1 and la.pictureAgent is not null)
+		where  town.status = 1 and es.hasNewHouse = 2 and es.`status` = 1
+		<if test="cityId!=null and cityId!=''">
+			and town.cityId=#{cityId}
+		</if>
+		<if test="districtId!=null and districtId!=''">
+			and dic.id=#{districtId}
+		</if>
+		<if test="townId!=null and townId!=''">
+			and town.id=#{townId}		
+		</if>
+		<if test="estateName!=null and estateName!=''">
+			and (es.subEstateName like concat('%',#{estateName},'%') or es.estateName like concat('%',#{estateName},'%')) 
+		</if>
+		
+		 group BY es.id  ) t  ORDER BY  t.subEstateId
+		<if test="pageIndex!=null and pageSize!=null">
+			 limit #{pageIndex},#{pageSize}
+		</if>
+ </select>
+  
+  <!-- 速消数 -->
+  <select id="getsxNum" resultType="com.lifang.agentsm.model.EstateInfoAboutData" >
+<!--  	 SELECT count(1) from lf_sell_house_agent  la LEFT JOIN house_info hi on  la.houseid = hi.houseid and la.status=1 and la.commAgent is not null where hi.subEstateId=#{subEstateId} and hi.townid=#{townId}
+ --> 
+ 	SELECT sxNum,subEstateId  from ( SELECT
+			count(DISTINCT la.houseId) as sxNum,es.id as subEstateId
+		FROM  estate_sub es 
+			JOIN dic_area_new town ON town.id = es.townid AND town.level = 5
+			JOIN dic_area_new dic ON dic.id = town.parentid AND dic.level = 4
+			JOIN dic_area_new city ON city.id = dic.parentid AND city.level = 3			left join house_info h on (h.subEstateId = es.id and h.status = 1)
+			left join house_sell_resource hsr on (h.houseid=hsr.houseid  and hsr.houseState=2)
+			left join lf_sell_house_agent  la on ( la.houseid = hsr.houseid and la.status=1 and la.commAgent is not null)
+		where  town.status = 1 and es.hasNewHouse = 2 and es.`status` = 1
+		<if test="cityId!=null and cityId!=''">
+			and town.cityId=#{cityId}
+		</if>
+		<if test="districtId!=null and districtId!=''">
+			and dic.id=#{districtId}
+		</if>
+		<if test="townId!=null and townId!=''">
+			and town.id=#{townId}		
+		</if>
+		<if test="estateName!=null and estateName!=''">
+			and (es.subEstateName like concat('%',#{estateName},'%') or es.estateName like concat('%',#{estateName},'%')) 
+		</if>
+		
+		group BY  es.id ) t  ORDER BY t.subEstateId
+		<if test="pageIndex!=null and pageSize!=null">
+			 limit #{pageIndex},#{pageSize}
+		</if>
+  </select>
+  
+  <!-- 钥匙数 -->
+  <select id="getysNum" resultType="com.lifang.agentsm.model.EstateInfoAboutData" >
+<!--   SELECT count(1) from lf_sell_house_agent  la LEFT JOIN house_info hi on  la.houseid=hi.houseId  and la.status=1 and la.keyAgent is not null where hi.subEstateId=#{subEstateId} and hi.townid=#{townId}
+ --> 
+ 	SELECT ysNum,subEstateId  from ( SELECT
+			count(la.id) as ysNum,es.id as subEstateId
+		FROM  estate_sub es 
+			JOIN dic_area_new town ON town.id = es.townid AND town.level = 5
+			JOIN dic_area_new dic ON dic.id = town.parentid AND dic.level = 4
+			JOIN dic_area_new city ON city.id = dic.parentid AND city.level = 3			left join house_info h on (h.subEstateId = es.id and h.status = 1)
+			left join house_sell_resource hsr on (h.houseid=hsr.houseid  and hsr.houseState=2)
+			left join lf_sell_house_agent  la on ( la.houseid = hsr.houseid and la.status=1 and la.keyAgent is not null)
+		where  town.status = 1 and es.hasNewHouse = 2 and es.`status` = 1
+		<if test="cityId!=null and cityId!=''">
+			and town.cityId=#{cityId}
+		</if>
+		<if test="districtId!=null and districtId!=''">
+			and dic.id=#{districtId}
+		</if>
+		<if test="townId!=null and townId!=''">
+			and town.id=#{townId}		
+		</if>
+		<if test="estateName!=null and estateName!=''">
+			and (es.subEstateName like concat('%',#{estateName},'%') or es.estateName like concat('%',#{estateName},'%')) 
+		</if>
+		
+		group BY  es.id ) t  ORDER BY t.subEstateId
+		<if test="pageIndex!=null and pageSize!=null">
+			 limit #{pageIndex},#{pageSize}
+		</if>
+  </select>
+ 
+ 
+  
+  <!-- 描述数 -->
+  <select id="getMsNum" resultType="com.lifang.agentsm.model.EstateInfoAboutData" >
+<!--   	SELECT count(1) from  house_sell_resource lsr LEFT JOIN house_info hi on  lsr.houseid=hi.houseId and lsr.sellPoint is not null where hi.subEstateId=#{subEstateId} and hi.townid=#{townId}
+ -->
+	SELECT msNum,subEstateId from ( SELECT
+			count(hsr.id) as msNum,es.id as subEstateId
+		FROM  estate_sub es 
+			JOIN dic_area_new town ON town.id = es.townid AND town.level = 5
+			JOIN dic_area_new dic ON dic.id = town.parentid AND dic.level = 4
+			JOIN dic_area_new city ON city.id = dic.parentid AND city.level = 3
+			left join house_info h on (h.subEstateId = es.id and h.status = 1)
+			left join house_sell_resource hsr on (h.houseid=hsr.houseid  and hsr.houseState=2 and hsr.sellpoint is not null)
+		where  town.status = 1 and es.hasNewHouse = 2 and es.`status` = 1
+		<if test="cityId!=null and cityId!=''">
+			and town.cityId=#{cityId}
+		</if>
+		<if test="districtId!=null and districtId!=''">
+			and dic.id=#{districtId}
+		</if>
+		<if test="townId!=null and townId!=''">
+			and town.id=#{townId}		
+		</if>
+		<if test="estateName!=null and estateName!=''">
+			and (es.subEstateName like concat('%',#{estateName},'%') or es.estateName like concat('%',#{estateName},'%')) 
+		</if>
+		GROUP  BY es.id ) t  order BY t.subEstateId
+		<if test="pageIndex!=null and pageSize!=null">
+			 limit #{pageIndex},#{pageSize}
+		</if>
+   </select>
+  
+  <!-- 店推数 -->
+<select id="getDtNum" resultType="com.lifang.agentsm.model.EstateInfoAboutData" >
+<!-- SELECT count(1) from lf_house_store_push lp LEFT JOIN house_info hi on  lp.houseid=hi.houseId and lp.`status`=1 where hi.subEstateId=#{subEstateId} and hi.townid=#{townId}
+ -->
+		SELECT dtNum,subEstateId from ( SELECT
+			count(lp.id) as dtNum,es.id as subEstateId
+		FROM  estate_sub es 
+			JOIN dic_area_new town ON town.id = es.townid AND town.level = 5
+			JOIN dic_area_new dic ON dic.id = town.parentid AND dic.level = 4
+			JOIN dic_area_new city ON city.id = dic.parentid AND city.level = 3
+			left join house_info h on (h.subEstateId = es.id and h.status = 1)
+			left join house_sell_resource hsr on (h.houseid=hsr.houseid  and hsr.houseState=2 )
+
+			LEFT JOIN lf_house_store_push lp  on (lp.houseid=hsr.houseId and lp.`status`=1)
+		where  town.status = 1 and es.hasNewHouse = 2 and es.`status` = 1
+		
+		<if test="cityId!=null and cityId!=''">
+			and town.cityId=#{cityId}
+		</if>
+		<if test="districtId!=null and districtId!=''">
+			and dic.id=#{districtId}
+		</if>
+		<if test="townId!=null and townId!=''">
+			and town.id=#{townId}		
+		</if>
+		<if test="estateName!=null and estateName!=''">
+			and (es.subEstateName like concat('%',#{estateName},'%') or es.estateName like concat('%',#{estateName},'%')) 
+		</if>
+		
+		group BY es.id ) t  order BY t.subEstateId
+		<if test="pageIndex!=null and pageSize!=null">
+			 limit #{pageIndex},#{pageSize}
+		</if>
+ </select>  
+
+<!-- openHouse -->
+<select id="getOpenNum" resultType="com.lifang.agentsm.model.EstateInfoAboutData" >
+<!-- SELECT count(1) from  house_sell_resource lsr LEFT JOIN  house_info hi on lsr.houseid=hi.houseId and lsr.lookAnytime=1 where hi.subEstateId=#{subEstateId} and hi.townid=#{townId}
+ -->
+SELECT openHouse,subEstateId from ( SELECT
+			count(hsr.id) as openHouse,es.id as subEstateId
+		FROM  estate_sub es 
+			JOIN dic_area_new town ON town.id = es.townid AND town.level = 5
+			JOIN dic_area_new dic ON dic.id = town.parentid AND dic.level = 4
+			JOIN dic_area_new city ON city.id = dic.parentid AND city.level = 3
+			left join house_info h on (h.subEstateId = es.id and h.status = 1)
+			left join house_sell_resource hsr on (h.houseid=hsr.houseid  and hsr.houseState=2 and hsr.lookAnytime=1)
+
+		where  town.status = 1 and es.hasNewHouse = 2 and es.`status` = 1
+		
+		<if test="cityId!=null and cityId!=''">
+			and town.cityId=#{cityId}
+		</if>
+		<if test="districtId!=null and districtId!=''">
+			and dic.id=#{districtId}
+		</if>
+		<if test="townId!=null and townId!=''">
+			and town.id=#{townId}		
+		</if>
+		<if test="estateName!=null and estateName!=''">
+			and (es.subEstateName like concat('%',#{estateName},'%') or es.estateName like concat('%',#{estateName},'%')) 
+		</if>
+		
+		 group BY es.id ) t  order BY t.subEstateId
+		<if test="pageIndex!=null and pageSize!=null">
+			 limit #{pageIndex},#{pageSize}
+		</if>
+ </select>
+<!-- 带看数 -->
+<select id="getDkNum" resultType="com.lifang.agentsm.model.EstateInfoAboutData"  >
+<!-- SELECT  count(1) from  lf_customer_house_see ls  LEFT JOIN  house_info hi on ls.houseId=hi.houseid and ls.`status`=1 where hi.subEstateId=#{subEstateId} and hi.townid=#{townId}
+ -->
+SELECT dkNum,subEstateId from ( SELECT
+			count(ls.id) as dkNum,es.id as subEstateId
+		FROM  estate_sub es 
+			JOIN dic_area_new town ON town.id = es.townid AND town.level = 5
+			JOIN dic_area_new dic ON dic.id = town.parentid AND dic.level = 4
+			JOIN dic_area_new city ON city.id = dic.parentid AND city.level = 3
+			left join house_info h on (h.subEstateId = es.id and h.status = 1)
+			left join house_sell_resource hsr on (h.houseid=hsr.houseid  and hsr.houseState=2)
+			LEFT JOIN lf_customer_house_see ls on ls.houseId=hsr.houseid and ls.`status`=1 
+
+		where  town.status = 1 and es.hasNewHouse = 2 and es.`status` = 1
+		<if test="cityId!=null and cityId!=''">
+			and town.cityId=#{cityId}
+		</if>
+		<if test="districtId!=null and districtId!=''">
+			and dic.id=#{districtId}
+		</if>
+		<if test="townId!=null and townId!=''">
+			and town.id=#{townId}		
+		</if>
+		<if test="estateName!=null and estateName!=''">
+			and (es.subEstateName like concat('%',#{estateName},'%') or es.estateName like concat('%',#{estateName},'%')) 
+		</if>
+		
+		  group BY es.id ) t  order BY t.subEstateId
+ 		<if test="pageIndex!=null and pageSize!=null">
+			 limit #{pageIndex},#{pageSize}
+		</if>
+ 
+ </select>
+<!-- 跟进数 -->
+<select id="getGjNum" resultType="com.lifang.agentsm.model.EstateInfoAboutData"   >
+<!-- SELECT COUNT(1) from  lf_house_follow_up lu LEFT JOIN  house_info hi on lu.houseId = hi.houseId and lu.status=1  where hi.subEstateId=#{subEstateId} and hi.townid=#{townId}
+ -->
+ 	SELECT gjNum,subEstateId from ( SELECT
+			count(lu.id) as gjNum,es.id as subEstateId
+		FROM  estate_sub es 
+			JOIN dic_area_new town ON town.id = es.townid AND town.level = 5
+			JOIN dic_area_new dic ON dic.id = town.parentid AND dic.level = 4
+			JOIN dic_area_new city ON city.id = dic.parentid AND city.level = 3
+			left join house_info h on (h.subEstateId = es.id and h.status = 1)
+			left join house_sell_resource hsr on (h.houseid=hsr.houseid  and hsr.houseState=2)
+			LEFT JOIN lf_house_follow_up lu on lu.houseId=hsr.houseid and lu.`status`=1 
+		where  town.status = 1 and es.hasNewHouse = 2 and es.`status` = 1
+		<if test="cityId!=null and cityId!=''">
+			and town.cityId=#{cityId}
+		</if>
+		<if test="districtId!=null and districtId!=''">
+			and dic.id=#{districtId}
+		</if>
+		<if test="townId!=null and townId!=''">
+			and town.id=#{townId}		
+		</if>
+		<if test="estateName!=null and estateName!=''">
+			and (es.subEstateName like concat('%',#{estateName},'%') or es.estateName like concat('%',#{estateName},'%')) 
+		</if>
+		
+		group BY es.id ) t  order BY t.subEstateId
+		<if test="pageIndex!=null and pageSize!=null">
+			 limit #{pageIndex},#{pageSize}
+		</if>
+ 
+ 
+ </select>
+
+<!-- 收藏数 -->
+<select id="getScNum" resultType="com.lifang.agentsm.model.EstateInfoAboutData" >
+<!-- SELECT sum(hia.favouritecount) from house_info_accessory hia LEFT JOIN   house_info h on h.houseid=hia.houseid where h.subEstateId=#{subEstateId} and h.townid=#{townId}
+ -->
+ 	select sum(b.favouritecount) as scNum,b.subEstateId from (
+    SELECT
+			hia.favouritecount,es.id as subEstateId
+		FROM  estate_sub es 
+			JOIN dic_area_new town ON town.id = es.townid AND town.level = 5
+			JOIN dic_area_new dic ON dic.id = town.parentid AND dic.level = 4
+			JOIN dic_area_new city ON city.id = dic.parentid AND city.level = 3
+			left join house_info h on (h.subEstateId = es.id and h.status = 1)
+			left join house_sell_resource hsr on (h.houseid=hsr.houseid  and hsr.houseState=2)
+			left join house_info_accessory hia on hsr.houseid=hia.houseid
+		where  town.status = 1 and es.hasNewHouse = 2 and es.`status` = 1
+		<if test="cityId!=null and cityId!=''">
+			and town.cityId=#{cityId}
+		</if>
+		<if test="districtId!=null and districtId!=''">
+			and dic.id=#{districtId}
+		</if>
+		<if test="townId!=null and townId!=''">
+			and town.id=#{townId}		
+		</if>
+		<if test="estateName!=null and estateName!=''">
+			and (es.subEstateName like concat('%',#{estateName},'%') or es.estateName like concat('%',#{estateName},'%')) 
+		</if>
+		
+		ORDER BY es.id ) b  group BY b.subEstateId
+ 		<if test="pageIndex!=null and pageSize!=null">
+			 limit #{pageIndex},#{pageSize}
+		</if>
+ </select>
+</mapper>

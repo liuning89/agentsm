@@ -1,0 +1,15 @@
+#macro( getErrorDesc $objectName )
+#set($errors = $springMacroRequestContext.getErrors($objectName))
+#if($errors && $errors.fieldErrors && $errors.fieldErrors.size()>0)
+	#foreach($e in $errors.fieldErrors)
+			$e.defaultMessage 
+	#end
+	
+#end
+#if($errors )
+	#foreach($e in $errors.globalErrors)
+			$e.defaultMessage 
+	#end
+	
+#end
+#end

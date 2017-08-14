@@ -1,0 +1,512 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lifang.agentsm.dao.write.TransferWriteMapper">
+
+  <insert id="insert" parameterType="com.lifang.agentsm.model.LfFranchiseeInfo">
+    insert into lf_franchisee_info (id, cityId, townid, 
+      Abbreviation, companyname, corporate, 
+      corporatephone, partner1, partnerphone1, 
+      partner2, partnerphone2, address, 
+      cooperationstart, cooperationend, isseed, 
+      deposit, brandcost, cooperationcost, 
+      status, updateTime, createBy, 
+      createTime)
+    values (#{id,jdbcType=BIGINT}, #{cityId,jdbcType=INTEGER}, #{townid,jdbcType=INTEGER}, 
+      #{abbreviation,jdbcType=VARCHAR}, #{companyname,jdbcType=VARCHAR}, #{corporate,jdbcType=VARCHAR}, 
+      #{corporatephone,jdbcType=VARCHAR}, #{partner1,jdbcType=VARCHAR}, #{partnerphone1,jdbcType=VARCHAR}, 
+      #{partner2,jdbcType=VARCHAR}, #{partnerphone2,jdbcType=VARCHAR}, #{address,jdbcType=VARCHAR}, 
+      #{cooperationstart,jdbcType=TIMESTAMP}, #{cooperationend,jdbcType=TIMESTAMP}, #{isseed,jdbcType=CHAR}, 
+      #{deposit,jdbcType=DOUBLE}, #{brandcost,jdbcType=DOUBLE}, #{cooperationcost,jdbcType=DOUBLE}, 
+      #{status,jdbcType=CHAR}, #{updateTime,jdbcType=TIMESTAMP}, #{createBy,jdbcType=BIGINT}, 
+      #{createTime,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="map" useGeneratedKeys="true" keyProperty="id"	>
+    insert into lf_franchisee_info
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <!-- <if test="id != null">
+        id,
+      </if> -->
+      <!--<if test="cityId != null">-->
+        <!--cityId,-->
+      <!--</if>-->
+     <!--  <if test="areaId != null">
+        townid,
+      </if> -->
+      <if test="abbreviation != null">
+        Abbreviation,
+      </if>
+      <if test="companyname != null">
+        companyname,
+      </if>
+      <if test="corporate != null">
+        corporate,
+      </if>
+      <if test="corporatephone != null">
+        corporatephone,
+      </if>
+      <if test="partner1 != null">
+        partner1,
+      </if>
+      <if test="partnerphone1 != null">
+        partnerphone1,
+      </if>
+      <if test="partner2 != null">
+        partner2,
+      </if>
+      <if test="partnerphone2 != null">
+        partnerphone2,
+      </if>
+      
+       <if test="bd != null">
+        bd,
+      </if>
+        <if test="bdphone != null">
+        bdphone,
+      </if>
+        <if test="bp != null">
+        bp,
+      </if>
+        <if test="bpphone != null">
+        bpphone,
+      </if>
+      <if test="address != null">
+        address,
+      </if>
+      <if test="cooperationstart != null">
+        cooperationstart,
+      </if>
+      <if test="cooperationend != null">
+        cooperationend,
+      </if>
+      <if test="isseed != null">
+        isseed,
+      </if>
+      <if test="deposit != null">
+        deposit,
+      </if>
+      <if test="brandcost != null">
+        brandcost,
+      </if>
+      <if test="cooperationcost != null">
+        cooperationcost,
+      </if>
+        status,
+        <if test="createBy != null">
+        createBy,
+      </if>
+        <if test="franchiseePhone != null">
+            franchiseePhone
+        </if>
+
+     <!--  <if test="updateTime != null">
+        updateTime,
+      </if>
+      
+      <if test="createTime != null">
+        createTime,
+      </if> -->
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+     <!--  <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if> -->
+      <!--<if test="cityId != null">-->
+        <!--#{cityId},-->
+      <!--</if>-->
+      <!-- <if test="areaId != null">
+        #{areaId},
+      </if> -->
+      <if test="abbreviation != null">
+        #{abbreviation,jdbcType=VARCHAR},
+      </if>
+      <if test="companyname != null">
+        #{companyname,jdbcType=VARCHAR},
+      </if>
+      <if test="corporate != null">
+        #{corporate,jdbcType=VARCHAR},
+      </if>
+      <if test="corporatephone != null">
+        #{corporatephone,jdbcType=VARCHAR},
+      </if>
+      <if test="partner1 != null">
+        #{partner1,jdbcType=VARCHAR},
+      </if>
+      <if test="partnerphone1 != null">
+        #{partnerphone1,jdbcType=VARCHAR},
+      </if>
+      <if test="partner2 != null">
+        #{partner2,jdbcType=VARCHAR},
+      </if>
+      <if test="partnerphone2 != null">
+        #{partnerphone2,jdbcType=VARCHAR},
+      </if>
+      
+      <if test="bd != null">
+        #{bd,jdbcType=VARCHAR},
+      </if>
+      <if test="bdphone != null">
+        #{bdphone,jdbcType=VARCHAR},
+      </if>
+      <if test="bp != null">
+        #{bp,jdbcType=VARCHAR},
+      </if>
+      <if test="bpphone != null">
+        #{bpphone,jdbcType=VARCHAR},
+      </if>
+      
+      
+      
+      <if test="address != null">
+        #{address,jdbcType=VARCHAR},
+      </if>
+      <if test="cooperationstart != null">
+        #{cooperationstart,jdbcType=TIMESTAMP},
+      </if>
+      <if test="cooperationend != null">
+        #{cooperationend,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isseed != null">
+        #{isseed,jdbcType=CHAR},
+      </if>
+      <if test="deposit != null">
+        #{deposit,jdbcType=DOUBLE},
+      </if>
+      <if test="brandcost != null">
+        #{brandcost,jdbcType=DOUBLE},
+      </if>
+      <if test="cooperationcost != null">
+        #{cooperationcost,jdbcType=DOUBLE},
+      </if>
+      
+        1,
+      <if test="createBy != null">
+        #{createBy,jdbcType=DOUBLE},
+      </if>
+        <if test="franchiseePhone != null">
+            #{franchiseePhone}
+        </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.lifang.agentsm.model.LfFranchiseeInfo">
+    update lf_franchisee_info
+    <set>
+      <!--<if test="cityId != null">-->
+        <!--cityId = #{cityId},-->
+      <!--</if>-->
+      <if test="townid != null">
+        townid = #{townid},
+      </if>
+      <if test="abbreviation != null">
+        Abbreviation = #{abbreviation,jdbcType=VARCHAR},
+      </if>
+      <if test="companyname != null">
+        companyname = #{companyname,jdbcType=VARCHAR},
+      </if>
+      <if test="corporate != null">
+        corporate = #{corporate,jdbcType=VARCHAR},
+      </if>
+      <if test="corporatephone != null">
+        corporatephone = #{corporatephone,jdbcType=VARCHAR},
+      </if>
+      <if test="partner1 != null">
+        partner1 = #{partner1,jdbcType=VARCHAR},
+      </if>
+      <if test="partnerphone1 != null">
+        partnerphone1 = #{partnerphone1,jdbcType=VARCHAR},
+      </if>
+      <if test="partner2 != null">
+        partner2 = #{partner2,jdbcType=VARCHAR},
+      </if>
+      <if test="partnerphone2 != null">
+        partnerphone2 = #{partnerphone2,jdbcType=VARCHAR},
+      </if>
+      
+      
+      <if test="bd != null">
+        bd = #{bd,jdbcType=VARCHAR},
+      </if>
+      <if test="bdphone != null">
+        bdphone = #{bdphone,jdbcType=VARCHAR},
+      </if>
+      <if test="bp != null">
+        bp = #{bp,jdbcType=VARCHAR},
+      </if>
+      <if test="bpphone != null">
+        bpphone = #{bpphone,jdbcType=VARCHAR},
+      </if>
+      
+      
+      
+      
+      <if test="address != null">
+        address = #{address,jdbcType=VARCHAR},
+      </if>
+      <if test="cooperationstart != null">
+        cooperationstart = #{cooperationstart,jdbcType=TIMESTAMP},
+      </if>
+      <if test="cooperationend != null">
+        cooperationend = #{cooperationend,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isseed != null">
+        isseed = #{isseed,jdbcType=CHAR},
+      </if>
+      <if test="deposit != null">
+        deposit = #{deposit,jdbcType=DOUBLE},
+      </if>
+      <if test="brandcost != null">
+        brandcost = #{brandcost,jdbcType=DOUBLE},
+      </if>
+      <if test="cooperationcost != null">
+        cooperationcost = #{cooperationcost,jdbcType=DOUBLE},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=CHAR},
+      </if>
+      <if test="updateTime != null">
+        updateTime = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createBy != null">
+        createBy = #{createBy,jdbcType=BIGINT},
+      </if>
+      <if test="createTime != null">
+        createTime = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateFranchiseeInfo" parameterType="map">
+    update lf_franchisee_info
+    set 
+      Abbreviation = #{abbreviation,jdbcType=VARCHAR},
+      companyname = #{companyname,jdbcType=VARCHAR},
+      corporate = #{corporate,jdbcType=VARCHAR},
+      corporatephone = #{corporatephone,jdbcType=VARCHAR},
+      partner1 = #{partner1,jdbcType=VARCHAR},
+      partnerphone1 = #{partnerphone1,jdbcType=VARCHAR},
+      partner2 = #{partner2,jdbcType=VARCHAR},
+      partnerphone2 = #{partnerphone2,jdbcType=VARCHAR},
+      bd = #{bd,jdbcType=VARCHAR},
+      bdphone = #{bdphone,jdbcType=VARCHAR},
+      bp = #{bp,jdbcType=VARCHAR},
+      bpphone = #{bpphone,jdbcType=VARCHAR},
+      address = #{address,jdbcType=VARCHAR},
+      <if test="cooperationstart != null and cooperationstart != ''">
+          cooperationstart = #{cooperationstart},
+      </if>
+      <if test="cooperationend != null and cooperationend != ''">
+
+          cooperationend = #{cooperationend},
+      </if>
+
+
+
+      isseed = #{isseed,jdbcType=CHAR},
+      deposit = #{deposit,jdbcType=DOUBLE},
+      brandcost = #{brandcost,jdbcType=DOUBLE},
+      cooperationcost = #{cooperationcost,jdbcType=DOUBLE},
+    franchiseePhone = #{franchiseePhone}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from lf_agent_activity
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+
+<insert id="saveFranchiseeStore" parameterType="map">
+    insert into lf_Franchisee_store ( 
+		franchiseeId ,
+	   storeCode, 
+	  `chartername`, 
+	  `storeaddress`, 
+	  areaId
+	)
+    values (#{franchiseeId}, #{storeId}, #{chartername}, #{storeaddress},#{areaId})
+  </insert>
+
+ <update id="updateFranchiseeStore" parameterType="map">
+    update lf_franchisee_store
+    set 
+      franchiseeId = #{franchiseeId},
+      storeCode = #{storeId},
+      chartername = #{chartername},
+      storeaddress = #{storeaddress}
+    where id = #{id}
+  </update>
+<!-- 钥匙人 -->
+    <update id="updateKeyAgentBath"  parameterType="java.util.List">
+	 <foreach collection="list" item="item" index="index" open="" close="" separator=";">
+               update `lf_sell_house_agent` 
+            <set>
+                `keyAgent`=${item.keyAgent} 
+            </set>
+            where `id`=${item.keyAgentId}
+         </foreach>
+    </update>
+     
+     <!-- 钥匙人 单个-->
+    <update id="updatekeyAgent"  parameterType="map">
+               update `lf_sell_house_agent` 
+                `keyAgent`=#{agentId} 
+            where `id`=#{id}
+    </update>
+     <!-- 发布人 -->
+     <update id="updatePublishAgentBath"  parameterType="java.util.List">
+	 <foreach collection="list" item="item" index="index" open="" close="" separator=";">
+               update `lf_sell_house_agent` 
+            <set>
+                `publishAgent`=#{item.publishAgent},
+                franchiseeAreaOrgId=#{item.franchiseeAreaOrgId}
+            </set>
+            where `id`=#{item.publishAgentId}
+         </foreach>
+    </update>
+    <!-- 发布人单个更新 -->
+    <update id="updatePublishAgent"  parameterType="map">
+               update `lf_sell_house_agent` 
+                `publishAgent`=#{agentId} 
+            where `id`=#{id}
+    </update>
+    
+    <!-- 实景人 -->
+     <update id="updatePictureAgentBath"  parameterType="java.util.List">
+	 <foreach collection="list" item="item" index="index" open="" close="" separator=";">
+               update `lf_sell_house_agent` 
+            <set>
+                `pictureAgent`=${item.pictureAgent} 
+            </set>
+            where `id`=${item.pictureAgentId}
+         </foreach>
+    </update>
+    <!-- 实景人更新单个 -->
+    <update id="updatePictureAgent"  parameterType="map">
+               update `lf_sell_house_agent` 
+                `pictureAgent`=#{agentId} 
+            where `id`=#{id}
+    </update>
+    
+    <!-- 速消人 -->
+     <update id="updateCommAgentBath"  parameterType="java.util.List">
+	 <foreach collection="list" item="item" index="index" open="" close="" separator=";">
+               update `lf_sell_house_agent` 
+            <set>
+                `commAgent`=${item.commAgent} 
+            </set>
+            where `id`=${item.commAgentId}
+         </foreach>
+    </update>
+    <!-- 速消单个 -->
+    <update id="updateCommAgent"  parameterType="map">
+               update `lf_sell_house_agent` 
+                `commAgent`=#{agentId} 
+            where `id`=#{id}
+    </update>
+     <!-- 维护人 -->
+     <update id="updateMaintainAgentBath"  parameterType="java.util.List">
+	 <foreach collection="list" item="item" index="index" open="" close="" separator=";">
+               update `lf_sell_house_agent` 
+            <set>
+                `maintainAgent`=${item.maintainAgent} 
+            </set>
+            where `id`=${item.maintainAgentId}
+         </foreach>
+    </update>
+    <!-- 维护人 单个-->
+    <update id="updateMaintainAgent"  parameterType="map">
+               update `lf_sell_house_agent` 
+                `maintainAgent`=#{agentId} 
+            where `id`=#{id}
+    </update>
+    <!-- 客源 -->
+     <update id="updateCustomerBath"  parameterType="java.util.List">
+	 <foreach collection="list" item="item" index="index" open="" close="" separator=";">
+               update `lf_customer` 
+            <set>
+                `agentId`=${item.customer} 
+            </set>
+            where `id`=${item.customerId}
+         </foreach>
+    </update>
+    
+    <update id="updateCustomer"  parameterType="map">
+               update `lf_customer` 
+                `agentId`=#{agentId} 
+            where `id`=${id}
+    </update>
+    <!-- 小区 -->
+     <update id="updateEstateBath"  parameterType="java.util.List">
+	 <foreach collection="list" item="item" index="index" open="" close="" separator=";">
+               update `lf_agent_estate` 
+            <set>
+                `agentId`=${item.estate} 
+            </set>
+            where `id`=${item.estateId}
+         </foreach>
+    </update>
+    
+    <update id="updateCusSeeBath"  parameterType="java.util.List">
+	 <foreach collection="list" item="item" index="index" open="" close="" separator=";">
+               update `cus_see_house_order` 
+            <set>
+                `agentId`=${item.cusSee} 
+            </set>
+            where `id`=${item.cusSeeId}
+         </foreach>
+    </update>
+    <!-- 专属经纪 -->
+    <update id="updateCusGuestBath"  parameterType="java.util.List">
+	 <foreach collection="list" item="item" index="index" open="" close="" separator=";">
+               update `cus_guest_appoint_agent` 
+            <set>
+                `agentId`=${item.cusGuest} 
+            </set>
+            where `id`=${item.cusGuestId}
+         </foreach>
+    </update>
+    
+     <!-- 带看 -->
+    <update id="updateHouseSeeBath"  parameterType="java.util.List">
+	 <foreach collection="list" item="item" index="index" open="" close="" separator=";">
+               update `lf_customer_house_see` 
+            <set>
+                `agentId`=${item.houseSee} 
+            </set>
+            where `id`=${item.houseSeeId}
+         </foreach>
+    </update>
+    
+    <!-- 客户需求 -->
+    <update id="updateRequirementBath"  parameterType="java.util.List">
+	 <foreach collection="list" item="item" index="index" open="" close="" separator=";">
+               update `lf_customer_requirement` 
+            <set>
+                `agentId`=${item.requirement} 
+            </set>
+            where `id`=${item.requirementId}
+         </foreach>
+    </update>
+    
+      <insert id="insertFranchiseeAreaBatch" parameterType="java.util.List">  
+    
+    insert into lf_franchisee_city (franchiseeId,cityId,status)
+     values
+	<foreach collection="list" item="item" index="index" separator="," >  
+        (#{item.franchiseeId},#{item.cityId},1)
+    </foreach> 
+ 
+</insert> 
+    <delete id="deleteFranchiseeAreaById" parameterType="string">
+    	delete from lf_franchisee_city where franchiseeId =#{id}
+    </delete>
+    <!-- 端口同步 -->
+    <update id="updatePush"  parameterType="map">
+		 update lf_franchisee_info set ispush=#{ispush} where id =#{id}
+    </update>
+
+
+
+
+    <insert id="inserHouseAuto" parameterType="string">
+        insert into house_auto_pass_config(companyId,autoPass,status) values (#{keyString} ,100,1);
+    </insert>
+    
+</mapper>

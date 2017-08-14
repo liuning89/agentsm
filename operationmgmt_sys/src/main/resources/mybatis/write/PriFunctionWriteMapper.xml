@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lifang.agentsm.dao.write.PriFunctionWriteMapper" >
+
+	<!-- 添加 -->
+	<insert id="add" parameterType="com.lifang.agentsm.model.PriFunction">
+		INSERT INTO lf_pri_function(name, appName, memo, type, status) VALUES (
+			#{name}, #{appName}, #{memo, jdbcType=VARCHAR}, #{type}, 1
+		)
+		<selectKey order="AFTER" resultType="int" keyProperty="id">
+			SELECT LAST_INSERT_ID()
+		</selectKey>
+	</insert>
+
+	<!-- 修改 -->
+	<update id="update" parameterType="com.lifang.agentsm.model.PriFunction">
+		UPDATE
+			lf_pri_function
+		SET
+			name = #{name},
+			memo = #{memo, jdbcType=VARCHAR}
+		WHERE
+			status = 1
+			AND id = #{id}
+	</update>
+
+	<!-- 删除 -->
+	<update id="delete" parameterType="int">
+		UPDATE
+			lf_pri_function
+		SET
+			status = 2
+		WHERE
+			status = 1
+			AND id = #{id}
+			AND type != 1
+	</update>
+
+	<!-- 添加URL列表 -->
+	<insert id="addUrls">
+		INSERT INTO lf_pri_url (name, url, memo, functionId, status) VALUES 
+		<foreach collection="urls" index="index" item="item" separator=",">
+			(#{item.name}, #{item.url}, #{item.memo,jdbcType=VARCHAR}, #{functionId}, 1)
+		</foreach>
+	</insert>
+
+	<!-- 修改url -->
+	<update id="updateUrl" parameterType="com.lifang.agentsm.model.PriUrl">
+		UPDATE
+			lf_pri_url
+		SET
+			name = #{name},
+			url = #{url},
+			memo = #{memo,jdbcType=VARCHAR}
+		WHERE
+			status = 1
+			AND id = #{id}
+	</update>
+
+	<!-- 删除URL列表 -->
+	<update id="deleteUrls" parameterType="list">
+		UPDATE
+			lf_pri_url
+		SET
+			status = 2
+		WHERE
+			status = 1
+			AND id IN 
+			<foreach collection="list" index="index" item="item" open="(" close=")" separator=",">
+				#{item}
+			</foreach>
+	</update>
+
+</mapper>

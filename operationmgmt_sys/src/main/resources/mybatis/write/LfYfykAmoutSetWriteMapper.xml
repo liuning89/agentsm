@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lifang.agentsm.dao.write.LfYfykAmoutSetWriteMapper">
+	<insert id="insertLog" parameterType="com.lifang.agentsm.model.LfYfykAmoutSetLog">
+		insert into
+		lf_yfyk_amount_set_log(content,beforevalue,aftervalue,operatorId,createTime,setId,type)
+		values(#{content},#{beforeValue},#{afterValue},#{operatorId},now(),#{setId},1)
+	</insert>
+	
+	<update id="updateStatus" parameterType="Map">
+		update  lf_yfyk_amount_set set yfykstatus=#{yfykStatus} where id=#{id}; 
+	</update>
+	
+	<update id="save" parameterType="com.lifang.agentsm.model.LfYfykAmoutSet">
+		update lf_yfyk_amount_set  set wkcoindenomination=#{wkCoinDenomination},price=#{price} where id=#{id}
+	</update>
+	
+	<insert id="add" parameterType="com.lifang.agentsm.model.LfYfykAmoutSet">
+		INSERT INTO lf_yfyk_amount_set ( `wkcoindenomination`, `price`, `yfykstatus`, `agentid`, `createTime`, `updateTime`) VALUES (#{wkCoinDenomination},#{price}, 0, #{agentId},  now(), now());
+	</insert>
+	<update id="saveFeeSet" parameterType="com.lifang.agentsm.model.LfAgentFeeSet">
+		UPDATE lf_agent_fee_set set consumecoin=#{consumecoin} where id=#{id}
+	</update>
+	<insert id="saveLog" parameterType="com.lifang.agentsm.model.LfYfykAmoutSetLog">
+		INSERT INTO `lf_yfyk_amount_set_log` (`operatorId`, `createTime`, `content`, `beforevalue`, `aftervalue`, `setId`,type) VALUES (#{operatorId}, now(), #{content}, #{beforeValue}, #{afterValue}, #{setId},#{type});
+	</insert>
+	
+	<insert id="addByCompanySave" parameterType="com.lifang.agentsm.model.WkCoinGivelModel">
+		INSERT INTO `lf_wkcoin_give_record` (`agentId`, `coinNum`, `operatorId`, `giveReason`) VALUES (#{agentId},#{coinNum},#{operatorId},#{giveReason});
+	</insert>
+	
+	<insert id="insertDetail" parameterType="com.lifang.agentsm.model.LfAgentAccountDetail">
+		insert into lf_agent_account_details (businessType,paymentOrderNo,platform,payStatus,agentId,wuKongCoin) values (5,#{paymentOrderNo},3,1,#{agentId},#{wuKongCoin})
+	
+	</insert>
+</mapper>

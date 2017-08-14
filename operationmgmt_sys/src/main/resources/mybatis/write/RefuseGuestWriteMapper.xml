@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lifang.agentsm.dao.write.RefuseGuestWriteMapper" >
+  
+  <insert id="inserRefuseGuest" parameterType="map">
+     insert into cus_refuse_guest (phoneNum,createTime,createBy) values (#{mobile,jdbcType=VARCHAR},now(),#{employeeId,jdbcType=BIGINT})
+
+  </insert>
+  
+  
+   <update id="updateLfEmp" parameterType="map">
+
+       update lf_employee set equipment='' where mobile = #{mobile}
+  </update>
+</mapper>

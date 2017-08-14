@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lifang.agentsm.dao.log.LogAgentWriteMapper" >
+  
+  <insert id="inserLfAppDeviceUnlock" parameterType="map">
+     insert into agentapp_device_unlock (unlockphone,unlockId) values (#{mobile},#{employeeId})
+
+  </insert>
+  
+  
+    <select id="selectPhoneCount" resultType="int" parameterType="map" >
+    
+	select count(*) from agentapp_device_unlock 
+	where createtime &gt; #{startDate} and createtime &lt; #{endDate} and unlockphone=#{mobile}
+	
+  </select>
+  
+</mapper>

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lifang.agentsm.dao.read.TravelAllowanceSetReadMapper">
+	
+	<!-- 列表 -->
+	<select id="travelAllowSetList" resultType="com.lifang.agentsm.model.TravelAllowanceSet">
+		SELECT
+			DISTINCT s.id as id,
+			d.`name` AS cityName,
+			DATE_FORMAT(
+				s.updatetime,
+				'%Y-%m-%d %H:%i'
+			) updatetime,
+			s.`status`
+		FROM
+			lf_travel_allowance_set s
+		INNER JOIN dic_area_new d ON s.cityId = d.id AND d.`level` = 3
+		AND d. STATUS = 1
+		INNER JOIN lf_area_org o on o.cityId=d.id and o.`status`=1
+		<if test="cityId!=0">
+			where o.id=#{cityId}
+		</if>
+		<if test="offset!=null and pageSize!=null">
+				limit
+				 #{offset},#{pageSize}
+		</if>
+	</select>
+		<select id="travelAllowSetListTotal" resultType="int">
+		SELECT
+			count(DISTINCT s.id)
+		FROM
+			lf_travel_allowance_set s
+		INNER JOIN dic_area_new d ON s.cityId = d.id AND d.`level` = 3
+		AND d. STATUS = 1
+		INNER JOIN lf_area_org o on o.cityId=d.id and o.`status`=1
+		<if test="cityId !=null and cityId!=0">
+			where o.id=#{cityId}
+		</if>
+	</select>
+	<select id="travelAllowSetDetailList" resultType="com.lifang.agentsm.model.TravelAllowanceSetDetail">
+		SELECT id,type ,wkcoin ,status from  lf_travel_allowance_set_detail where travelId=#{travelId}
+	</select>
+	
+	<select id="getDetailById" resultType="com.lifang.agentsm.model.TravelAllowanceSetDetail">
+		select * from lf_travel_allowance_set_detail where id=#{id}
+	</select>
+	<select id="getFeeSetLogList" resultType="com.lifang.agentsm.model.LfYfykAmoutSetLog">
+		select beforeValue,afterValue,operatorId,DATE_FORMAT(createTime,'%Y-%m-%d %H:%i:%s') as createTime,content from lf_yfyk_amount_set_log    where setId=#{id} and type=#{type}
+	</select>
+	
+	<select id="getBannerSetList" resultType="com.lifang.agentsm.model.BannerSet">
+		SELECT id,h5path,DATE_FORMAT(startTime,'%Y-%m-%d') startTime,DATE_FORMAT(endTime,'%Y-%m-%d') endTime,imageKey,description,isShow,`status` from lf_yfyk_banner_set
+	</select>
+	
+	<select id="getBannerSetById" parameterType="int" resultType="com.lifang.agentsm.model.BannerSet">
+		SELECT id,h5path,DATE_FORMAT(startTime,'%Y-%m-%d') startTime,DATE_FORMAT(endTime,'%Y-%m-%d') endTime,imageKey,description,isShow,`status` from lf_yfyk_banner_set where id=#{id}
+	</select>
+</mapper>

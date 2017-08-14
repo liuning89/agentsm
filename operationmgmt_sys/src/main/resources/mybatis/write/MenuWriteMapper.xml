@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lifang.agentsm.dao.write.MenuWriteMapper" >
+
+	<!-- 添加 -->
+	<insert id="add" parameterType="com.lifang.agentsm.model.Menu">
+		INSERT INTO lf_menu(
+			name, parentId, functionId, memo, isLeaf, status, url, sort
+		) VALUES (
+			#{name}, #{parentId}, #{functionId, jdbcType=DECIMAL}, #{memo, jdbcType=VARCHAR},
+			#{isLeaf}, 1, #{url, jdbcType=VARCHAR}, #{sort, jdbcType=DECIMAL}
+		)
+	</insert>
+
+	<!-- 修改 -->
+	<update id="update" parameterType="com.lifang.agentsm.model.Menu">
+		UPDATE
+			lf_menu
+		SET
+			name = #{name},
+			sort = #{sort, jdbcType=DECIMAL},
+			memo = #{memo, jdbcType=VARCHAR},
+			url = #{url, jdbcType=VARCHAR}
+		WHERE
+			status = 1
+			AND id = #{id}
+	</update>
+
+	<!-- 删除 -->
+	<update id="delete" parameterType="int">
+		UPDATE
+			lf_menu
+		SET
+			status = 2
+		WHERE
+			status = 1
+			AND id = #{id}
+	</update>
+
+	<!-- 批量删除 -->
+	<update id="deletes" parameterType="java.util.List">
+		UPDATE
+			lf_menu
+		SET
+			status = 2
+		WHERE
+			status = 1
+			AND id IN 
+			<foreach collection="ids" index="index" item="item" open="(" close=")" separator=",">
+				#{item}
+			</foreach>
+	</update>
+
+</mapper>

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lifang.agentsm.dao.read.LfAppFeedbackReadMapper">
+    <resultMap id="BaseResultMap" type="com.lifang.agentsm.entity.LfAppFeedback">
+        <id column="id" property="id" jdbcType="BIGINT" />
+        <result column="agentId" property="agentId" jdbcType="BIGINT" />
+        <result column="title" property="title" jdbcType="VARCHAR" />
+        <result column="context" property="context" jdbcType="VARCHAR" />
+        <result column="imgKey" property="imgKey" jdbcType="VARCHAR" />
+        <result column="createTime" property="createTime" jdbcType="TIMESTAMP" />
+        <result column="status" property="status" jdbcType="TINYINT" />
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, agentId, title, context, imgKey, createTime, status
+    </sql>
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long">
+        select
+        <include refid="Base_Column_List" />
+        from lf_app_feedback
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+
+    <select id="selectLfAppFeedbackListByPage" resultType="com.lifang.agentsm.model.LfAppFeedbackInfo" parameterType="com.lifang.agentsm.model.FeedBackRequest">
+        SELECT * FROM lf_app_feedback
+        INNER JOIN lf_agent ON lf_app_feedback.`agentId` = lf_agent.`id`
+        inner join lf_employee on lf_agent.id = lf_employee.id
+        inner join lf_position on lf_position.id = lf_employee.positionId
+        inner join lf_area_org on lf_area_org.id = lf_position.areaOrgId
+        WHERE 1 = 1
+        and lf_app_feedback.`status` = 1
+        <if test="orgCode!= null">
+            AND lf_area_org.code like CONCAT(#{orgCode},'%')
+        </if>
+        <if test="agentId != null and agentId != ''">
+            and lf_app_feedback.agentId = #{agentId}
+        </if>
+        <if test="mobile != null and mobile != ''">
+            and lf_agent.mobile = #{mobile}
+        </if>
+        <if test="createTimestart != null and createTimestart != ''">
+            <![CDATA[ and DATE_FORMAT(lf_app_feedback.`createTime`,'%Y-%m-%d %H:%i') >= #{createTimestart}  ]]>
+        </if>
+        <if test="createTimeend != null and createTimeend != ''" >
+           <![CDATA[  and DATE_FORMAT(lf_app_feedback.`createTime`,'%Y-%m-%d %H:%i') <= #{createTimeend}  ]]>
+        </if>
+        order by lf_app_feedback.`createTime` desc
+        limit #{pageIndex},#{pageSize}
+    </select>
+    
+    <select id="selectLfAppFeedbackListCount" resultType="int" parameterType="com.lifang.agentsm.model.FeedBackRequest">
+        SELECT count(*) FROM lf_app_feedback
+        INNER JOIN lf_agent ON lf_app_feedback.`agentId` = lf_agent.`id`
+        inner join lf_employee on lf_agent.id = lf_employee.id
+        inner join lf_position on lf_position.id = lf_employee.positionId
+        inner join lf_area_org on lf_area_org.id = lf_position.areaOrgId
+        WHERE 1 = 1
+        and lf_app_feedback.`status` = 1
+        <if test="orgCode!= null">
+            AND lf_area_org.code like CONCAT(#{orgCode},'%')
+        </if>
+        <if test="agentId != null and agentId != ''">
+            and lf_app_feedback.agentId = #{agentId}
+        </if>
+        <if test="mobile != null and mobile != ''">
+            and lf_agent.mobile = #{mobile}
+        </if>
+        <if test="createTimestart != null and createTimestart != ''">
+            <![CDATA[ and DATE_FORMAT(lf_app_feedback.`createTime`,'%Y-%m-%d %H:%i') >= #{createTimestart}  ]]>
+        </if>
+        <if test="createTimeend != null and createTimeend != ''" >
+           <![CDATA[  and DATE_FORMAT(lf_app_feedback.`createTime`,'%Y-%m-%d %H:%i') <= #{createTimeend}  ]]>
+        </if>
+        order by lf_app_feedback.`createTime` desc
+    </select>
+</mapper>

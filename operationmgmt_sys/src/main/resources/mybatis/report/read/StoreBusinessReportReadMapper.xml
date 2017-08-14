@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lifang.bzsm.console.report.read.StoreBusinessReportReadMapper">
+    <select id="getStoreBizReport" resultType="com.lifang.bzsm.console.entity.BusinessReport" parameterType="com.lifang.bzsm.console.model.LfBzAgentReportRequest">
+
+        SELECT
+        max(storeOrgName) storeOrgName,
+        max(areaOrgName) areaOrgName,
+        max(statisticsDate) statisticsDate,
+        SUM(IFNULL(houseSeeFirst, 0) + IFNULL(houseSeeSecond, 0)) houseSeeSum,
+        SUM(newCustomerWK) newCustomerWK,
+        SUM(newCustomerNet) newCustomerNet,
+        SUM(newCustomerOther) newCustomerOther,
+        ROUND(SUM(IFNULL(newCustomerWK, 0)+IFNULL(newCustomerNet, 0)+IFNULL(newCustomerOther, 0)),1) newCustomersum,
+        SUM(housePublish) housePublish,
+        SUM(houseKey) houseKey,
+        SUM(houseEntrust) houseEntrust,
+        SUM(houseImage) houseImage,
+        SUM(houseMaintain) houseMaintain,
+        ROUND(SUM(IFNULL(housePublish, 0) + IFNULL(houseKey, 0) + IFNULL(houseEntrust, 0) + IFNULL(houseImage, 0) + IFNULL(houseMaintain, 0)),1) housesum,
+        SUM(followHouse) followHouse,
+        SUM(followCustomer) followCustomer,
+        SUM(followCustomerN) followCustomerN,
+        SUM(shareTotal) shareTotal,
+        SUM(shareHouseCount) shareHouseCount,
+        SUM(shareHouse) shareHouse,
+        SUM(agentRegist) agentRegist,
+        SUM(opinionHight) opinionHight,
+        SUM(opinionLow) opinionLow,
+
+        <!-- 1.7.1 start-->
+        sum(agentStroke) agentStroke,
+        sum(houseSeeHCount) houseSeeHCount,
+        sum(houseSeeCCount) houseSeeCCount,
+        count(0) dataTotalCount,
+        <!-- 1.7.1 end-->
+		sum(invalidReview) as invalidReview
+
+        from lf_bz_agent_report
+        where status = 1
+        and length(lf_bz_agent_report.orgCode) >= 12
+        <if test="agentId != null and agentId !=''">
+            and agentId =#{agentId}
+        </if>
+        <if test="dateStart != null">
+            and statisticsDate >= #{dateStart}
+        </if>
+        <if test="dateEnd != null">
+            <![CDATA[and statisticsDate < #{dateEnd}]]>
+        </if>
+        <if test="storeIds != null and storeIds.size() != 0">
+            and storeOrgId in
+            <foreach collection="storeIds" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="queryType != null and queryType == 1">
+            group by storeOrgId
+        </if>
+        <if test="queryType != null and queryType == 2">
+            group by storeOrgId,statisticsDate
+        </if>
+        order by
+        <if test="sortField == null or sortField == ''">
+            cityOrgId,storeOrgId
+            <if test="queryType != null and queryType == 2">
+                ,statisticsDate DESC
+            </if>
+        </if>
+        <if test="sortField != null and sortField != ''">
+            <choose>
+                <when test="sortField =='storeOrgName' ">
+                    storeOrgName
+                </when>
+                <when test="sortField =='areaOrgName' ">
+                    areaOrgName
+                </when>
+                <when test="sortField =='orderAllocation' ">
+                    SUM(orderAllocation)
+                </when>
+                <when test="sortField =='orderGrab' ">
+                    SUM(orderGrab)
+                </when>
+                <when test="sortField =='orderTotal' ">
+                    SUM(orderTotal)
+                </when>
+                <when test="sortField =='statisticsDate' ">
+                    statisticsDate
+                </when>
+                <when test="sortField =='orderSuccess' ">
+                    sum(orderSuccess)
+                </when>
+                <when test="sortField =='orderFailed' ">
+                    SUM(orderFailed)
+                </when>
+                <when test="sortField =='orderEdit' ">
+                    SUM(orderEdit)
+                </when>
+                <when test="sortField =='orderCreate' ">
+                    SUM(orderCreate)
+                </when>
+                <when test="sortField =='houseSeeFirst' ">
+                    SUM(houseSeeFirst)
+                </when>
+
+                <when test="sortField =='houseSeeSecond' ">
+                    sum(houseSeeSecond)
+                </when>
+                <when test="sortField =='houseSeeSum' ">
+                    SUM(IFNULL(houseSeeFirst, 0) + IFNULL(houseSeeSecond, 0))
+                </when>
+                <when test="sortField =='newCustomerWK' ">
+                    SUM(newCustomerWK)
+                </when>
+                <when test="sortField =='newCustomerNet' ">
+                    SUM(newCustomerNet)
+                </when>
+                <when test="sortField =='newCustomerOther' ">
+                    SUM(newCustomerOther)
+                </when>
+
+                <when test="sortField =='newCustomersum' ">
+                    SUM(IFNULL(newCustomerWK, 0)+IFNULL(newCustomerNet, 0)+IFNULL(newCustomerOther, 0))
+                </when>
+                <when test="sortField =='housePublish' ">
+                    SUM(IFNULL(housePublish, 0))
+                </when>
+                <when test="sortField =='houseKey' ">
+                    SUM(houseKey)
+                </when>
+                <when test="sortField =='houseEntrust' ">
+                    SUM(houseEntrust)
+                </when>
+                <when test="sortField =='houseImage' ">
+                    SUM(houseImage)
+                </when>
+
+                <when test="sortField =='houseMaintain' ">
+                    SUM(houseMaintain)
+                </when>
+                <when test="sortField =='housesum' ">
+                    SUM(IFNULL(housePublish, 0) + IFNULL(houseKey, 0) + IFNULL(houseEntrust, 0) + IFNULL(houseImage, 0) +
+                    IFNULL(houseMaintain, 0))
+                </when>
+                <when test="sortField =='followHouse' ">
+                    SUM(followHouse)
+                </when>
+                <when test="sortField =='followCustomer' ">
+                    SUM(followCustomer)
+                </when>
+                <when test="sortField =='followCustomerN' ">
+                    SUM(followCustomerN)
+                </when>
+
+                <when test="sortField =='shareTotal' ">
+                    SUM(shareTotal)
+                </when>
+                <when test="sortField =='shareHouseCount' ">
+                    SUM(shareHouseCount)
+                </when>
+                <when test="sortField =='shareHouse' ">
+                    SUM(shareHouse)
+                </when>
+                <when test="sortField =='agentRegist' ">
+                    SUM(agentRegist)
+                </when>
+                <when test="sortField =='opinionHight' ">
+                    SUM(opinionHight)
+                </when>
+                <when test="sortField =='opinionLow' ">
+                    SUM(opinionLow)
+                </when>
+                <when test="sortField =='houseSeeAvg' ">
+                    SUM(IFNULL(houseSeeFirst, 0) + IFNULL(houseSeeSecond, 0))/COUNT(id)
+                </when>
+
+                <when test="sortField =='agentRegist' ">
+                    SUM(agentRegist)
+                </when>
+                <when test="sortField =='opinionHight' ">
+                    SUM(opinionHight)
+                </when>
+                <when test="sortField =='opinionLow' ">
+                    SUM(opinionLow)
+                </when>
+                <!--1.7.1 -->
+                <when test="sortField == 'agentStroke' ">
+                    sum(agentStroke)
+                </when>
+                <when test="sortField == 'houseSeeHCount' ">
+                    sum(houseSeeHCount)
+                </when>
+                <when test="sortField == 'houseSeeCCount' ">
+                    sum(houseSeeCCount)
+                </when>
+                <when test="sortField == 'agentStrokeAVG' ">
+                    case when count(0) = 0 then 0
+                    else sum(agentStroke) / count(0) end
+                </when>
+                <!--1.7.1 -->
+
+                <when test="sortField == 'invalidReview' ">
+                    sum(invalidReview)
+                </when>
+            </choose>
+
+            <choose>
+                <when test="sortOrder== 'desc' ">
+                    desc
+                </when>
+                <otherwise>
+                    asc
+                </otherwise>
+            </choose>
+        </if>
+        limit #{pageIndex},#{pageSize}
+    </select>
+
+    <select id="getStoreBizReportTotal" resultType="int"
+            parameterType="com.lifang.bzsm.console.model.LfBzAgentReportRequest">
+        select count(*) from (
+        SELECT 1 FROM lf_bz_agent_report
+        WHERE STATUS = 1
+        AND LENGTH(lf_bz_agent_report.orgCode) >= 12
+        <if test="agentId != null and agentId !=''">
+            and agentId =#{agentId}
+        </if>
+        <if test="dateStart != null">
+            and statisticsDate >= #{dateStart}
+        </if>
+        <if test="dateEnd != null">
+            <![CDATA[and statisticsDate < #{dateEnd}]]>
+        </if>
+        <if test="storeIds != null and storeIds.size() != 0">
+            and storeOrgId in
+            <foreach collection="storeIds" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="queryType != null and queryType == 1">
+            group by storeOrgId
+        </if>
+        <if test="queryType != null and queryType == 2">
+            group by storeOrgId,statisticsDate
+        </if>
+        ) result
+    </select>
+
+</mapper>

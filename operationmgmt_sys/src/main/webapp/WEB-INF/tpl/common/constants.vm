@@ -1,0 +1,3 @@
+#set($basePath = ${rc.contextPath})
+#set($staticUrl = ${rc.contextPath})
+#set($staticVer = $configResource.getSystemProperty('static.ver'))

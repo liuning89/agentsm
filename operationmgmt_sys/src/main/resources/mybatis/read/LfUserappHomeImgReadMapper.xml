@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lifang.agentsm.dao.read.LfUserappHomeImgReadMapper">
+    <resultMap id="BaseResultMap" type="com.lifang.agentsm.entity.LfUserappHomeImg">
+        <id column="id" property="id" jdbcType="BIGINT" />
+        <result column="type" property="type" jdbcType="INTEGER" />
+        <result column="url" property="url" jdbcType="VARCHAR" />
+        <result column="imgKey" property="imgKey" jdbcType="VARCHAR" />
+        <result column="stauts" property="stauts" jdbcType="INTEGER" />
+        <result column="createBy" property="createBy" jdbcType="INTEGER" />
+        <result column="createTime" property="createTime" jdbcType="TIMESTAMP" />
+        <result column="updateBy" property="updateBy" jdbcType="INTEGER" />
+        <result column="updateTime" property="updateTime" jdbcType="TIMESTAMP" />
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, type, url, imgKey, stauts, createBy, createTime, updateBy, updateTime
+    </sql>
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long">
+        select
+        <include refid="Base_Column_List" />
+        from lf_userapp_home_img
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    
+    <select id="selectByTypeLimitOne" resultMap="BaseResultMap" parameterType="int">
+        select
+        <include refid="Base_Column_List" />
+        from lf_userapp_home_img
+        where type = #{_parameter}
+        and stauts = 1
+        limit 0,1
+    </select>
+</mapper>

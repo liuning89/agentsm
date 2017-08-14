@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lifang.agentsm.dao.read.LfStoreReadMapper" >
+  <resultMap id="BaseResultMap" type="com.lifang.agentsm.entity.LfStore" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="storeName" property="storeName" jdbcType="VARCHAR" />
+    <result column="companyId" property="companyId" jdbcType="INTEGER" />
+    <result column="cityId" property="cityId" jdbcType="INTEGER" />
+    <result column="districtid" property="districtid" jdbcType="INTEGER" />
+    <result column="townid" property="townid" jdbcType="INTEGER" />
+    <result column="mobile" property="mobile" jdbcType="VARCHAR" />
+    <result column="address" property="address" jdbcType="VARCHAR" />
+    <result column="mono" property="mono" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="TINYINT" />
+    <result column="createTime" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="updateTime" property="updateTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, storeName, companyId, cityId, districtid, townid, mobile, address, mono, status, 
+    createTime, updateTime
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from lf_store
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="selectStortCount" resultType="java.lang.Integer" parameterType="java.util.Map">
+  	select   count(1)   from lf_store ls
+    where ls.`status` = 1
+    <if test="companyId != null">
+  		and ls.companyId = #{companyId}
+  	</if>
+  	<if test="storeName != null">
+  		and ls.storeName like "%"#{storeName}"%"
+  	</if>
+  </select>
+  
+  <select id="selectStortExit" resultMap="BaseResultMap" parameterType="java.util.Map">
+  	select   
+  	<include refid="Base_Column_List" />   
+  	from lf_store ls
+    where 1 = 1
+    <if test="companyId != null">
+  		and ls.companyId = #{companyId}
+  	</if>
+  	<if test="storeName != null">
+  		and ls.storeName = #{storeName}
+  	</if>
+  </select>
+  
+  <select id="selectStoreByCompanyId" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+  	select 
+  	<include refid="Base_Column_List"/>
+  	from lf_store ls 
+  	where ls.companyId = #{companyId}
+  	and ls.`status` = 1
+  </select>
+ 
+  <select id="selectStortList" resultType="com.lifang.agentsm.model.StoreInfoModel" parameterType="java.util.Map">
+  	select 
+  	ls.id,ls.storeName,ls.cityId,ls.districtid,ls.townid,ls.companyId,ls.address,lc.id companyId,
+  	ls.mono,ls.`status`,DATE_FORMAT(ls.createTime,'%Y-%m-%d %H:%i:%s') createTimeStr,lc.companyName,
+  	city.`name` city,dis.`name` district,town.`name` town,ls.mobile
+  	from lf_store ls 
+	INNER JOIN lf_company lc on ls.companyId = lc.id
+	LEFT JOIN dic_area_new city on ls.cityId = city.id
+	LEFT JOIN dic_area_new dis on ls.districtid = dis.id
+	LEFT JOIN dic_area_new town on ls.townid = town.id
+	where 1 = 1
+  	<if test="companyId != null">
+  		and ls.companyId = #{companyId}
+  	</if>
+  	<if test="storeName != null">
+  		and ls.storeName like "%"#{storeName}"%"
+  	</if>
+  	and ls.`status` = 1
+  	order by ls.id desc
+  	<if test="start != null and end != null">
+		limit #{start,jdbcType=INTEGER},#{end,jdbcType=INTEGER}
+  	</if>
+  </select>
+  
+  <select id="getStoreSimpleList" resultType="com.lifang.agentsm.model.MiniuiEntity">
+  		select ls.id,ls.storeName text from lf_store ls
+  			left join dic_area_new town on town.id = ls.townid
+  			left join dic_area_new district on district.id = town.parentId
+  			left join dic_area_new city on city.id = district.parentId
+  		where city.id = #{cityId} and city.status = 1 and district.status = 1 and town.status = 1
+  </select>
+</mapper>

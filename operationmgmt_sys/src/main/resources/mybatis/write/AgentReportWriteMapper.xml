@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lifang.agentsm.dao.write.AgentReportWriteMapper" >
+
+  <insert id="insert" parameterType="com.lifang.agentsm.model.ReportModel" >
+		  	INSERT INTO lf_report_agent (
+			agentId,
+			storeId,
+			publishNum,
+			uploadPicNum,
+			keyNum,
+			entrustNum,
+			addMasterNum,
+			contactLandladyCount,
+			shareHouseNum,
+			forwardHouseCount,
+			leadMasterNum,
+			createTime
+		)
+		VALUES
+			(
+			#{agentId},
+			#{storeId},
+			#{publishNum},
+			#{uploadPicNum},
+			#{keyNum},
+			#{entrustNum},
+			#{addMasterNum},
+			#{contactLandladyCount},
+			#{shareHouseNum},
+			#{forwardHouseCount},
+			#{leadMasterNum},
+			now()
+			);
+  </insert>
+ 
+     <insert id="insertStore" parameterType="com.lifang.agentsm.model.ReportModel" >
+		  	INSERT INTO lf_report_store (
+			storeId,
+			publishNum,
+			uploadPicNum,
+			keyNum,
+			entrustNum,
+			addMasterNum,
+			contactLandladyCount,
+			shareHouseNum,
+			forwardHouseCount,
+			leadMasterNum,
+			createTime,
+			publishManNum,
+			uploadPicManNum
+		)
+		VALUES
+			(
+			#{storeId},
+			#{publishNum},
+			#{uploadPicNum},
+			#{keyNum},
+			#{entrustNum},
+			#{addMasterNum},
+			#{contactLandladyCount},
+			#{shareHouseNum},
+			#{forwardHouseCount},
+			#{leadMasterNum},
+			now(),
+			#{publishManNum},
+			#{uploadPicManNum}
+			);
+  </insert>
+  
+  <insert id="insertStoreMonth" parameterType="com.lifang.agentsm.model.ReportModel" >
+		  	INSERT INTO lf_report_month_store (
+			storeId,
+			publishMans,
+			uploadPicMans,
+			shareHouses,
+			createTime
+			
+		)
+		VALUES
+			(
+			#{storeId},
+			#{publishManNum},
+			#{uploadPicManNum},
+			#{shareHouseNum},
+			now()
+			);
+  </insert>
+  
+  
+  <update id="updateAgentReport" parameterType="com.lifang.agentsm.model.ReportModel">
+  	<if test="id != null and id != 0">
+  		UPDATE lf_report_agent
+			SET
+			 publishNum = #{publishNum},
+			 storeId=#{storeId},
+			 uploadPicNum = #{uploadPicNum},
+			 keyNum = #{keyNum},
+			 entrustNum = #{entrustNum},
+			 addMasterNum = #{addMasterNum},
+			 contactLandladyCount = #{contactLandladyCount},
+			 shareHouseNum = #{shareHouseNum},
+			 forwardHouseCount = #{forwardHouseCount},
+			 leadMasterNum = #{leadMasterNum},
+			 updateTime=now()
+			WHERE
+				id = #{id}
+	</if>
+  </update>
+  
+  
+  <update id="updateStoreReport" parameterType="com.lifang.agentsm.model.ReportModel">
+  	<if test="id != null and id != 0">
+  		UPDATE lf_report_store
+			SET
+			 publishNum = #{publishNum},
+			 uploadPicNum = #{uploadPicNum},
+			 publishManNum=#{publishManNum},
+			 uploadPicManNum=#{uploadPicManNum},
+			 keyNum = #{keyNum},
+			 entrustNum = #{entrustNum},
+			 addMasterNum = #{addMasterNum},
+			 contactLandladyCount = #{contactLandladyCount},
+			 shareHouseNum = #{shareHouseNum},
+			 forwardHouseCount = #{forwardHouseCount},
+			 leadMasterNum = #{leadMasterNum},
+			 updateTime=now()
+			WHERE
+				id = #{id}
+	</if>
+  </update> 
+  
+  <update id="updateStoreMonthReport" parameterType="com.lifang.agentsm.model.ReportModel">
+  	<if test="id != null and id != 0">
+  		UPDATE lf_report_month_store
+			SET
+			 publishMans=#{publishManNum},
+			 uploadPicMans=#{uploadPicManNum},
+			 shareHouses=#{shareHouseNum},
+			 updateTime=now()
+			WHERE
+				id = #{id}
+	</if>
+  </update> 
+</mapper>

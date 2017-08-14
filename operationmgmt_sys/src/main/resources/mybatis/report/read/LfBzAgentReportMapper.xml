@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lifang.bzsm.console.report.read.LfBzAgentReportReadMapper">
+    <resultMap id="BaseResultMap" type="com.lifang.bzsm.console.entity.LfBzAgentReport">
+        <id column="id" property="id" jdbcType="BIGINT" />
+        <result column="cityOrgId" property="cityOrgId" jdbcType="INTEGER" />
+        <result column="cityOrgName" property="cityOrgName" jdbcType="VARCHAR" />
+        <result column="areaOrgId" property="areaOrgId" jdbcType="INTEGER" />
+        <result column="areaOrgName" property="areaOrgName" jdbcType="VARCHAR" />
+        <result column="storeOrgId" property="storeOrgId" jdbcType="INTEGER" />
+        <result column="storeOrgName" property="storeOrgName" jdbcType="VARCHAR" />
+        <result column="orgCode" property="orgCode" jdbcType="VARCHAR" />
+        <result column="agentId" property="agentId" jdbcType="INTEGER" />
+        <result column="agentName" property="agentName" jdbcType="VARCHAR" />
+        <result column="agentMobile" property="agentMobile" jdbcType="VARCHAR" />
+        <result column="statisticsDate" property="statisticsDate" jdbcType="TIMESTAMP" />
+        <result column="weekDay" property="weekDay" jdbcType="VARCHAR" />
+        <result column="orderSuccess" property="orderSuccess" jdbcType="INTEGER" />
+        <result column="orderFailed" property="orderFailed" jdbcType="INTEGER" />
+        <result column="willCustomer" property="willCustomer" jdbcType="INTEGER" />
+        <result column="houseSeeFirst" property="houseSeeFirst" jdbcType="INTEGER" />
+        <result column="houseSeeSecond" property="houseSeeSecond" jdbcType="INTEGER" />
+        <result column="newCustomerWK" property="newCustomerWK" jdbcType="INTEGER" />
+        <result column="newCustomerNet" property="newCustomerNet" jdbcType="INTEGER" />
+        <result column="newCustomerOther" property="newCustomerOther" jdbcType="INTEGER" />
+        <result column="housePublish" property="housePublish" jdbcType="INTEGER" />
+        <result column="houseKey" property="houseKey" jdbcType="INTEGER" />
+        <result column="houseEntrust" property="houseEntrust" jdbcType="INTEGER" />
+        <result column="houseImage" property="houseImage" jdbcType="INTEGER" />
+        <result column="followHouse" property="followHouse" jdbcType="INTEGER" />
+        <result column="followCustomer" property="followCustomer" jdbcType="INTEGER" />
+        <result column="followCustomerN" property="followCustomerN" jdbcType="INTEGER" />
+        <result column="shareTotal" property="shareTotal" jdbcType="INTEGER" />
+        <result column="shareHouse" property="shareHouse" jdbcType="INTEGER" />
+        <result column="shareHouseCount" property="shareHouseCount" jdbcType="INTEGER" />
+        <result column="agentRegist" property="agentRegist" jdbcType="INTEGER" />
+        <result column="opinionHight" property="opinionHight" jdbcType="INTEGER" />
+        <result column="opinionLow" property="opinionLow" jdbcType="INTEGER" />
+        <result column="createTime" property="createTime" jdbcType="TIMESTAMP" />
+        <result column="updateTime" property="updateTime" jdbcType="TIMESTAMP" />
+        <result column="status" property="status" jdbcType="INTEGER" />
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, cityOrgId, cityOrgName, areaOrgId, areaOrgName, storeOrgId, storeOrgName, orgCode,
+        agentId, agentName, agentMobile, statisticsDate, weekDay, orderSuccess, orderFailed,
+        willCustomer, houseSeeFirst, houseSeeSecond, newCustomerWK, newCustomerNet, newCustomerOther,
+        housePublish, houseKey, houseEntrust, houseImage, followHouse, followCustomer, followCustomerN,
+        shareTotal, shareHouse, shareHouseCount, agentRegist, opinionHight, opinionLow, createTime,
+        updateTime, status, orderCreate, orderEdit, dayRegistTotal, dayShareTotal,orderAllocation,orderGrab,
+        orderTotal,houseMaintain
+    </sql>
+
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long">
+        select
+        *
+        from lf_bz_agent_report
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+
+    <select id="getBzAgentReportList" resultType="com.lifang.bzsm.console.entity.LfBzAgentReport" parameterType="com.lifang.bzsm.console.model.LfBzAgentReportRequest">
+        select
+        max(cityOrgId) cityOrgId,
+        max(cityOrgName) cityOrgName,
+        max(areaOrgId) areaOrgId,
+        max(areaOrgName) areaOrgName,
+        max(storeOrgId) storeOrgId,
+        max(storeOrgName) storeOrgName,
+        max(orgCode) orgCode,
+        max(agentId)  agentId,
+        max(agentName) agentName,
+        max(statisticsDate) statisticsDate,
+        max(weekDay) weekDay,
+        sum(willCustomer) willCustomer,
+        sum(houseSeeFirst) houseSeeFirst,
+        sum(houseSeeSecond) houseSeeSecond,
+        sum(newCustomerWK) newCustomerWK,
+        sum(newCustomerNet) newCustomerNet,
+        sum(newCustomerOther) newCustomerOther,
+        sum(housePublish) housePublish,
+        sum(houseKey) houseKey,
+        sum(houseEntrust) houseEntrust,
+        sum(houseImage) houseImage,
+        sum(followHouse) followHouse,
+        sum(followCustomer) followCustomer,
+        sum(followCustomerN) followCustomerN,
+        sum(shareTotal) shareTotal,
+        sum(shareHouse) shareHouse,
+        sum(shareHouseCount) shareHouseCount,
+        sum(agentRegist) agentRegist,
+        sum(opinionHight) opinionHight,
+        sum(opinionLow) opinionLow,
+        sum(dayRegistTotal) dayRegistTotal,
+        sum(dayShareTotal) dayShareTotal,
+
+        <!-- 1.7.1 start-->
+        sum(agentStroke) agentStroke,
+        sum(houseSeeHCount) houseSeeHCount,
+        sum(houseSeeCCount) houseSeeCCount,
+        count(0) dataTotalCount,
+        <!-- 1.7.1 end-->
+
+		sum(invalidReview) as invalidReview
+
+        from lf_bz_agent_report
+        where status = 1
+        and length(lf_bz_agent_report.orgCode) >= 12
+        <if test="agentId != null and  agentId != 0">
+            and agentId = #{agentId}
+        </if>
+        <if test="agentMobile != null and agentMobile !=''">
+            and agentMobile = #{agentMobile}
+        </if>
+        <if test="dateStart != null">
+            and statisticsDate >= #{dateStart}
+        </if>
+        <if test="dateEnd != null">
+            <![CDATA[and statisticsDate < #{dateEnd}]]>
+        </if>
+        <if test="storeIds != null and storeIds.size() != 0">
+            and storeOrgId in
+            <foreach collection="storeIds" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="queryType != null and queryType == 1">
+            group by agentId
+        </if>
+        <if test="queryType != null and queryType == 2">
+            group by agentId,statisticsDate
+        </if>
+        order by
+        <if test="sortField == null or sortField == ''">
+            cityOrgId,areaOrgId,storeOrgId,agentId
+            <if test="queryType != null and queryType == 2">
+                ,statisticsDate DESC
+            </if>
+        </if>
+        <if test="sortField != null and sortField != ''">
+            <choose>
+                <when test="sortField == 'orderAllocation' ">
+                    SUM(orderAllocation)
+                </when>
+                <when test="sortField == 'orderGrab' ">
+                    SUM(orderGrab)
+                </when>
+                <when test="sortField == 'orderTotal' ">
+                    SUM(orderAllocation + orderGrab)
+                </when>
+                <when test="sortField == 'orderSuccess' ">
+                    SUM(orderSuccess)
+                </when>
+                <when test="sortField == 'orderFailed' ">
+                    SUM(orderFailed)
+                </when>
+                <when test="sortField == 'orderEdit' ">
+                    SUM(orderEdit)
+                </when>
+                <when test="sortField == 'orderCreate' ">
+                    SUM(orderCreate)
+                </when>
+                <when test="sortField == 'houseSeeFirst' ">
+                    SUM(houseSeeFirst)
+                </when>
+                <when test="sortField == 'houseSeeSecond' ">
+                    SUM(houseSeeSecond)
+                </when>
+                <when test="sortField == 'houseSeeTotal' ">
+                    SUM(houseSeeFirst + houseSeeSecond)
+                </when>
+                <when test="sortField == 'newCustomerWK' ">
+                    SUM(newCustomerWK)
+                </when>
+                <when test="sortField == 'newCustomerNet' ">
+                    SUM(newCustomerNet)
+                </when>
+                <when test="sortField == 'newCustomerOther' ">
+                    SUM(newCustomerOther)
+                </when>
+                <when test="sortField == 'newCustomerTotal' ">
+                    SUM(newCustomerWK + newCustomerNet + newCustomerOther)
+                </when>
+                <when test="sortField == 'housePublish' ">
+                    SUM(housePublish)
+                </when>
+                <when test="sortField == 'houseKey' ">
+                    SUM(houseKey)
+                </when>
+                <when test="sortField == 'houseEntrust' ">
+                    SUM(houseEntrust)
+                </when>
+                <when test="sortField == 'houseImage' ">
+                    SUM(houseImage)
+                </when>
+                <when test="sortField == 'houseMaintain' ">
+                    SUM(houseMaintain)
+                </when>
+                <when test="sortField == 'houseTotal' ">
+                    SUM(housePublish + houseKey + houseEntrust + houseImage + houseMaintain)
+                </when>
+                <when test="sortField == 'followHouse' ">
+                    SUM(followHouse)
+                </when>
+                <when test="sortField == 'followCustomer' ">
+                    SUM(followCustomer)
+                </when>
+                <when test="sortField == 'followCustomerN' and queryType != null and queryType == 2">
+                    SUM(followCustomerN)
+                </when>
+                <when test="sortField == 'shareTotal' ">
+                    SUM(shareTotal)
+                </when>
+                <when test="sortField == 'shareHouseCount' ">
+                    SUM(shareHouseCount)
+                </when>
+                <when test="sortField == 'shareHouse' ">
+                    SUM(shareHouse)
+                </when>
+                <when test="sortField == 'agentRegist' ">
+                    SUM(agentRegist)
+                </when>
+                <when test="sortField == 'opinionHight' ">
+                    SUM(opinionHight)
+                </when>
+                <when test="sortField == 'opinionLow' ">
+                    SUM(opinionLow)
+                </when>
+                <!--1.7.1 -->
+                <when test="sortField == 'agentStroke' ">
+                    sum(agentStroke)
+                </when>
+                <when test="sortField == 'houseSeeHCount' ">
+                    sum(houseSeeHCount)
+                </when>
+                <when test="sortField == 'houseSeeCCount' ">
+                    sum(houseSeeCCount)
+                </when>
+                <!--1.7.1 -->
+
+                <when test="sortField == 'invalidReview' ">
+                    sum(invalidReview)
+                </when>
+
+                <otherwise>
+
+                </otherwise>
+            </choose>
+            <choose>
+                <when test="sortOrder == 'desc' ">
+                    desc
+                </when>
+                <otherwise>
+                    asc
+                </otherwise>
+            </choose>
+        </if>
+
+        limit #{pageIndex},#{pageSize}
+    </select>
+
+
+    <select id="getBzAgentReportListCount" resultType="int" parameterType="com.lifang.bzsm.console.model.LfBzAgentReportRequest">
+        SELECT  count(*) FROM (
+        select 1 from lf_bz_agent_report
+        where status = 1
+        and length(lf_bz_agent_report.orgCode) >= 12
+        <if test="agentId != null and  agentId != 0">
+            and agentId = #{agentId}
+        </if>
+        <if test="agentMobile != null and agentMobile !=''">
+            and agentMobile = #{agentMobile}
+        </if>
+        <if test="dateStart != null">
+            and statisticsDate >= #{dateStart}
+        </if>
+        <if test="dateEnd != null">
+            <![CDATA[and statisticsDate < #{dateEnd}]]>
+        </if>
+        <if test="storeIds != null and storeIds.size() != 0">
+            and storeOrgId in
+            <foreach collection="storeIds" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="queryType != null and queryType == 1">
+            group by agentId
+        </if>
+        <if test="queryType != null and queryType == 2">
+            group by agentId,statisticsDate
+        </if>
+        ) b
+    </select>
+</mapper>

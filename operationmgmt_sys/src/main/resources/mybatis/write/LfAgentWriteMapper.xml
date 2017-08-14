@@ -1,0 +1,309 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lifang.agentsm.dao.write.LfAgentWriteMapper" >
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from lf_agent
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.lifang.agentsm.entity.LfAgent" useGeneratedKeys="true" keyProperty="id">
+    insert into lf_agent (id, cityId, companyId, 
+      storeId, realName, password, 
+      mobile, idNumber, photoHeadUrl, 
+      photoIdUrl, photoCardUrl, status, 
+      accountType, teamType, levelType, 
+      uid, gender, bizType, 
+      createTime, updateTime, memo, 
+      sourceId, dept_name, company_name, 
+      token)
+    values (#{id,jdbcType=BIGINT}, #{cityId,jdbcType=BIGINT}, #{companyId,jdbcType=BIGINT}, 
+      #{storeId,jdbcType=BIGINT}, #{realName,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR}, 
+      #{mobile,jdbcType=VARCHAR}, #{idNumber,jdbcType=VARCHAR}, #{photoHeadUrl,jdbcType=VARCHAR}, 
+      #{photoIdUrl,jdbcType=VARCHAR}, #{photoCardUrl,jdbcType=VARCHAR}, #{status,jdbcType=TINYINT}, 
+      #{accountType,jdbcType=TINYINT}, #{teamType,jdbcType=TINYINT}, #{levelType,jdbcType=TINYINT}, 
+      #{uid,jdbcType=BIGINT}, #{gender,jdbcType=TINYINT}, #{bizType,jdbcType=TINYINT}, 
+      #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, #{memo,jdbcType=VARCHAR}, 
+      #{sourceId,jdbcType=INTEGER}, #{dept_name,jdbcType=VARCHAR}, #{company_name,jdbcType=VARCHAR}, 
+      #{token,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.lifang.agentsm.entity.LfAgent" useGeneratedKeys="true" keyProperty="id">
+    insert into lf_agent
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="cityId != null" >
+        cityId,
+      </if>
+      <if test="companyId != null" >
+        companyId,
+      </if>
+      <if test="storeId != null" >
+        storeId,
+      </if>
+      <if test="realName != null" >
+        realName,
+      </if>
+      <if test="password != null" >
+        password,
+      </if>
+      <if test="mobile != null" >
+        mobile,
+      </if>
+      <if test="idNumber != null" >
+        idNumber,
+      </if>
+      <if test="photoHeadUrl != null" >
+        photoHeadUrl,
+      </if>
+      <if test="photoIdUrl != null" >
+        photoIdUrl,
+      </if>
+      <if test="photoCardUrl != null" >
+        photoCardUrl,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="accountType != null" >
+        accountType,
+      </if>
+      <if test="teamType != null" >
+        teamType,
+      </if>
+      <if test="levelType != null" >
+        levelType,
+      </if>
+      <if test="uid != null" >
+        uid,
+      </if>
+      <if test="gender != null" >
+        gender,
+      </if>
+      <if test="bizType != null" >
+        bizType,
+      </if>
+      <if test="createTime != null" >
+        createTime,
+      </if>
+      <if test="updateTime != null" >
+        updateTime,
+      </if>
+      <if test="memo != null" >
+        memo,
+      </if>
+      <if test="sourceId != null" >
+        sourceId,
+      </if>
+      <if test="dept_name != null" >
+        dept_name,
+      </if>
+      <if test="company_name != null" >
+        company_name,
+      </if>
+      <if test="token != null" >
+        token,
+      </if>
+      <if test="agentNum != null" >
+        agentNum,
+      </if>
+      <if test="isCrownAgent != null" >
+        isCrownAgent,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="cityId != null" >
+        #{cityId,jdbcType=BIGINT},
+      </if>
+      <if test="companyId != null" >
+        #{companyId,jdbcType=BIGINT},
+      </if>
+      <if test="storeId != null" >
+        #{storeId,jdbcType=BIGINT},
+      </if>
+      <if test="realName != null" >
+        #{realName,jdbcType=VARCHAR},
+      </if>
+      <if test="password != null" >
+        #{password,jdbcType=VARCHAR},
+      </if>
+      <if test="mobile != null" >
+        #{mobile,jdbcType=VARCHAR},
+      </if>
+      <if test="idNumber != null" >
+        #{idNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="photoHeadUrl != null" >
+        #{photoHeadUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="photoIdUrl != null" >
+        #{photoIdUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="photoCardUrl != null" >
+        #{photoCardUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=TINYINT},
+      </if>
+      <if test="accountType != null" >
+        #{accountType,jdbcType=TINYINT},
+      </if>
+      <if test="teamType != null" >
+        #{teamType,jdbcType=TINYINT},
+      </if>
+      <if test="levelType != null" >
+        #{levelType,jdbcType=TINYINT},
+      </if>
+      <if test="uid != null" >
+        #{uid,jdbcType=BIGINT},
+      </if>
+      <if test="gender != null" >
+        #{gender,jdbcType=TINYINT},
+      </if>
+      <if test="bizType != null" >
+        #{bizType,jdbcType=TINYINT},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="memo != null" >
+        #{memo,jdbcType=VARCHAR},
+      </if>
+      <if test="sourceId != null" >
+        #{sourceId,jdbcType=INTEGER},
+      </if>
+      <if test="dept_name != null" >
+        #{dept_name,jdbcType=VARCHAR},
+      </if>
+      <if test="company_name != null" >
+        #{company_name,jdbcType=VARCHAR},
+      </if>
+      <if test="token != null" >
+        #{token,jdbcType=VARCHAR},
+      </if>
+      <if test="agentNum != null" >
+        #{agentNum,jdbcType=VARCHAR},
+      </if>
+      <if test="isCrownAgent != null" >
+        #{isCrownAgent,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.lifang.agentsm.entity.LfAgent" >
+    update lf_agent
+    <set >
+      <if test="cityId != null" >
+        cityId = #{cityId,jdbcType=BIGINT},
+      </if>
+      <if test="companyId != null" >
+        companyId = #{companyId,jdbcType=BIGINT},
+      </if>
+      <if test="storeId != null" >
+        storeId = #{storeId,jdbcType=BIGINT},
+      </if>
+      <if test="realName != null" >
+        realName = #{realName,jdbcType=VARCHAR},
+      </if>
+      <if test="password != null" >
+        password = #{password,jdbcType=VARCHAR},
+      </if>
+      <if test="mobile != null" >
+        mobile = #{mobile,jdbcType=VARCHAR},
+      </if>
+      <if test="idNumber != null" >
+        idNumber = #{idNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="photoHeadUrl != null" >
+        photoHeadUrl = #{photoHeadUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="photoIdUrl != null" >
+        photoIdUrl = #{photoIdUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="photoCardUrl != null" >
+        photoCardUrl = #{photoCardUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=TINYINT},
+      </if>
+      <if test="accountType != null" >
+        accountType = #{accountType,jdbcType=TINYINT},
+      </if>
+      <if test="teamType != null" >
+        teamType = #{teamType,jdbcType=TINYINT},
+      </if>
+      <if test="levelType != null" >
+        levelType = #{levelType,jdbcType=TINYINT},
+      </if>
+      <if test="uid != null" >
+        uid = #{uid,jdbcType=BIGINT},
+      </if>
+      <if test="gender != null" >
+        gender = #{gender,jdbcType=TINYINT},
+      </if>
+      <if test="bizType != null" >
+        bizType = #{bizType,jdbcType=TINYINT},
+      </if>
+      <if test="createTime != null" >
+        createTime = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        updateTime = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="memo != null" >
+        memo = #{memo,jdbcType=VARCHAR},
+      </if>
+      <if test="sourceId != null" >
+        sourceId = #{sourceId,jdbcType=INTEGER},
+      </if>
+      <if test="dept_name != null" >
+        dept_name = #{dept_name,jdbcType=VARCHAR},
+      </if>
+      <if test="company_name != null" >
+        company_name = #{company_name,jdbcType=VARCHAR},
+      </if>
+      <if test="token != null" >
+        token = #{token,jdbcType=VARCHAR},
+      </if>
+      <if test="agentNum != null" >
+        agentNum = #{agentNum,jdbcType=VARCHAR},
+      </if>
+      <if test="isCrownAgent != null" >
+        isCrownAgent = #{isCrownAgent,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.lifang.agentsm.entity.LfAgent" >
+    update lf_agent
+    set cityId = #{cityId,jdbcType=BIGINT},
+      companyId = #{companyId,jdbcType=BIGINT},
+      storeId = #{storeId,jdbcType=BIGINT},
+      realName = #{realName,jdbcType=VARCHAR},
+      password = #{password,jdbcType=VARCHAR},
+      mobile = #{mobile,jdbcType=VARCHAR},
+      idNumber = #{idNumber,jdbcType=VARCHAR},
+      photoHeadUrl = #{photoHeadUrl,jdbcType=VARCHAR},
+      photoIdUrl = #{photoIdUrl,jdbcType=VARCHAR},
+      photoCardUrl = #{photoCardUrl,jdbcType=VARCHAR},
+      status = #{status,jdbcType=TINYINT},
+      accountType = #{accountType,jdbcType=TINYINT},
+      teamType = #{teamType,jdbcType=TINYINT},
+      levelType = #{levelType,jdbcType=TINYINT},
+      uid = #{uid,jdbcType=BIGINT},
+      gender = #{gender,jdbcType=TINYINT},
+      bizType = #{bizType,jdbcType=TINYINT},
+      createTime = #{createTime,jdbcType=TIMESTAMP},
+      updateTime = #{updateTime,jdbcType=TIMESTAMP},
+      memo = #{memo,jdbcType=VARCHAR},
+      sourceId = #{sourceId,jdbcType=INTEGER},
+      dept_name = #{dept_name,jdbcType=VARCHAR},
+      company_name = #{company_name,jdbcType=VARCHAR},
+      token = #{token,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

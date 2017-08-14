@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lifang.agentsm.dao.read.HouseImageReadMapper">
+    <resultMap id="BaseResultMap" type="com.lifang.agentsm.entity.HouseImage">
+        <id column="id" property="id" jdbcType="BIGINT" />
+        <result column="houseId" property="houseId" jdbcType="INTEGER" />
+        <result column="type" property="type" jdbcType="INTEGER" />
+        <result column="imgKey" property="imgKey" jdbcType="VARCHAR" />
+        <result column="desc" property="desc" jdbcType="VARCHAR" />
+        <result column="status" property="status" jdbcType="TINYINT" />
+        <result column="takePhotoTime" property="takePhotoTime" jdbcType="TIMESTAMP" />
+        <result column="createTime" property="createTime" jdbcType="TIMESTAMP" />
+        <result column="updateTime" property="updateTime" jdbcType="TIMESTAMP" />
+        <result column="sourceId" property="sourceId" jdbcType="INTEGER" />
+        <result column="agentId" property="agentId" jdbcType="BIGINT" />
+    </resultMap>
+  
+  
+	 <!-- 审核图片列表sql条件 -->
+    <sql id="searchImage">
+  		<if test="estatename != null and estatename !=''">
+			and (c.estatename like CONCAT('%',#{estatename,jdbcType=VARCHAR},'%')
+			or b.subEstateId = #{estatename,jdbcType=VARCHAR})
+		</if>
+		
+		<if test="buildingName != null and buildingName !='' and buildingName != 0">
+			and b.buildingId = #{buildingName,jdbcType=VARCHAR}
+		</if>
+		<if test="room != null and room !=''">
+			and b.room like CONCAT('%',#{room,jdbcType=INTEGER},'%')
+		</if>
+		<if test="auditStatus != null and auditStatus !='' ">
+			and a.audit_status = #{auditStatus,jdbcType=INTEGER}
+		</if>	
+		
+		<if test="deptName != null and deptName !='' and deptName != 0">
+			<!-- and e.storeId = #{deptName,jdbcType=VARCHAR} -->
+		</if>
+		
+		<if test="realName != null and realName !='' and realName != 0">
+			and agent.id = #{realName,jdbcType=VARCHAR}
+		</if>
+		
+		
+		<!-- <if test="startTime != null and startTime != ''">
+			and a.updateTime &gt; #{startTime}  
+		</if>
+		<if test="endTime != null and endTime != ''">
+			and a.updateTime &lt; #{endTime}
+		</if>
+		 -->
+ 	 </sql>
+
+    <sql id="Base_Column_List">
+        id, houseId, type, imgKey, `desc`, status, takePhotoTime, createTime, updateTime, sourceId,
+        agentId
+    </sql>
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long">
+        select
+        <include refid="Base_Column_List" />
+        from house_image
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    
+    <!--获取首页的图片数量 -->
+    <select id="selectFirstPageImageCount" resultType="int" parameterType="int">
+        SELECT COUNT(*) FROM house_image WHERE house_image.`houseId` = #{_parameter} and house_image.status = 1 AND house_image.`type` = 1 
+    </select>
+    
+    
+    <!-- 获取下拉小区名 -->
+    <select id="getEstateName" resultType="com.lifang.agentsm.entity.HouseInfo" >
+        SELECT  a.`id`,a.`estatename` FROM  estate_info a limit 1,1000
+    </select>
+    
+    <!-- 获取审核图片数量 -->
+       <select id="getImageAuditListCount" resultType="java.lang.Integer" parameterType="java.util.Map">
+  		<!-- 
+		select   COUNT(DISTINCT a.`houseId`,  a.`createTime`,  a.`agentId`) FROM house_image_audit a
+			LEFT JOIN lf_employee a1 ON a.employee_id = a1.`id`
+			LEFT JOIN house_info b ON a.houseId = b.`houseId`
+			LEFT JOIN estate_info c ON b.`estateId` = c.`id`
+			LEFT JOIN estate_building d ON d.`id` = b.`buildingId`
+			LEFT JOIN lf_agent e ON a.agentId = e.`id`
+			LEFT JOIN house_sell_resource f ON b.`houseId` = f.`houseid`
+			LEFT JOIN lf_store g ON e.`storeId` = g.`id`
+			LEFT JOIN estate_sub aa ON b.`subEstateId` = aa.`id` 
+			where 1=1  -->
+			SELECT count(DISTINCT a.houseid,a.batchTime,
+			<choose>
+				<when test="agentCode != ''">
+					a.agentId
+				</when>
+				<otherwise>
+					a.guestId
+				</otherwise>
+			</choose>
+			)
+			FROM
+				house_image_audit a
+			LEFT JOIN house_info b ON a.houseid = b.houseid
+			LEFT JOIN estate_info c ON b.estateid = c.id
+			LEFT JOIN estate_building d ON d.id = b.buildingid
+			LEFT JOIN house_sell_resource e ON a.houseid = e.houseid
+			LEFT JOIN estate_sub aa ON b.`subEstateId` = aa.`id`
+			LEFT JOIN lf_employee agent ON a.agentid = agent.id
+			LEFT JOIN lf_employee emp ON emp.id = a.employee_id
+			
+			left join cus_guest cg on a.guestId = cg.id
+			<!-- INNER JOIN lf_position lfb ON agent.positionId = lfb.id
+			INNER JOIN lf_area_org lfc ON lfc.id = lfb.areaOrgId -->
+			
+			<!-- where lfc.code like CONCAT(#{code},'%') -->
+			
+			<choose>
+				<!-- <when test="code != null and code !='' and code != 'null'">
+					INNER JOIN lf_position lfb ON agent.positionId = lfb.id
+					INNER JOIN lf_area_org lfc ON lfc.id = lfb.areaOrgId
+					where lfc.code like CONCAT(#{code},'%')
+				</when> -->
+				<when test="agentCode != ''">
+				where  a.status=1 and a.agentId in 
+			
+					<foreach collection="agentCityList" item="item" index="index" open="(" separator="," close=")" >
+				        ${item.id}
+				    </foreach>
+				</when>
+				<otherwise>
+					where a.guestId is not null 
+				</otherwise>
+			</choose>
+			
+		<include refid="searchImage" />
+  </select>
+  
+  
+  <!-- 获取审核图片列表 -->
+       <select id="getImageAuditList" resultType="com.lifang.agentsm.model.HouseImageAuditInfo" parameterType="java.util.Map">
+  		
+		<!-- SELECT  DISTINCT f.`sellPoint`,e.`mobile`,e.`token`,a.`houseId`,a.`agentId`,c.`estatename`,IFNULL(aa.`subEstateName`,"") subEstateName,d.`buildingName`,b.`room`,g.`storeName` deptName,e.`realName`,a.batchTime `createTime`,a.audit_status auditStatus,a1.`name` loginName,a.audit_time auditTime,a.rejectreason 
+			FROM house_image_audit a
+				LEFT JOIN lf_employee a1 ON a.employee_id = a1.`id`
+				LEFT JOIN house_info b ON a.houseId = b.`houseId`
+				LEFT JOIN estate_info c ON b.`estateId` = c.`id`
+				LEFT JOIN estate_building d ON d.`id` = b.`buildingId`
+				LEFT JOIN lf_agent e ON a.agentId = e.`id`
+				LEFT JOIN house_sell_resource f ON b.`houseId` = f.`houseid`
+				LEFT JOIN lf_store g ON e.`storeId` = g.`id`
+				LEFT JOIN estate_sub aa ON b.`subEstateId` = aa.`id` 
+			WHERE 1=1   -->
+						
+						
+			SELECT DISTINCT
+			cg.phoneNum,
+				a.houseid,
+				a.agentId,
+				a.guestId,
+				c.estatename,
+				e.sellpoint,
+				d.buildingname,
+				b.room,a.batchTime createTime,
+				a.audit_status auditStatus,
+				a.audit_time auditTime,
+				a.rejectreason,
+				IFNULL(aa.`subEstateName`, "")subEstateName,
+				<!-- agent. NAME realName,
+				agent.positionId agentpId,
+				emp. NAME loginName,
+				emp.positionId emppId, -->
+				a.agentId,
+				a.employee_id emppId
+				<!-- agent.mobile -->
+			FROM
+				house_image_audit a
+			LEFT JOIN house_info b ON a.houseid = b.houseid
+			LEFT JOIN estate_info c ON b.estateid = c.id
+			LEFT JOIN estate_building d ON d.id = b.buildingid
+			LEFT JOIN house_sell_resource e ON a.houseid = e.houseid
+			LEFT JOIN estate_sub aa ON b.`subEstateId` = aa.`id`
+<!-- 			LEFT JOIN lf_employee agent ON a.agentid = agent.id
+			LEFT JOIN lf_employee emp ON emp.id = a.employee_id -->
+			left join cus_guest cg on a.guestId = cg.id
+			<choose>
+				<!-- <when test="code != null and code !='' and code != 'null'">
+					INNER JOIN lf_position lfb ON agent.positionId = lfb.id
+					INNER JOIN lf_area_org lfc ON lfc.id = lfb.areaOrgId
+					where lfc.code like CONCAT(#{code},'%')
+				</when> -->
+				<when test="agentCode != ''">
+				where  a.status=1 and a.agentId in 
+			
+					<foreach collection="agentCityList" item="item" index="index" open="(" separator="," close=")" >
+				        ${item.id}
+				    </foreach>
+				</when>	
+				<otherwise>
+					where a.guestId is not null 
+				</otherwise>
+			</choose>
+			
+		<include refid="searchImage" />
+		ORDER BY a.`createTime` 
+		limit #{start,jdbcType=INTEGER},#{end,jdbcType=INTEGER}
+  </select>
+  
+  <!-- 根据上传人和houseId查出上传的所有图片 -->
+  
+  
+  <select id="setectImage" resultType="com.lifang.agentsm.entity.HouseImageAudit" parameterType="java.util.Map">
+  		
+		SELECT * FROM house_image_audit
+		where houseId = #{houseId,jdbcType=VARCHAR}
+		
+		<if test="agentId != null and agentId != '' and agentId != 'null'">
+			and agentId = #{agentId}
+		</if>
+		<if test="guestId != null and guestId != '' and guestId != 'null'">
+			and guestId = #{guestId}
+		</if>
+		<!-- <choose>
+			<when test="agentId != null and agentId != ''">
+				and agentId = #{agentId,jdbcType=VARCHAR}
+			</when>
+			<otherwise>
+				and guestId = #{guestId,jdbcType=VARCHAR}
+			</otherwise>
+		</choose> -->
+		
+		
+		and audit_status = #{auditStatus,jdbcType=VARCHAR}
+		and batchTime = #{createTime,jdbcType=VARCHAR}
+  </select>
+  <select id="selectagentByhouseId" resultType="com.lifang.agentsm.entity.SellhouseReturn" parameterType="java.util.Map">
+  		<!-- SELECT count(1) FROM lf_agent_operation a WHERE a.`operationType` = 5 AND houseid = #{houseId}  AND STATUS = 1 -->
+  		SELECT a.id,a.`pictureAgent` FROM lf_sell_house_agent a WHERE a.`houseId` = #{houseId} AND STATUS = 1 and franchiseeAreaOrgId =#{franchiseeAreaOrgId}
+		
+  </select>
+  
+  <select id="findSellPointById" resultType="string" parameterType="java.util.Map">
+  		select sellPoint from house_sell_resource where houseId =  #{houseId}
+  		
+  </select>
+  
+  <select id="findRoomById" resultType="string" parameterType="java.util.Map">
+	  		
+	select concat(c.estatename,b.buildingName,a.room) room
+	from house_info a 
+	left join estate_building b on b.id = a.buildingid 
+	left join estate_info c on c.id = a.estateId 
+	where a.houseId =  #{houseId}
+  		
+  </select>
+  
+  
+  
+  <select id="findCode" resultType="string" parameterType="java.util.Map">
+	  		
+	select c.`code` 
+	from lf_employee a
+	inner join lf_position b on a.positionId = b.id
+	inner join lf_area_org c on c.id = b.areaOrgId
+	where a.id= #{agentCode}
+  		
+  </select>
+	<select id="findHouseById" resultType="int" parameterType="map">
+		select count(1) from house_sell_resource  where houseid = #{houseId} and houseState=4
+	</select>
+
+
+</mapper>

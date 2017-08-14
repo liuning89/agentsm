@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lifang.agentsm.dao.write.HouseVideoWriteMapper">
+    
+    <!--更改house_video表状态-->
+    <update id="updateHouseVideo" parameterType="map">
+        UPDATE house_video t
+        SET t.videoStatus = #{videoStatus}
+        WHERE id = #{id}
+    </update>
+  
+  <!-- 插入审核记录 -->
+  <insert id="insertVideoAudit" parameterType="map" >
+    
+	INSERT INTO lf_video_audit (housevideoid,`videoType`,`videoStatus`,`auditorid`,createTime,updateTime,`rejectreason`) VALUE 
+     (#{id}, #{videoType}, #{videoStatus}, #{auditorid},now(),now(),#{rejectreason})
+      
+      
+  </insert>
+  
+  
+   <!--更改estate_video表状态-->
+    <update id="updateEstateVideo" parameterType="map">
+        UPDATE estate_video t
+        SET t.videoStatus = #{videoStatus}
+        WHERE id = #{id}
+    </update>
+  
+</mapper>

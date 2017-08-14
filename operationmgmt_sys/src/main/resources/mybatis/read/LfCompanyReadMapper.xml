@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lifang.agentsm.dao.read.LfCompanyReadMapper" >
+  <resultMap id="BaseResultMap" type="com.lifang.agentsm.entity.LfCompany" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="companyName" property="companyName" jdbcType="VARCHAR" />
+    <result column="cityId" property="cityId" jdbcType="INTEGER" />
+    <result column="mobile" property="mobile" jdbcType="VARCHAR" />
+    <result column="address" property="address" jdbcType="VARCHAR" />
+    <result column="mono" property="mono" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="TINYINT" />
+    <result column="createTime" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="updateTime" property="updateTime" jdbcType="TIMESTAMP" />
+    <result column="userName" property="userName" jdbcType="VARCHAR" />
+    <result column="companyProfile" property="companyProfile" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, companyName, cityId, mobile, address, mono, status, createTime, updateTime
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from lf_company
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  
+  <select id="getCompanyCount" resultType="java.lang.Integer" parameterType="java.util.Map">
+  	select count(1) from lf_company lc
+    where lc.status = 1
+    <if test="name != null">
+  		and (lc.companyName like "%"#{name}"%" or lc.mobile like "%"#{name}"%" or lc.address like "%"#{name}"%") 
+  	</if>
+  	<if test="cityId != null">
+  		and lc.cityId = #{cityId}
+  	</if>
+  </select>
+  
+  <select id="selectExitCompany" resultMap="BaseResultMap" parameterType="java.util.Map">
+  	select 
+  	<include refid="Base_Column_List" />
+  	from lf_company lc 
+  	where lc.companyName = #{companyName}
+  	and lc.cityId = #{cityId}
+  </select>
+  
+  <select id="selectCompanyList" resultType="com.lifang.agentsm.model.CompanyInfoModel" parameterType="java.util.Map">
+  	select 
+  	DATE_FORMAT(lc.createTime,'%Y-%m-%d %H:%i:%s') createTimeStr,lc.*,a.`name` city
+  	from lf_company lc 
+	LEFT JOIN dic_area_new a on lc.cityId = a.id and a.`level` = 3 and a.`status` = 1
+  	where 1 = 1
+  	<if test="name != null">
+  		and (lc.companyName like "%"#{name}"%"  or lc.mobile like "%"#{name}"%" or lc.address  like "%"#{name}"%") 
+  	</if>
+  	<if test="cityId != null">
+  		and lc.cityId = #{cityId}
+  	</if>
+  	and lc.`status` = 1
+  	order by lc.id desc
+  	<if test="start != null and end != null">
+		limit #{start,jdbcType=INTEGER},#{end,jdbcType=INTEGER}
+  	</if>
+  </select>
+  
+  <select id="selectByPars" resultMap="BaseResultMap" parameterType="java.util.Map">
+  	select 
+    <include refid="Base_Column_List" />
+    from lf_company lc
+    where lc.`status` = 1
+    <if test="cityId != null">
+    	and lc.cityId = #{cityId}
+    </if>
+    <if test="name != null">
+    	lc.companyName = #{name}
+    </if>
+  	
+  </select>
+</mapper>

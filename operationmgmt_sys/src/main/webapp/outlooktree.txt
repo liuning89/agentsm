@@ -1,0 +1,7 @@
+﻿[
+		{id:"root",text:"经纪人后台管理系统"},
+		{id:"report",text:"数据统计",pid:"root"},
+            {id:"agentBizReport",text:"经纪人业务明细日报表",pid:"report",url:"report/gotoAgentBizReport.action"},
+            {id:"storeBizReport",text:"门店业务明细日报表",pid:"report",url:"report/gotoStoreBizReport.action"},
+            {id:"storeMonReport",text:"门店业务明细月报表",pid:"report",url:"report/gotoStoreMonReport.action"} 
+]

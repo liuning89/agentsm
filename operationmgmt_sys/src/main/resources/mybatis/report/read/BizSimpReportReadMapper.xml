@@ -1,0 +1,642 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lifang.bzsm.console.report.read.BizSimpReportReadMapper">
+
+
+    <resultMap id="BaseResultMap" type="java.util.Map">
+        <result column="storeOrgName" property="storeOrgName" jdbcType="VARCHAR"/>
+        <result column="areaOrgName" property="areaOrgName" jdbcType="VARCHAR"/>
+        <result column="agentName" property="agentName" jdbcType="VARCHAR"/>
+        <result column="statisticsDate" property="statisticsDate" jdbcType="TIMESTAMP"/>
+        <result column="orderAllocationHand" property="orderAllocationHand" jdbcType="INTEGER"/>
+        <result column="orderGrab" property="orderGrab" jdbcType="INTEGER"/>
+        <result column="orderTotal" property="orderTotal" jdbcType="INTEGER"/>
+        <result column="orderSuccess" property="orderSuccess" jdbcType="INTEGER"/>
+        <result column="orderFailed" property="orderFailed" jdbcType="INTEGER"/>
+        <result column="orderAllocationNew" property="orderAllocationNew" jdbcType="INTEGER"/>
+        <result column="orderAllocationOld" property="orderAllocationOld" jdbcType="INTEGER"/>
+        <result column="orderCustomer" property="orderCustomer" jdbcType="INTEGER"/>
+        <result column="priceTotal" property="priceTotal" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        max(storeOrgName) storeOrgName,
+        max(areaOrgName) areaOrgName,
+        max(agentName) agentName,
+        max(statisticsDate) statisticsDate,
+        SUM(orderAllocationHand) orderAllocationHand,
+        SUM(orderGrab) orderGrab,
+        SUM(orderGrab) + SUM(orderAllocationHand) + SUM(orderAllocationNew) + SUM(orderAllocationOld) orderTotal,
+        SUM(orderSuccess) orderSuccess,
+        SUM(orderFailed) orderFailed,
+        SUM(orderAllocationNew) orderAllocationNew,
+        SUM(orderAllocationOld) orderAllocationOld,
+        SUM(orderCustomer) orderCustomer,
+        SUM(orderSuccess) + SUM(orderFailed) priceTotal
+    </sql>
+
+    <select id="getExportAgentBizSimpReport" resultMap="BaseResultMap"
+            parameterType="com.lifang.bzsm.console.model.BizReportRequest">
+        SELECT
+        <include refid="Base_Column_List"/>
+        from lf_bz_agent_report
+        where status = 1
+        AND LENGTH(orgCode) >= 12
+        <if test="agentId != null and agentId !=''">
+            and agentId =#{agentId}
+        </if>
+        <choose>
+            <when test="dateStart == dateEnd and  dateStart != null and dateEnd != null ">
+                and statisticsDate = #{dateStart}
+            </when>
+            <when test="dateStart != null and dateEnd != null">
+                <![CDATA[ and statisticsDate > #{dateStart}
+                and statisticsDate <= #{dateEnd} ]]>
+            </when>
+        </choose>
+        <if test="storeIds != null and storeIds.size() != 0">
+            and storeOrgId in
+            <foreach collection="storeIds" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="queryType != null and queryType == 1">
+            group by agentId
+        </if>
+        <if test="queryType != null and queryType == 0">
+            group by agentId,statisticsDate
+        </if>
+        
+        order by statisticsDate DESC
+        <if test="sortField != null and sortField != ''">
+            <choose>
+                <when test="sortField == 'orderAllocationHand' ">
+                    ,SUM(orderAllocationHand)
+                </when>
+                <when test="sortField == 'orderGrab' ">
+                   , SUM(orderGrab)
+                </when>
+                <when test="sortField == 'orderTotal' ">
+ 					,SUM(orderGrab + orderAllocationHand + orderAllocationOld + orderAllocationNew)                
+ 				</when>
+                <when test="sortField == 'orderSuccess' ">
+                    ,SUM(orderSuccess)
+                </when>
+                <when test="sortField == 'orderFailed' ">
+                    ,SUM(orderFailed)
+                </when>
+                <when test="sortField == 'orderAllocationNew' ">
+                   , SUM(orderAllocationNew)
+                </when>
+                <when test="sortField == 'orderAllocationOld' ">
+                    ,SUM(orderAllocationOld)
+                </when>
+                <when test="sortField == 'orderCustomer' ">
+                    ,SUM(orderCustomer)
+                </when>
+                <when test="sortField == 'priceTotal' ">
+                   , SUM(orderSuccess + orderFailed)
+                </when>
+                <!--1.9-->
+                <when test="sortField == 'wkReserveOrder' ">
+                    ,SUM(wkReserveOrder)
+                </when>
+                <when test="sortField == 'chatDesignateOrder' ">
+                    ,SUM(chatDesignateOrder)
+                </when>
+                <when test="sortField == 'landlordRewardOrder' ">
+                    ,SUM(landlordRewardOrder)
+                </when>
+
+            </choose>
+            <choose>
+                <when test="sortOrder == 'asc' ">
+                    asc
+                </when>
+                <otherwise>
+                    desc
+                </otherwise>
+            </choose>
+        </if>
+    </select>
+
+    <select id="getAgentBizSimpReport" resultType="com.lifang.bzsm.console.entity.BusinessReport"
+            parameterType="com.lifang.bzsm.console.model.BizReportRequest">
+        SELECT
+        <include refid="Base_Column_List"/>
+        from lf_bz_agent_report
+        where status = 1
+        AND LENGTH(orgCode) >= 12
+        <if test="agentId != null and agentId !=''">
+            and agentId =#{agentId}
+        </if>
+        <choose>
+            <when test="dateStart == dateEnd and  dateStart != null and dateEnd != null ">
+                and statisticsDate = #{dateStart}
+            </when>
+            <when test="dateStart != null and dateEnd != null">
+                <![CDATA[   and statisticsDate > #{dateStart}
+               and statisticsDate <= #{dateEnd} ]]>
+            </when>
+        </choose>
+        <if test="storeIds != null and storeIds.size() != 0">
+            and storeOrgId in
+            <foreach collection="storeIds" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="queryType != null and queryType == 1">
+            group by agentId
+        </if>
+        <if test="queryType != null and queryType == 0">
+            group by agentId,statisticsDate
+        </if>
+        order by statisticsDate desc
+        <if test="sortField != null and sortField != ''">
+            <choose>
+                <when test="sortField == 'orderAllocationHand' ">
+                    ,SUM(orderAllocationHand)
+                </when>
+                <when test="sortField == 'orderGrab' ">
+                   , SUM(orderGrab)
+                </when>
+                <when test="sortField == 'orderTotal' ">
+ 					,SUM(orderGrab + orderAllocationHand + orderAllocationOld + orderAllocationNew)                
+ 				</when>
+                <when test="sortField == 'orderSuccess' ">
+                    ,SUM(orderSuccess)
+                </when>
+                <when test="sortField == 'orderFailed' ">
+                    ,SUM(orderFailed)
+                </when>
+                <when test="sortField == 'orderAllocationNew' ">
+                   , SUM(orderAllocationNew)
+                </when>
+                <when test="sortField == 'orderAllocationOld' ">
+                    ,SUM(orderAllocationOld)
+                </when>
+                <when test="sortField == 'orderCustomer' ">
+                    ,SUM(orderCustomer)
+                </when>
+                <when test="sortField == 'priceTotal' ">
+                   , SUM(orderSuccess + orderFailed)
+                </when>
+                <!--1.9-->
+                <when test="sortField == 'wkReserveOrder' ">
+                    ,SUM(wkReserveOrder)
+                </when>
+                <when test="sortField == 'chatDesignateOrder' ">
+                    ,SUM(chatDesignateOrder)
+                </when>
+                <when test="sortField == 'landlordRewardOrder' ">
+                    ,SUM(landlordRewardOrder)
+                </when>
+
+            </choose>
+            <choose>
+                <when test="sortOrder == 'asc' ">
+                    asc
+                </when>
+                <otherwise>
+                    desc
+                </otherwise>
+            </choose>
+        </if>	
+        limit #{pageIndex},#{pageSize}
+    </select>
+
+    <select id="getAgentBizSimpReportTotal" resultType="int"
+            parameterType="com.lifang.bzsm.console.model.BizReportRequest">
+        select count(*) from (select 0 from lf_bz_agent_report
+        where status = 1
+        AND LENGTH(orgCode) >= 12
+        <if test="agentId != null and agentId !=''">
+            and agentId =#{agentId}
+        </if>
+        <choose>
+            <when test="dateStart == dateEnd and  dateStart != null and dateEnd != null ">
+                and statisticsDate = #{dateStart}
+            </when>
+            <when test="dateStart != null and dateEnd != null">
+                <![CDATA[     and statisticsDate > #{dateStart}
+              and statisticsDate <= #{dateEnd} ]]>
+            </when>
+        </choose>
+        <if test="storeIds != null and storeIds.size() != 0">
+            and storeOrgId in
+            <foreach collection="storeIds" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="queryType != null and queryType == 1">
+            group by agentId
+        </if>
+        <if test="queryType != null and queryType == 0">
+            group by agentId,statisticsDate
+        </if>
+        ) result
+    </select>
+
+    <select id="getStoreBizSimpReport" resultType="com.lifang.bzsm.console.entity.BusinessReport"
+            parameterType="com.lifang.bzsm.console.model.BizReportRequest">
+        SELECT
+        <include refid="Base_Column_List"/>
+        from lf_bz_agent_report
+        where status = 1
+        AND LENGTH(orgCode) >= 12
+        <if test="agentId != null and agentId !=''">
+            and agentId =#{agentId}
+        </if>
+        <choose>
+            <when test="dateStart == dateEnd and  dateStart != null and dateEnd != null ">
+                and statisticsDate = #{dateStart}
+            </when>
+            <when test="dateStart != null and dateEnd != null">
+                <![CDATA[  and statisticsDate > #{dateStart}
+                and statisticsDate <= #{dateEnd} ]]>
+            </when>
+        </choose>
+        <if test="storeIds != null and storeIds.size() != 0">
+            and storeOrgId in
+            <foreach collection="storeIds" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="queryType != null and queryType == 1">
+            group by storeOrgId
+        </if>
+        <if test="queryType != null and queryType == 0">
+            group by storeOrgId,statisticsDate
+        </if>
+        order by statisticsDate DESC
+        <if test="sortField != null and sortField != ''">
+            <choose>
+                <when test="sortField == 'orderAllocationHand' ">
+                    ,SUM(orderAllocationHand)
+                </when>
+                <when test="sortField == 'orderGrab' ">
+                   , SUM(orderGrab)
+                </when>
+                <when test="sortField == 'orderTotal' ">
+ 					,SUM(orderGrab + orderAllocationHand + orderAllocationOld + orderAllocationNew)                
+ 				</when>
+                <when test="sortField == 'orderSuccess' ">
+                    ,SUM(orderSuccess)
+                </when>
+                <when test="sortField == 'orderFailed' ">
+                    ,SUM(orderFailed)
+                </when>
+                <when test="sortField == 'orderAllocationNew' ">
+                   , SUM(orderAllocationNew)
+                </when>
+                <when test="sortField == 'orderAllocationOld' ">
+                    ,SUM(orderAllocationOld)
+                </when>
+                <when test="sortField == 'orderCustomer' ">
+                    ,SUM(orderCustomer)
+                </when>
+                <when test="sortField == 'priceTotal' ">
+                   , SUM(orderSuccess + orderFailed)
+                </when>
+                <!--1.9-->
+                <when test="sortField == 'wkReserveOrder' ">
+                    ,SUM(wkReserveOrder)
+                </when>
+                <when test="sortField == 'chatDesignateOrder' ">
+                    ,SUM(chatDesignateOrder)
+                </when>
+                <when test="sortField == 'landlordRewardOrder' ">
+                    ,SUM(landlordRewardOrder)
+                </when>
+
+            </choose>
+            <choose>
+                <when test="sortOrder == 'asc' ">
+                    asc
+                </when>
+                <otherwise>
+                    desc
+                </otherwise>
+            </choose>
+        </if>
+        limit #{pageIndex},#{pageSize}
+    </select>
+
+    <select id="getStoreBizSimpReportTotal" resultType="int"
+            parameterType="com.lifang.bzsm.console.model.BizReportRequest">
+        select count(*) from (select 1 from lf_bz_agent_report
+        WHERE STATUS = 1
+        AND LENGTH(orgCode) >= 12
+        <if test="agentId != null and agentId !=''">
+            and agentId =#{agentId}
+        </if>
+        <choose>
+            <when test="dateStart == dateEnd and  dateStart != null and dateEnd != null ">
+                and statisticsDate = #{dateStart}
+            </when>
+            <when test="dateStart != null and dateEnd != null">
+                <![CDATA[   and statisticsDate > #{dateStart}
+                and statisticsDate <= #{dateEnd} ]]>
+            </when>
+        </choose>
+        <if test="storeIds != null and storeIds.size() != 0">
+            and storeOrgId in
+            <foreach collection="storeIds" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="queryType != null and queryType == 1">
+            group by storeOrgId
+        </if>
+        <if test="queryType != null and queryType == 0">
+            group by storeOrgId,statisticsDate
+        </if>
+        ) result
+    </select>
+
+    <select id="getExportStoreBizSimpReport" resultMap="BaseResultMap"
+            parameterType="com.lifang.bzsm.console.model.BizReportRequest">
+        SELECT
+        <include refid="Base_Column_List"/>
+        from lf_bz_agent_report
+        where status = 1
+        AND LENGTH(orgCode) >= 12
+        <if test="agentId != null and agentId !=''">
+            and agentId =#{agentId}
+        </if>
+        <choose>
+            <when test="dateStart == dateEnd and  dateStart != null and dateEnd != null ">
+                and statisticsDate = #{dateStart}
+            </when>
+            <when test="dateStart != null and dateEnd != null">
+                <![CDATA[  and statisticsDate > #{dateStart}
+                and statisticsDate <= #{dateEnd} ]]>
+            </when>
+        </choose>
+        <if test="storeIds != null and storeIds.size() != 0">
+            and storeOrgId in
+            <foreach collection="storeIds" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="queryType != null and queryType == 1">
+            group by storeOrgId
+        </if>
+        <if test="queryType != null and queryType == 0">
+            group by storeOrgId,statisticsDate
+        </if>
+        order by statisticsDate DESC
+        <if test="sortField != null and sortField != ''">
+            <choose>
+                <when test="sortField == 'orderAllocationHand' ">
+                    ,SUM(orderAllocationHand)
+                </when>
+                <when test="sortField == 'orderGrab' ">
+                   , SUM(orderGrab)
+                </when>
+                <when test="sortField == 'orderTotal' ">
+ 					,SUM(orderGrab + orderAllocationHand + orderAllocationOld + orderAllocationNew)                
+ 				</when>
+                <when test="sortField == 'orderSuccess' ">
+                    ,SUM(orderSuccess)
+                </when>
+                <when test="sortField == 'orderFailed' ">
+                    ,SUM(orderFailed)
+                </when>
+                <when test="sortField == 'orderAllocationNew' ">
+                   , SUM(orderAllocationNew)
+                </when>
+                <when test="sortField == 'orderAllocationOld' ">
+                    ,SUM(orderAllocationOld)
+                </when>
+                <when test="sortField == 'orderCustomer' ">
+                    ,SUM(orderCustomer)
+                </when>
+                <when test="sortField == 'priceTotal' ">
+                   , SUM(orderSuccess + orderFailed)
+                </when>
+                <!--1.9-->
+                <when test="sortField == 'wkReserveOrder' ">
+                    ,SUM(wkReserveOrder)
+                </when>
+                <when test="sortField == 'chatDesignateOrder' ">
+                    ,SUM(chatDesignateOrder)
+                </when>
+                <when test="sortField == 'landlordRewardOrder' ">
+                    ,SUM(landlordRewardOrder)
+                </when>
+
+            </choose>
+            <choose>
+                <when test="sortOrder == 'asc' ">
+                    asc
+                </when>
+                <otherwise>
+                    desc
+                </otherwise>
+            </choose>
+        </if>
+    </select>
+
+    <select id="getAreaBizSimpReport" resultType="com.lifang.bzsm.console.entity.BusinessReport"
+            parameterType="com.lifang.bzsm.console.model.BizReportRequest">
+        SELECT
+        <include refid="Base_Column_List"/>
+        from lf_bz_agent_report
+        where status = 1
+        AND LENGTH(orgCode) >= 12
+        <if test="agentId != null and agentId !=''">
+            and agentId =#{agentId}
+        </if>
+        <choose>
+            <when test="dateStart == dateEnd and  dateStart != null and dateEnd != null ">
+                and statisticsDate = #{dateStart}
+            </when>
+            <when test="dateStart != null and dateEnd != null">
+                <![CDATA[  and statisticsDate > #{dateStart}
+                and statisticsDate <= #{dateEnd} ]]>
+            </when>
+        </choose>
+        <if test="areaIds != null and areaIds.size() != 0">
+            and areaOrgId in
+            <foreach collection="areaIds" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="queryType != null and queryType == 1">
+            group by areaOrgId
+        </if>
+        <if test="queryType != null and queryType == 0">
+            group by areaOrgId,statisticsDate
+        </if>
+        order by statisticsDate DESC
+        <if test="sortField != null and sortField != ''">
+            <choose>
+                <when test="sortField == 'orderAllocationHand' ">
+                    ,SUM(orderAllocationHand)
+                </when>
+                <when test="sortField == 'orderGrab' ">
+                   , SUM(orderGrab)
+                </when>
+                <when test="sortField == 'orderTotal' ">
+ 					,SUM(orderGrab + orderAllocationHand + orderAllocationOld + orderAllocationNew)                
+ 				</when>
+                <when test="sortField == 'orderSuccess' ">
+                    ,SUM(orderSuccess)
+                </when>
+                <when test="sortField == 'orderFailed' ">
+                    ,SUM(orderFailed)
+                </when>
+                <when test="sortField == 'orderAllocationNew' ">
+                   , SUM(orderAllocationNew)
+                </when>
+                <when test="sortField == 'orderAllocationOld' ">
+                    ,SUM(orderAllocationOld)
+                </when>
+                <when test="sortField == 'orderCustomer' ">
+                    ,SUM(orderCustomer)
+                </when>
+                <when test="sortField == 'priceTotal' ">
+                   , SUM(orderSuccess + orderFailed)
+                </when>
+                <!--1.9-->
+                <when test="sortField == 'wkReserveOrder' ">
+                    ,SUM(wkReserveOrder)
+                </when>
+                <when test="sortField == 'chatDesignateOrder' ">
+                    ,SUM(chatDesignateOrder)
+                </when>
+                <when test="sortField == 'landlordRewardOrder' ">
+                    ,SUM(landlordRewardOrder)
+                </when>
+
+            </choose>
+            <choose>
+                <when test="sortOrder == 'asc' ">
+                    asc
+                </when>
+                <otherwise>
+                    desc
+                </otherwise>
+            </choose>
+        </if>
+        limit #{pageIndex},#{pageSize}
+    </select>
+
+    <select id="getAreaBizSimpReportTotal" resultType="int"
+            parameterType="com.lifang.bzsm.console.model.BizReportRequest">
+        select count(*) from ( select 1 from lf_bz_agent_report
+        WHERE STATUS = 1
+        AND LENGTH(orgCode) >= 12
+        <if test="agentId != null and agentId !=''">
+            and agentId =#{agentId}
+        </if>
+        <choose>
+            <when test="dateStart == dateEnd and  dateStart != null and dateEnd != null ">
+                and statisticsDate = #{dateStart}
+            </when>
+            <when test="dateStart != null and dateEnd != null">
+                <![CDATA[   and statisticsDate > #{dateStart}
+                and statisticsDate <= #{dateEnd} ]]>
+            </when>
+        </choose>
+        <if test="areaIds != null and areaIds.size() != 0">
+            and areaOrgId in
+            <foreach collection="areaIds" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="queryType != null and queryType == 1">
+            group by areaOrgId
+        </if>
+        <if test="queryType != null and queryType == 0">
+            group by areaOrgId,statisticsDate
+        </if>
+        ) result
+    </select>
+
+    <select id="getExportAreaBizSimpReport" resultMap="BaseResultMap"
+            parameterType="com.lifang.bzsm.console.model.BizReportRequest">
+        SELECT
+        <include refid="Base_Column_List"/>
+        from lf_bz_agent_report
+        where status = 1
+        AND LENGTH(orgCode) >= 12
+        <if test="agentId != null and agentId !=''">
+            and agentId =#{agentId}
+        </if>
+        <choose>
+            <when test="dateStart == dateEnd and  dateStart!= null ">
+                and statisticsDate = #{dateStart}
+            </when>
+            <when test="dateStart != null and dateEnd != null">
+                <![CDATA[    and statisticsDate > #{dateStart}
+                and statisticsDate <= #{dateEnd} ]]>
+            </when>
+        </choose>
+        <if test="areaIds != null and areaIds.size() != 0">
+            and areaOrgId in
+            <foreach collection="areaIds" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="queryType != null and queryType == 1">
+            group by areaOrgId
+        </if>
+        <if test="queryType != null and queryType == 0">
+            group by areaOrgId,statisticsDate
+        </if>
+        order by statisticsDate DESC
+        <if test="sortField != null and sortField != ''">
+            <choose>
+                <when test="sortField == 'orderAllocationHand' ">
+                    ,SUM(orderAllocationHand)
+                </when>
+                <when test="sortField == 'orderGrab' ">
+                   , SUM(orderGrab)
+                </when>
+                <when test="sortField == 'orderTotal' ">
+ 					,SUM(orderGrab + orderAllocationHand + orderAllocationOld + orderAllocationNew)                
+ 				</when>
+                <when test="sortField == 'orderSuccess' ">
+                    ,SUM(orderSuccess)
+                </when>
+                <when test="sortField == 'orderFailed' ">
+                    ,SUM(orderFailed)
+                </when>
+                <when test="sortField == 'orderAllocationNew' ">
+                   , SUM(orderAllocationNew)
+                </when>
+                <when test="sortField == 'orderAllocationOld' ">
+                    ,SUM(orderAllocationOld)
+                </when>
+                <when test="sortField == 'orderCustomer' ">
+                    ,SUM(orderCustomer)
+                </when>
+                <when test="sortField == 'priceTotal' ">
+                   , SUM(orderSuccess + orderFailed)
+                </when>
+                <!--1.9-->
+                <when test="sortField == 'wkReserveOrder' ">
+                    ,SUM(wkReserveOrder)
+                </when>
+                <when test="sortField == 'chatDesignateOrder' ">
+                    ,SUM(chatDesignateOrder)
+                </when>
+                <when test="sortField == 'landlordRewardOrder' ">
+                    ,SUM(landlordRewardOrder)
+                </when>
+
+            </choose>
+            <choose>
+                <when test="sortOrder == 'asc' ">
+                    asc
+                </when>
+                <otherwise>
+                    desc
+                </otherwise>
+            </choose>
+        </if>
+    </select>
+
+</mapper>

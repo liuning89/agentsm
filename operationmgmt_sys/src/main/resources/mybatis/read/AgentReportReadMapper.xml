@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lifang.agentsm.dao.read.AgentReportReadMapper">
+	
+	<select id="getAgentOperationReport" parameterType="map" resultType="com.lifang.agentsm.model.AgentReportModel">
+		SELECT
+			o.operator
+		<if test="status==1">
+			,s.id storeId
+		</if>
+		FROM
+			lf_agent_operation o
+		<if test="status==1">
+			INNER JOIN lf_agent a on a.id=o.operator
+			INNER JOIN lf_store s on s.id=a.storeId 
+		</if>
+		WHERE
+		<if test="status == null">
+			o.createTime > #{timeFrom}
+		and
+			o.createTime &lt; #{timeTo}
+		</if>
+		<if test="status == 1">
+			o.createTime > #{monthFrom}
+		and
+			o.createTime &lt; #{monthTo}
+		</if>
+		<if test="type == 1">
+			and o.operationType=1
+		</if>
+		<if test="type == 2">
+			and o.operationType=5
+		</if>
+		<if test="type == 3">
+			and o.operationType=3
+		</if>
+		<if test="type == 4">
+			and o.operationType=4
+		</if>
+		and o.status=1
+		<if test="status==1">
+			GROUP BY o.operator	 
+		</if>
+	</select>
+	
+	<select id="getHouseImages" resultType="com.lifang.agentsm.model.AgentReportModel" parameterType="map">
+		SELECT
+			i.agentId,s.id storeId,i.createTime
+		FROM
+			house_image i
+		INNER JOIN lf_agent a on a.id=i.agentId
+		INNER JOIN lf_store s on s.id=a.storeId
+		WHERE
+			i.createTime > #{monthFrom}
+		AND
+			i.createTime &lt; #{monthTo}
+		GROUP BY i.agentId 
+	</select>
+	
+	<select id="getHouseMonthShares" resultType="com.lifang.agentsm.model.AgentReportModel" parameterType="map">
+	SELECT s.id storeId from lf_share_house_record r
+	LEFT JOIN lf_agent a on a.id=r.agentId
+	LEFT JOIN lf_store s on s.id=a.storeId
+	WHERE
+		r.createTime > #{monthFrom}
+	AND
+		r.createTime &lt; #{monthTo}
+	GROUP BY s.id,r.houseId
+	</select>
+	
+	
+	<select id="getAgents" resultType="com.lifang.agentsm.model.AgentReportModel">
+		select id,storeId from lf_agent where status=1
+	</select>
+	
+	<select id="getStores" resultType="com.lifang.agentsm.model.AgentReportModel">
+		select id storeId from lf_store where status=1
+	</select>
+	
+	<select id="getAddCustomers" parameterType="map" resultType="com.lifang.agentsm.model.AgentReportModel">
+		SELECT
+			agentId
+		FROM
+			lf_customer
+		WHERE
+			createTime > #{timeFrom}
+		and 
+			createTime &lt; #{timeTo}  	
+	</select>
+	
+	
+	<select id="getCallHouses" parameterType="map" resultType="com.lifang.agentsm.model.AgentReportModel">
+		SELECT
+			a.id agentId
+		FROM
+			lf_call_log log
+		INNER JOIN lf_agent a ON a.mobile = log.callerNum
+		WHERE
+			log.createTime > #{timeFrom}
+		and 
+			log.createTime &lt; #{timeTo}  	
+	</select>
+	
+	<select id="getShareHouses" parameterType="map" resultType="com.lifang.agentsm.model.AgentReportModel">
+		SELECT
+			agentId
+		FROM
+			lf_share_house_record
+		WHERE
+			createTime > #{timeFrom}
+		and 
+			createTime &lt; #{timeTo}  	
+	</select>
+	
+	<select id="getDistinctHouses" parameterType="map" resultType="com.lifang.agentsm.model.AgentReportModel">
+		SELECT
+			agentId
+		FROM
+			lf_share_house_record
+		WHERE
+			createTime > #{timeFrom}
+		and 
+			createTime &lt; #{timeTo}
+		GROUP BY agentId,houseId  	
+	</select>
+	
+	
+	<select id="getHouseSees" parameterType="map" resultType="com.lifang.agentsm.model.AgentReportModel">
+		SELECT
+			agentId
+		FROM
+			lf_customer_house_see
+		WHERE
+			createTime > #{timeFrom}
+		and
+			createTime &lt; #{timeTo}   
+		GROUP BY 
+			customerId,agentId	
+	</select>
+	
+	<select id="checkAgentReport" parameterType="map" resultType="Long">
+		select id from lf_report_agent where agentId=#{agentId} and createTime >= #{timeFrom} 
+		and createTime &lt; #{timeTo} limit 1
+	</select>
+	
+	<select id="checkStoreReport" parameterType="map" resultType="Long">
+		select id from lf_report_store where storeId=#{storeId} and createTime >= #{timeFrom} 
+		and createTime &lt; #{timeTo} limit 1
+	</select>
+	
+	<select id="checkStoreMonthReport" parameterType="map" resultType="Long">
+		select id from lf_report_month_store where storeId=#{storeId} and createTime >= #{monthFrom} limit 1
+<!-- 		and createTime &lt; #{monthTo}   -->
+	</select>
+	
+	<select id="getAgentReportList" parameterType="com.lifang.agentsm.common.Pagination" resultType="com.lifang.agentsm.model.ReportModel">
+            SELECT SUM(a.publishNum) publishNum,
+                SUM(a.uploadPicNum) uploadPicNum,
+                SUM(a.keyNum) keyNum,
+                SUM(a.entrustNum) entrustNum,
+                SUM(a.addMasterNum) addMasterNum,
+                SUM(a.contactLandladyCount) contactLandladyCount,
+            SUM(a.leadMasterNum) leadMasterNum,
+            SUM(a.forwardHouseCount) forwardHouseCount,
+            SUM(a.shareHouseNum) shareHouseNum,
+            (SELECT SUM(lf_agent_share_record.`count`) FROM lf_agent_share_record WHERE lf_agent_share_record.`agentId` = a.`agentId`) shareTotalCount,
+            b.realName FROM lf_report_agent a
+            LEFT JOIN lf_agent b ON a.agentId = b.id 
+            WHERE 1 =1 
+            <if test="storeId != null and storeId != ''">
+                and a.storeId=${storeId}
+            </if>
+			<if test="createTimestart != null and createTimestart != ''">
+			and a.createTime &gt; #{createTimestart} 
+			</if>
+			<if test="createTimeend != null and createTimeend != ''">
+			and a.createTime  &lt; #{createTimeend}
+			</if>
+			group by a.agentId
+	</select>
+	
+	<select id="getStoreReportList" parameterType="com.lifang.agentsm.common.Pagination" resultType="com.lifang.agentsm.model.ReportModel">
+		select sum(a.publishNum) publishNum,
+			sum(a.uploadPicNum) uploadPicNum,
+			sum(a.keyNum) keyNum,
+			sum(a.uploadPicManNum) uploadPicManNum,
+			sum(a.entrustNum) entrustNum,
+			sum(a.addMasterNum) addMasterNum,
+			sum(a.contactLandladyCount) contactLandladyCount,
+            sum(a.leadMasterNum) leadMasterNum,
+            sum(a.forwardHouseCount) forwardHouseCount,
+            b.storeName from lf_report_store a
+			left join lf_store b on a.storeId = b.id
+			where 1=1 
+			<if test="createTimestart != null and createTimestart != ''">
+			and a.createTime &gt; #{createTimestart} 
+			</if>
+			<if test="createTimeend != null and createTimeend != ''">
+			and a.createTime  &lt; #{createTimeend}
+			</if>
+			group by a.storeId
+	</select>
+    
+    <select id="getStoreMonReportList" parameterType="com.lifang.agentsm.common.Pagination" resultType="com.lifang.agentsm.model.ReportModel">
+        SELECT
+        SUM(a.publishMans) publishManNum,
+        SUM(a.uploadPicMans) uploadPicManNum,
+        sum(a.shareHouses) shareHouseNum,
+        b.storeName 
+        FROM lf_report_month_store a
+        LEFT JOIN lf_store b ON a.storeId = b.id
+        WHERE 1=1 
+        <if test="month != null and month != ''">
+            and  DATE_FORMAT(a.createTime,'%Y-%m') = #{month} 
+        </if>
+        group by a.storeId
+    </select>
+</mapper>

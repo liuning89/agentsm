@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lifang.agentsm.dao.read.MenuReadMapper">
+	
+	<!-- 列表 -->
+	<select id="list" resultType="com.lifang.agentsm.model.Menu">
+		SELECT
+			a.id,
+			a.name,
+			a.createTime,
+			a.memo,
+			b.name parentName,
+			c.name functionName,
+			a.isLeaf,
+			a.url,
+			a.sort
+		FROM
+			lf_menu a
+			LEFT JOIN lf_menu b ON a.parentId = b.id AND b.status = 1
+			LEFT JOIN lf_pri_function c ON a.functionId = c.id AND c.status = 1
+		WHERE
+			a.status = 1
+			<if test="name != null and name != ''">
+				AND (
+					a.name LIKE CONCAT('%', #{name}, '%')
+					OR a.url LIKE CONCAT('%', #{name}, '%')
+				)
+			</if>
+			<if test="parentName != null and parentName != ''">
+				AND (
+					b.name LIKE CONCAT('%', #{parentName}, '%')
+					OR b.url LIKE CONCAT('%', #{parentName}, '%')
+				)
+			</if>
+			<if test="functionName != null and functionName != ''">
+				AND c.name LIKE CONCAT('%', #{functionName}, '%')
+			</if>
+			<if test="isLeaf != null">
+				AND a.isLeaf = #{isLeaf}
+			</if>
+	</select>
+
+	<!-- 获取父级树图 -->
+	<select id="getMenuParentTree" resultType="com.lifang.agentsm.model.Menu">
+		SELECT
+			a.id,
+			a.name,
+			a.parentId,
+			b.name parentName,
+			a.url
+		FROM
+			lf_menu a
+			LEFT JOIN lf_menu b ON a.parentId = b.id AND b.status = 1
+			LEFT JOIN lf_pri_function c ON a.functionId = c.id
+		WHERE
+			a.status = 1
+			AND a.isLeaf != 1
+			<if test="name != null and name != ''">
+				AND a.name LIKE CONCAT('%', #{name}, '%')
+			</if>
+			<if test="appName != null and appName != ''">
+				AND c.appName = #{appName}
+			</if>
+		ORDER BY a.parentId, a.id
+	</select>
+
+	<!-- 详情 -->
+	<select id="menu" parameterType="int"
+		resultType="com.lifang.agentsm.model.Menu">
+		SELECT
+			a.id,
+			a.name,
+			a.parentId,
+			a.functionId,
+			a.memo,
+			a.isLeaf,
+			a.url,
+			a.sort,
+			b.name parentName,
+			c.name functionName,
+			c.appName
+		FROM
+			lf_menu a
+			LEFT JOIN lf_menu b ON a.parentId = b.id
+			LEFT JOIN lf_pri_function c ON a.functionId = c.id
+		WHERE
+			a.status = 1
+			AND a.id = #{id}
+	</select>
+
+	<!-- 获取子菜单列表 -->
+	<select id="getChildMenuIds" parameterType="int"
+		resultType="java.lang.Integer">
+		SELECT
+			a.id
+		FROM
+			lf_menu a
+		WHERE
+			a.status = 1
+			AND a.parentId = #{id}
+	</select>
+
+</mapper>

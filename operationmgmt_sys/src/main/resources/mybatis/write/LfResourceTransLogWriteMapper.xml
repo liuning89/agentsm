@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lifang.agentsm.dao.write.LfResourceTransLogWriteMapper" >
+  
+  <!-- 发布人 -->
+  <insert id="insertPublishAgentLog" parameterType="java.util.List">  
+    INSERT INTO Lf_Resource_Trans_Log (type, resourceId, oldAgentId, newAgentId, createBy)
+    VALUES   
+    <foreach collection="list" item="item" index="index" separator="," >  
+        ("1",${item.publishAgentId},${item.publishAgentIn},${item.publishAgent},${item.createBy})  
+    </foreach>  
+</insert>  
+
+<!-- 发布人 -->
+  <insert id="savePublishAgentLog" parameterType="map">  
+    INSERT INTO Lf_Resource_Trans_Log (type, resourceId, oldAgentId, newAgentId, createBy)
+    VALUES   
+   
+        ("1",#{houseId},#{agentIdIn},#{agentId},#{createBy})  
+        
+</insert> 
+
+<!-- 实景人 -->
+  <insert id="insertPictureAgentLog" parameterType="java.util.List">  
+    INSERT INTO Lf_Resource_Trans_Log (type, resourceId, oldAgentId, newAgentId, createBy)
+    VALUES   
+    <foreach collection="list" item="item" index="index" separator="," >  
+        ("3",${item.pictureAgentId},${item.pictureAgentIn},${item.pictureAgent},${item.createBy})  
+    </foreach>  
+</insert> 
+
+<!-- 实景人 -->
+  <insert id="savePictureAgentLog" parameterType="map">  
+    INSERT INTO Lf_Resource_Trans_Log (type, resourceId, oldAgentId, newAgentId, createBy)
+    VALUES   
+        ("3",#{houseId},#{agentIdIn},#{agentId},#{createBy})   
+</insert>
+
+<!-- 速消人 -->
+  <insert id="insertCommAgentLog" parameterType="java.util.List">  
+    INSERT INTO Lf_Resource_Trans_Log (type, resourceId, oldAgentId, newAgentId, createBy)
+    VALUES   
+    <foreach collection="list" item="item" index="index" separator="," >  
+        ("4",${item.commAgentId},${item.commAgentIn},${item.commAgent},${item.createBy})  
+    </foreach>  
+</insert> 
+
+<!-- 速消人 -->
+  <insert id="saveCommAgentLog" parameterType="map">  
+    INSERT INTO Lf_Resource_Trans_Log (type, resourceId, oldAgentId, newAgentId, createBy)
+    VALUES   
+        ("4",#{houseId},#{agentIdIn},#{agentId},#{createBy})     
+</insert> 
+<!-- 维护人 -->
+  <insert id="insertMaintainAgentLog" parameterType="java.util.List">  
+    INSERT INTO Lf_Resource_Trans_Log (type, resourceId, oldAgentId, newAgentId, createBy)
+    VALUES   
+    <foreach collection="list" item="item" index="index" separator="," >  
+        ("5",${item.maintainAgentId},${item.maintainAgentIn},${item.maintainAgent},${item.createBy})  
+    </foreach>  
+</insert> 
+
+<!-- 维护人 -->
+  <insert id="saveMaintainAgentLog" parameterType="map">  
+    INSERT INTO Lf_Resource_Trans_Log (type, resourceId, oldAgentId, newAgentId, createBy)
+    VALUES   
+        ("5",#{houseId},#{agentIdIn},#{agentId},#{createBy})  
+</insert> 
+
+<!-- 钥匙人 -->
+  <insert id="insertKeyAgentLog" parameterType="java.util.List">  
+    INSERT INTO Lf_Resource_Trans_Log (type, resourceId, oldAgentId, newAgentId, createBy)
+    VALUES   
+    <foreach collection="list" item="item" index="index" separator="," >  
+        ("2",${item.keyAgentId},${item.keyAgentIn},${item.keyAgent},${item.createBy})  
+    </foreach>  
+</insert> 
+<!-- 钥匙人 -->
+  <insert id="savekeyAgentLog" parameterType="map">  
+    INSERT INTO Lf_Resource_Trans_Log (type, resourceId, oldAgentId, newAgentId, createBy)
+    VALUES   
+    <foreach collection="list" item="item" index="index" separator="," >  
+        ("2",#{houseId},#{agentIdIn},#{agentId},#{createBy})  
+    </foreach>  
+</insert> 
+
+<!-- 客源 -->
+  <insert id="insertCustomerLog" parameterType="java.util.List">  
+    INSERT INTO Lf_Resource_Trans_Log (type, resourceId, oldAgentId, newAgentId, createBy)
+    VALUES   
+    <foreach collection="list" item="item" index="index" separator="," >  
+        ("6",${item.customerId},${item.customerIn},${item.customer},${item.createBy})  
+    </foreach>  
+</insert> 
+
+
+<!-- 小区 -->
+  <insert id="insertEstateLog" parameterType="java.util.List">  
+    INSERT INTO Lf_Resource_Trans_Log (type, resourceId, oldAgentId, newAgentId, createBy)
+    VALUES   
+    <foreach collection="list" item="item" index="index" separator="," >  
+        ("8",${item.estateId},${item.estateAgent},${item.estate},${item.createBy})  
+    </foreach>  
+</insert> 
+
+<!-- 带看 -->
+  <insert id="insertCusSeeLog" parameterType="java.util.List">  
+    INSERT INTO Lf_Resource_Trans_Log (type, resourceId, oldAgentId, newAgentId, createBy)
+    VALUES   
+    <foreach collection="list" item="item" index="index" separator="," >  
+        ("7",${item.cusSeeId},${item.cusSeeAgent},${item.cusSee},${item.createBy})  
+    </foreach>  
+</insert> 
+<!-- 专属经纪人 -->
+  <insert id="insertCusGuestLog" parameterType="java.util.List">  
+    INSERT INTO Lf_Resource_Trans_Log (type, resourceId, oldAgentId, newAgentId, createBy)
+    VALUES   
+    <foreach collection="list" item="item" index="index" separator="," >  
+        ("11",${item.cusGuestId},${item.cusGuestAgent},${item.cusGuest},${item.createBy})  
+    </foreach>  
+</insert> 
+
+<!-- 带看 -->
+  <insert id="insertHouseSeeLog" parameterType="java.util.List">  
+    INSERT INTO Lf_Resource_Trans_Log (type, resourceId, oldAgentId, newAgentId, createBy)
+    VALUES   
+    <foreach collection="list" item="item" index="index" separator="," >  
+        ("10",${item.houseSeeId},${item.houseSeeAgent},${item.houseSee},${item.createBy})  
+    </foreach>  
+</insert> 
+
+<!-- 客户需求-->
+  <insert id="insertRequirementLog" parameterType="java.util.List">  
+    INSERT INTO Lf_Resource_Trans_Log (type, resourceId, oldAgentId, newAgentId, createBy)
+    VALUES   
+    <foreach collection="list" item="item" index="index" separator="," >  
+        ("9",${item.requirementId},${item.requirementAgent},${item.requirement},${item.createBy})  
+    </foreach>  
+</insert> 
+</mapper>

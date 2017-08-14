@@ -1,0 +1,10 @@
+/**
+*给通用搜索框加样式
+**/
+.search_form{
+border: 1px solid #EEE;
+border-top:2px solid #0099CC ;
+padding-left: 10px;
+padding-top: 10px;
+padding-bottom: 15px;
+}

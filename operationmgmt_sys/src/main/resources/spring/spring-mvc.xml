@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:widget="http://www.opensourceforce.org/schema/widget"
+	xmlns:task="http://www.springframework.org/schema/task" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:jdbc="http://www.springframework.org/schema/jdbc" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jee="http://www.springframework.org/schema/jee" xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:websocket="http://www.springframework.org/schema/websocket"
+	xmlns:lang="http://www.springframework.org/schema/lang" xmlns:oxm="http://www.springframework.org/schema/oxm"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="
+     http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd
+     http://www.opensourceforce.org/schema/widget http://www.opensourceforce.org/schema/widget/spring-widget-0.2.0.xsd
+     http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-4.0.xsd
+     http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
+     http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+     http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-4.0.xsd
+     http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd
+     http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.0.xsd
+     http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-4.0.xsd
+     http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.0.xsd
+     http://www.springframework.org/schema/websocket http://www.springframework.org/schema/websocket/spring-websocket-4.0.xsd
+     http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-4.0.xsd
+     http://www.springframework.org/schema/oxm http://www.springframework.org/schema/oxm/spring-oxm-4.0.xsd">
+
+
+
+	<bean id="localeResolver"
+		class="org.springframework.web.servlet.i18n.CookieLocaleResolver">
+		<property name="cookieName" value="language" />
+		<property name="cookieMaxAge" value="3600" />
+		<!-- <property name="defaultLocale" value="zh_CN" /> -->
+	</bean>
+
+	<bean id="messageSource"
+		class="org.springframework.context.support.ReloadableResourceBundleMessageSource"
+		p:fallbackToSystemLocale="true" p:useCodeAsDefaultMessage="true"
+		p:defaultEncoding="UTF-8" p:cacheSeconds="60">
+		<description>Base message source to handle internationalization
+		</description>
+		<property name="basenames">
+			<list>
+				<!-- main resources -->
+				<value>classpath:error</value>
+			</list>
+		</property>
+	</bean>
+
+	<bean
+		class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter">
+		<property name="messageConverters">
+			<list>
+				<ref bean="byteArray_hmc" />
+				<ref bean="string_hmc" />
+				<ref bean="resource_hmc" />
+				<ref bean="source_hmc" />
+				<ref bean="xmlAwareForm_hmc" />
+				<ref bean="jaxb2RootElement_hmc" />
+				<ref bean="jackson_hmc" />
+			</list>
+		</property>
+	</bean>
+	<bean id="byteArray_hmc"
+		class="org.springframework.http.converter.ByteArrayHttpMessageConverter" />
+	<bean id="string_hmc"
+		class="org.springframework.http.converter.StringHttpMessageConverter">
+		<property name="supportedMediaTypes">
+			<list>
+				<value>text/html;charset=UTF-8</value>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="resource_hmc"
+		class="org.springframework.http.converter.ResourceHttpMessageConverter" />
+	<bean id="source_hmc"
+		class="org.springframework.http.converter.xml.SourceHttpMessageConverter" />
+	<bean id="xmlAwareForm_hmc"
+		class="org.springframework.http.converter.xml.XmlAwareFormHttpMessageConverter" />
+	<bean id="jaxb2RootElement_hmc"
+		class="org.springframework.http.converter.xml.Jaxb2RootElementHttpMessageConverter" />
+	<bean id="jackson_hmc"
+		class="org.springframework.http.converter.json.MappingJacksonHttpMessageConverter" />
+
+	<bean id="validator"
+		class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean"
+		p:validationMessageSource-ref="messageSource" />
+	<mvc:annotation-driven validator="validator" />
+
+	<!-- <aop:aspectj-autoproxy /> -->
+
+	<!-- enable component scanning (beware that this does not enable mapper 
+		scanning!) -->
+	<context:component-scan base-package="com.lifang">
+		<!-- <context:exclude-filter type="regex" expression="com.lifang.hims.entity.*"/> -->
+	</context:component-scan>
+
+	<bean
+		class="org.springframework.validation.beanvalidation.MethodValidationPostProcessor" />
+
+	<mvc:interceptors>
+		<bean class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor" />
+		<!-- <bean class="com.ecpss.bocpos.interceptor.HttpPackagesLoggingInterceptor" 
+        
+		<bean class="com.lifang.agentsm.utils.SessionInterceptor" init-method="init"/>
+			/> -->
+			<bean class="com.lifang.sso.interceptor.SsoInterceptor">
+            <property name="systemInfoXh" value="3"/>
+        </bean>
+	</mvc:interceptors>
+
+	<mvc:default-servlet-handler />
+
+
+	<bean id="viewResolverJSP"
+		class="org.springframework.web.servlet.view.UrlBasedViewResolver">
+		<property name="order" value="2"></property>
+		<property name="viewClass"
+			value="org.springframework.web.servlet.view.JstlView" />
+		<property name="prefix" value="/WEB-INF/jsp/" />
+		<property name="suffix" value=".jsp" />
+	</bean>
+
+	<!-- <bean id="viewResolver"
+		class="org.springframework.web.servlet.view.velocity.VelocityViewResolver">
+		<property name="order" value="1"></property>
+		<property name="prefix" value=""></property>
+		<property name="suffix" value=".vm" />
+		<property name="cache" value="false" />
+		<property name="exposeSpringMacroHelpers">
+			<value>true</value>
+		</property>
+		<property name="requestContextAttribute">
+			<value>rc</value>
+		</property>
+		<property name="exposeSessionAttributes" value="true" />
+		<property name="exposeRequestAttributes" value="true" />
+		<property name="contentType" value="text/html;charset=UTF-8" />
+		<property name="toolboxConfigLocation">
+			<value>WEB-INF/classes/toolbox.xml</value>
+		</property>
+	</bean>
+ -->
+
+	<bean id="multipartResolver"
+		class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<property name="defaultEncoding" value="UTF-8" />
+		<property name="maxInMemorySize" value="1000000"></property>
+		<property name="maxUploadSize" value="2000000000"></property>
+	</bean>
+
+	<bean id="httpClientFactory"
+		class="org.springframework.http.client.HttpComponentsClientHttpRequestFactory">
+		<property name="connectTimeout" value="${I_connectTimeout}" />
+		<property name="readTimeout" value="${I_readTimeout}" />
+	</bean>
+
+	<!--RestTemplate -->
+	<bean id="restTemplate" class="org.springframework.web.client.RestTemplate">
+		<constructor-arg ref="httpClientFactory" />
+	</bean>
+
+	<bean id="taskExecutor"
+		class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor"
+		scope="singleton">
+		<property name="corePoolSize" value="5" />
+		<property name="maxPoolSize" value="200" />
+		<property name="queueCapacity" value="200" />
+	</bean>
+
+	<bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+		<property name="host" value="mailhost.mypna.com" />
+	</bean>
+
+	<bean id="springUtils" class="com.lifang.agentsm.utils.SpringUtils" />
+
+	<!--<bean id="imgSOAClient" class="com.lifang.imgsoa.client.ImgSOAClient">-->
+		<!--<property name="app" value="crm" />-->
+		<!--<constructor-arg value="${imgSOAClient}" />-->
+		<!--<constructor-arg value="20000" />-->
+	<!--</bean>-->
+	<!-- 获取组织结构 -->
+	
+<!-- 	<bean id="areaOrgPriSOAClient" class="com.lifang.areaorgprisoa.client.AreaOrgPriSOAClient">
+	    <property name="app" value="LF-AppServer" />
+	    <constructor-arg value="${areaOrgPriSOAClient}" />
+	    <constructor-arg value="20000" />
+ 	</bean> -->
+	
+	<bean id="searchServiceClient" class="com.lifang.search.client.service.SearchFacadeService">
+         <property name="acIp" value="${engineIp}" />
+         <property name="sellIp" value="${engineIp}" />
+         <property name="rentIp" value="${engineIp}" />
+	</bean>
+    <!-- MQ服务 -->
+    <bean id="mqSenderClient" class="com.lifang.mqservice.client.MsgQueueSenderClient">
+        <property name="app">
+            <value>op</value>
+        </property>
+        <property name="servAddr">
+            <value>${SERVICE_MQSERVICE_SERVADDR}</value>
+        </property>
+        <property name="timeout">
+            <value>3000</value>
+        </property>
+    </bean>
+    
+	<!--<bean id="callSOAClient" class="com.lifang.callsoa.clinet.CallSOAClient">-->
+		<!--<property name="app" value="LF-CallSOAAppServer" />-->
+		<!--<constructor-arg value="${callSOAClient}" />-->
+		<!--<constructor-arg value="20000" />-->
+	<!--</bean>-->
+
+	<!-- 监控-->
+	<aop:aspectj-autoproxy proxy-target-class="true" />
+	<bean id="monitorAop" class="com.lifang.wkeyes.MonitorAOP"></bean>
+
+
+	<context:property-placeholder
+		location="classpath:jdbc.properties,classpath:config.properties,classpath:dubbo.properties,classpath:server.properties" />
+
+</beans>

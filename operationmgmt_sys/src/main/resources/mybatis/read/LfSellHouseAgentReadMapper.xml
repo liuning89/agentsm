@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lifang.agentsm.dao.read.LfSellHouseAgentReadMapper" >
+  <resultMap id="BaseResultMap" type="com.lifang.agentsm.entity.LfSellHouseAgent" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="houseId" property="houseId" jdbcType="BIGINT" />
+    <result column="keyAgent" property="keyAgent" jdbcType="BIGINT" />
+    <result column="publishAgent" property="publishAgent" jdbcType="BIGINT" />
+    <result column="commAgent" property="commAgent" jdbcType="BIGINT" />
+    <result column="buyAgentId" property="buyAgentId" jdbcType="BIGINT" />
+    <result column="allowContact" property="allowContact" jdbcType="TINYINT" />
+    <result column="updateTime" property="updateTime" jdbcType="TIMESTAMP" />
+    <result column="createTime" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="contactAgentId" property="contactAgentId" jdbcType="BIGINT" />
+    <result column="status" property="status" jdbcType="TINYINT" />
+    <result column="proCommAgent" property="proCommAgent" jdbcType="BIGINT" />
+    <result column="isExclusive" property="isExclusive" jdbcType="TINYINT" />
+    <result column="updateAgent" property="updateAgent" jdbcType="BIGINT" />
+    <result column="pictureAgent" property="pictureAgent" jdbcType="BIGINT" />
+    <result column="recordAgent" property="recordAgent" jdbcType="BIGINT" />
+    <result column="sourceId" property="sourceId" jdbcType="BIGINT" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, houseId, keyAgent, publishAgent, commAgent, buyAgentId, allowContact, updateTime, 
+    createTime, contactAgentId, status, proCommAgent, isExclusive, updateAgent, pictureAgent, 
+    recordAgent, sourceId
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from lf_sell_house_agent
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <select id="isKeyAgent" resultType="java.lang.Integer" parameterType="java.lang.Integer">
+  	select count(1) from lf_sell_house_agent
+  	where keyAgent = #{keyAgent,jdbcType=BIGINT}
+  </select>
+  <select id="isPublishAgent" resultType="java.lang.Integer" parameterType="java.lang.Integer">
+  	select count(1) from lf_sell_house_agent
+  	where publishAgent = #{publishAgent,jdbcType=BIGINT}
+  </select>
+  <select id="isCommAgent" resultType="java.lang.Integer" parameterType="java.lang.Integer">
+  	select count(1) from lf_sell_house_agent
+  	where commAgent = #{commAgent,jdbcType=BIGINT}
+  </select>
+  <select id="isPictureAgent" resultType="java.lang.Integer" parameterType="java.lang.Integer">
+  	select count(1) from lf_sell_house_agent
+  	where pictureAgent = #{pictureAgent,jdbcType=BIGINT}
+  </select>
+  <select id="isBuyAgentId" resultType="java.lang.Integer" parameterType="java.lang.Integer">
+  	select count(1) from lf_customer 
+  	where agentId = #{buyAgentId,jdbcType=BIGINT}
+  </select>
+  <select id="isHouseSeeAgentId" resultType="java.lang.Integer" parameterType="java.lang.Integer">
+    select count(1) from lf_customer_house_see 
+    where agentId = #{agentId,jdbcType=BIGINT}
+  </select>
+</mapper>

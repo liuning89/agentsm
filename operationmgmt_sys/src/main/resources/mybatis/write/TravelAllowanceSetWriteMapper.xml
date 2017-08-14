@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lifang.agentsm.dao.write.TravelAllowanceSetWriteMapper" >
+
+
+	<!-- 修改 -->
+	<update id="updateStatus" parameterType="Map">
+		UPDATE
+			lf_travel_allowance_set
+		SET
+			status=#{status}
+		WHERE
+			id=#{id}
+	</update>
+
+	<update id="saveTravelDetail" parameterType="com.lifang.agentsm.model.TravelAllowanceSetDetail">
+		update lf_travel_allowance_set_detail set wkcoin = #{wkCoin} where id=#{id}
+	</update>
+	
+	<update id="updateDetailStatus" parameterType="Map">
+		update lf_travel_allowance_set_detail set status = #{status} where id=#{id}
+	</update>
+	
+	<update id="saveBannerSetUpdateImage">
+		update lf_yfyk_banner_set set h5path=#{h5path}  ,startTime=#{startTime}, endTime=#{endTime}, imageKey=#{imageKey}, description=#{description},
+		 isShow=#{isShow} where id=#{id}
+	</update>
+	
+	<insert id="saveBannerSetAddImage">
+		<selectKey resultType="java.lang.Integer" keyProperty="id" order="AFTER">
+				SELECT LAST_INSERT_ID()
+		</selectKey>
+		INSERT INTO `lf_yfyk_banner_set` (
+			id,
+			`h5path`,
+			`startTime`,
+			`endTime`,
+			`imageKey`,
+			`description`,
+			`isShow`
+		)
+		VALUES
+			( #{id},
+				#{h5path},#{startTime},#{endTime},#{imageKey},#{description},#{isShow}
+			)
+	</insert>
+	
+	<insert id="saveTravelData">
+	<selectKey resultType="java.lang.Integer" keyProperty="id" order="AFTER">
+				SELECT LAST_INSERT_ID()
+		</selectKey>
+	  insert into lf_travel_allowance_set (id,cityId) values (#{id},#{cityId}) 
+	</insert>
+	
+	<insert id="saveInsertTravelDetail">
+		insert into lf_travel_allowance_set_detail (travelId,type,wkcoin) values (#{travelId},#{type},#{wkCoin})
+	</insert>
+</mapper>

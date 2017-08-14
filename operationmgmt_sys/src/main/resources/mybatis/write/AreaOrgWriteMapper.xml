@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lifang.agentsm.dao.write.AreaOrgWriteMapper" >
+
+	<!-- 添加 -->
+	<insert id="add" parameterType="com.lifang.agentsm.model.AreaOrg">
+		INSERT INTO lf_area_org(name, cityId, parentId, `level`, code, status, memo, longitude, latitude) values
+			(#{name}, #{cityId}, #{parentId}, #{level}, #{code}, 1, #{memo, jdbcType=VARCHAR},
+			#{longitude, jdbcType=VARCHAR}, #{latitude, jdbcType=VARCHAR})
+		<selectKey order="AFTER" resultType="int" keyProperty="id">
+			SELECT LAST_INSERT_ID()
+		</selectKey>
+	</insert>
+
+	<!-- 修改 -->
+	<update id="update" parameterType="com.lifang.agentsm.model.AreaOrg">
+		UPDATE
+			lf_area_org
+		SET
+			name = #{name},
+			memo = #{memo, jdbcType=VARCHAR},
+			parentId = #{parentId},
+			latitude = #{latitude, jdbcType=VARCHAR},
+			longitude = #{longitude, jdbcType=VARCHAR}
+		WHERE
+			status = 1
+			AND id = #{id}
+	</update>
+
+	<!-- 修改code -->
+	<update id="updateCode">
+		UPDATE
+			lf_area_org
+		SET
+			code = REPLACE(code, #{oldCode}, #{code})
+		WHERE
+			code LIKE CONCAT(#{oldCode}, '%')
+	</update>
+
+	<!-- 删除以code开头的组织架构 -->
+	<update id="delete" parameterType="string">
+		UPDATE
+			lf_area_org
+		SET
+			status = 2,
+			name = CONCAT(NAME, '(已删除', id, ')')
+		WHERE
+			status = 1
+			AND code LIKE CONCAT(#{code}, '%')
+	</update>
+
+	<!-- 添加门店和板块的关系 -->
+	<insert id="addStoreTownRelation">
+		INSERT INTO lf_store_town_relation(storeId, townId, districtId, status) VALUES(
+			#{storeId}, #{townId}, #{districtId}, 1
+		) ON DUPLICATE KEY UPDATE status = 1
+	</insert>
+
+	<!-- 添加门店和板块列表的关系，此方式无法使用判断是否存在 -->
+	<insert id="addStoreTownRelations">
+		INSERT INTO lf_store_town_relation(storeId, townId, districtId, status) VALUES 
+		<foreach collection="dicAreas" index="index" item="item" separator=",">
+			(#{storeId}, #{item.townid}, #{item.districtid}, 1)
+		</foreach>
+	</insert>
+
+	<!-- 删除门店和板块列表关系 -->
+	<update id="deleteStoreTownRelations">
+		UPDATE
+			lf_store_town_relation
+		SET
+			status = 2
+		WHERE
+			storeId = #{storeId}
+			AND townid IN 
+			<foreach collection="dicAreas" index="index" item="item" open="(" close=")" separator=",">
+				#{item.townid}
+			</foreach>
+	</update>
+
+	<!-- 修改下级相同的类型 -->
+	<!--<update id="updateType">-->
+		<!--UPDATE-->
+			<!--lf_area_org-->
+		<!--SET-->
+			<!--type = #{type}-->
+		<!--WHERE-->
+			<!--status = 1-->
+			<!--AND code LIKE CONCAT(#{code}, '%')-->
+	<!--</update>-->
+
+</mapper>

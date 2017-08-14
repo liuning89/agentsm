@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lifang.agentsm.dao.write.PositionWriteMapper" >
+
+	<!-- 保存职位和功能 -->
+	<insert id="addPositionFunctionRelation">
+		INSERT INTO lf_position_function_relation(positionId, functionId, status) VALUES 
+		<foreach collection="functionIds" index="index" item="item" separator=",">
+			(#{positionId}, #{item}, 1)
+		</foreach>
+	</insert>
+
+	<!-- 删除职位和功能，删除在改functionids不存在的 -->
+	<update id="deletePositionFunctionRelationNotExistsFunctionIds" parameterType="java.util.List">
+		UPDATE
+			lf_position_function_relation
+		SET
+			status = 2
+		WHERE
+			status = 1
+			AND id IN 
+			<foreach collection="list" index="index" close=")" item="item" open="(" separator=",">
+				#{item}
+			</foreach>
+	</update>
+
+	<!-- 添加 -->
+	<insert id="add" parameterType="com.lifang.agentsm.model.Position">
+		INSERT INTO lf_position(name, department, areaOrgId, cityId, parentId, code, status) values (
+			#{name}, #{department}, #{areaOrgId}, #{cityId}, #{parentId}, #{code}, 1
+		)
+		<selectKey order="AFTER" keyProperty="id" resultType="int">
+			SELECT LAST_INSERT_ID()
+		</selectKey>
+	</insert>
+
+	<!-- 修改 -->
+	<update id="update">
+		UPDATE
+			lf_position
+		SET
+			NAME = #{name}
+		WHERE
+			status = 1
+			AND areaOrgId = #{areaOrgId}
+			AND department = #{department}
+		
+	</update>
+
+	<!-- 删除职位和功能关系 -->
+	<update id="deletePositionFunctionRelation">
+		UPDATE
+			lf_position_function_relation
+		SET
+			status = 2
+		WHERE
+			status = 1
+			AND positionId = #{positionId}
+			AND functionId IN 
+			<foreach collection="functionIds" index="index" close=")" item="item" open="(" separator=",">
+				#{item}
+			</foreach>
+	</update>
+
+	<!-- 设置状态 -->
+	<update id="setStatus">
+		UPDATE
+			lf_position
+		SET
+			status = #{status}
+		WHERE
+			id = #{id}
+	</update>
+
+</mapper>

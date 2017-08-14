@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lifang.agentsm.dao.read.HouseVideoReadMapper">
+    <resultMap id="BaseResultMap" type="com.lifang.agentsm.entity.HouseImage">
+        <id column="id" property="id" jdbcType="BIGINT" />
+        <result column="houseId" property="houseId" jdbcType="INTEGER" />
+        <result column="type" property="type" jdbcType="INTEGER" />
+        <result column="imgKey" property="imgKey" jdbcType="VARCHAR" />
+        <result column="desc" property="desc" jdbcType="VARCHAR" />
+        <result column="status" property="status" jdbcType="TINYINT" />
+        <result column="takePhotoTime" property="takePhotoTime" jdbcType="TIMESTAMP" />
+        <result column="createTime" property="createTime" jdbcType="TIMESTAMP" />
+        <result column="updateTime" property="updateTime" jdbcType="TIMESTAMP" />
+        <result column="sourceId" property="sourceId" jdbcType="INTEGER" />
+        <result column="agentId" property="agentId" jdbcType="BIGINT" />
+    </resultMap>
+  
+  
+	 <!-- 审核房屋视频审核sql条件 -->
+    <sql id="searchHouseVideo">
+  		<if test="initname != null and initname !=''">
+			and (c1.estateName like CONCAT('%',#{initname,jdbcType=VARCHAR},'%') 
+			
+			or c.room like CONCAT('%',#{initname,jdbcType=VARCHAR},'%')
+			 or cc.buildingName like CONCAT('%',#{initname,jdbcType=VARCHAR},'%')
+			 )
+			
+		</if>
+		<if test="houseId != null and houseId !='' and houseId != 0">
+			and a.houseid = #{houseId,jdbcType=VARCHAR}
+		</if>
+        <if test="auditStatus != null and auditStatus !='' and auditStatus != 0">
+			and a.videostatus = #{auditStatus,jdbcType=VARCHAR}
+		</if>
+ 	 </sql>
+    	 <!-- 审核小区视频审核sql条件 -->
+    <sql id="searchEstateVideo">
+  		<if test="initname != null and initname !=''">
+			and c.initname like CONCAT('%',#{initname,jdbcType=VARCHAR},'%')
+		</if>
+		<if test="houseId != null and houseId !='' and houseId != 0">
+			and a.estateId = #{houseId,jdbcType=VARCHAR}
+		</if>
+        <if test="auditStatus != null and auditStatus !='' and auditStatus != 0">
+			and a.videostatus = #{auditStatus,jdbcType=VARCHAR}
+		</if>
+ 	 </sql>
+    
+    <!-- 获取审核房源视频数量 -->
+       <select id="getHouseVideoAuditListCount" resultType="java.lang.Integer" parameterType="java.util.Map">
+  		
+		select count(1)
+
+			from house_video a
+			left join house_info c on a.houseid = c.houseId
+	<!-- left join estate_sub c1 on c1.estateId = c.estateId -->
+	
+	left join estate_sub c1 on c1.id = c.subEstateId
+			left join estate_building cc on c.buildingId = cc.id
+	
+			left join lf_video_audit d on d.housevideoid = a.id AND  d.videotype=1
+			
+			<!-- left join lf_employee e on e.id = a.employeeId
+		left join lf_employee f on f.id = d.auditorid -->
+		
+		<choose>
+			<when test="agentCode != ''">
+		
+		<!-- 
+			INNER JOIN lf_position lfb ON e.positionId = lfb.id
+			INNER JOIN lf_area_org lfc ON lfc.id = lfb.areaOrgId
+			
+
+			WHERE a.status=1 and lfc.code like CONCAT(#{code},'%')  -->
+			where  a.status=1 and a.employeeId in 
+			
+			<foreach collection="agentCityList" item="item" index="index" open="(" separator="," close=")" >
+		        ${item.id}
+		    </foreach>
+			
+			</when>
+			<otherwise>
+				where a.ownerid !='0'
+			</otherwise>
+		</choose>
+		<include refid="searchHouseVideo" />
+  </select>
+      <!-- 获取审核房源视频数量 -->
+       <select id="getEstateVideoAuditListCount" resultType="java.lang.Integer" parameterType="java.util.Map">
+  		
+			select count(1)
+			from estate_video a
+			left join estate_sub c on a.estateid = c.estateid
+			left join lf_video_audit d on d.housevideoid = a.id AND  d.videotype=2
+			
+			<!-- left join lf_employee e on e.id = a.employeeId
+		left join lf_employee f on f.id = d.auditorid -->
+
+
+			
+		<choose>
+			<when test="agentCode != ''">
+		
+			<!-- INNER JOIN lf_position lfb ON e.positionId = lfb.id
+		INNER JOIN lf_area_org lfc ON lfc.id = lfb.areaOrgId
+			WHERE a.status=1 and lfc.code like CONCAT(#{code},'%')  -->
+			where a. STATUS = 1 and a.employeeId in 
+			<foreach collection="agentCityList" item="item" index="index" open="(" separator="," close=")" >
+		        ${item.id}
+		    </foreach>
+			</when>
+			<otherwise>
+				where a.ownerid !='0'
+			</otherwise>
+			</choose>
+		<include refid="searchEstateVideo" />
+  </select>
+  
+  <!-- 获取房屋审核视频列表 -->
+       <select id="getHouseVideoAuditList" resultType="com.lifang.agentsm.model.HouseVideoAuditInfo" parameterType="java.util.Map">
+  		
+			<!-- select cg.phoneNum,a.`ownerid`,c.room,cc.buildingName,c1.estateName,e.positionid,a.id,a.houseid,c1.initname,
+			a.videokey,a.videosmallkey,e.`name` agentName,a.createTime,a.videostatus,f.`name` auditor,d.updatetime,
+			d.rejectreason,a.videoBigImageKey,a.videosmallimagekey,e.`mobile`
+			from house_video a
+			left join house_info c on a.houseid = c.houseId
+	
+	left join estate_sub c1 on c1.id = c.subEstateId
+			left join estate_building cc on c.buildingId = cc.id
+			left join lf_video_audit d on d.housevideoid = a.id AND  d.videotype=1
+			
+			left join lf_employee e on e.id = a.employeeId
+		left join lf_employee f on f.id = d.auditorid
+		LEFT JOIN cus_guest cg ON a.ownerId = cg.id -->
+		select cg.phoneNum,a.`ownerid`,c.room,cc.buildingName,c1.estateName,a.id,a.houseid,c1.initname,
+			a.videokey,a.videosmallkey,a.employeeId,a.createTime,a.videostatus,d.auditorid,d.updatetime,
+			d.rejectreason,a.videoBigImageKey,a.videosmallimagekey
+			from house_video a
+			left join house_info c on a.houseid = c.houseId
+	
+	left join estate_sub c1 on c1.id = c.subEstateId
+			left join estate_building cc on c.buildingId = cc.id
+			left join lf_video_audit d on d.housevideoid = a.id AND  d.videotype=1
+			
+			<!-- left join lf_employee e on e.id = a.employeeId
+		left join lf_employee f on f.id = d.auditorid -->
+		LEFT JOIN cus_guest cg ON a.ownerId = cg.id
+		
+		<choose>
+			<when test="agentCode != ''">
+				<!-- INNER JOIN lf_position lfb ON e.positionId = lfb.id
+				INNER JOIN lf_area_org lfc ON lfc.id = lfb.areaOrgId
+			WHERE a.status=1 and lfc.code like CONCAT(#{code},'%')   -->
+			
+			where a.employeeId in 
+			<foreach collection="agentCityList" item="item" index="index" open="(" separator="," close=")" >
+		        ${item.id}
+		    </foreach>
+			
+			</when>
+			<otherwise>
+				where a.`ownerid` !='0'
+			</otherwise>
+		</choose>
+
+			
+		<include refid="searchHouseVideo" />
+		ORDER BY a.`createTime` 
+		limit #{start,jdbcType=INTEGER},#{end,jdbcType=INTEGER}
+  </select>
+  
+    <!-- 获取小区审核视频列表 -->
+       <select id="getEstateVideoAuditList" resultType="com.lifang.agentsm.model.HouseVideoAuditInfo" parameterType="java.util.Map">
+  		
+	<!-- 		
+	select cg.phoneNum,c.estateName,a.id,a.estateId houseid,e.positionid,c.initname,a.videokey,
+	a.videosmallkey,e.`name` agentName,a.createTime,a.videostatus,f.`name` auditor,d.updatetime,
+	d.rejectreason,a.videoBigImageKey,a.videosmallimagekey,e.`mobile`
+
+
+			from estate_video a
+			left join estate_sub c on a.estateid=c.estateid
+			left join lf_video_audit d on d.housevideoid = a.id AND  d.videotype=2
+			
+			left join lf_employee e on e.id = a.employeeId
+		left join lf_employee f on f.id = d.auditorid
+		LEFT JOIN cus_guest cg ON a.ownerId = cg.id -->
+				
+	select cg.phoneNum,c.estateName,a.id,a.estateId houseid,c.initname,a.videokey,
+	a.videosmallkey,a.employeeId,a.createTime,a.videostatus,d.auditorid,d.updatetime,
+	d.rejectreason,a.videoBigImageKey,a.videosmallimagekey
+
+
+			from estate_video a
+			left join estate_sub c on a.estateid=c.estateid
+			left join lf_video_audit d on d.housevideoid = a.id AND  d.videotype=2
+			
+			<!-- left join lf_employee e on e.id = a.employeeId
+		left join lf_employee f on f.id = d.auditorid-->
+		LEFT JOIN cus_guest cg ON a.ownerId = cg.id 
+	<choose>
+			<when test="agentCode != ''">
+		
+				<!-- INNER JOIN lf_position lfb ON e.positionId = lfb.id
+			INNER JOIN lf_area_org lfc ON lfc.id = lfb.areaOrgId
+				WHERE a.status=1 and lfc.code like CONCAT(#{code},'%')  -->
+				
+				where  a.status=1 and a.employeeId in 
+				
+				<foreach collection="agentCityList" item="item" index="index" open="(" separator="," close=")" >
+			        ${item.id}
+			    </foreach>
+			</when>
+			<otherwise>
+				where a.`ownerid` !='0'
+			</otherwise>
+			</choose>
+		<include refid="searchEstateVideo" />
+		ORDER BY a.`createTime` 
+		limit #{start,jdbcType=INTEGER},#{end,jdbcType=INTEGER}
+  </select>
+  
+  
+</mapper>

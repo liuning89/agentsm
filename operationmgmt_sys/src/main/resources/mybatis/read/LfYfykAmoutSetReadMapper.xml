@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lifang.agentsm.dao.read.LfYfykAmoutSetReadMapper" >
+	<!-- 查询有房有客充值金额列表 -->
+	<select id="getList" parameterType="com.lifang.agentsm.model.LfYfykAmoutSet"
+		resultType="com.lifang.agentsm.model.LfYfykAmoutSet">
+		select id,wkcoindenomination,price,yfykstatus,agentid,DATE_FORMAT(createTime,'%Y-%m-%d %H:%i:%s') as createTime from lf_yfyk_amount_set where 1=1
+		<if test="yfykStatus!=null and yfykStatus!=''">
+			<choose>
+				<when test="yfykStatus==1">
+					and yfykstatus=#{yfykStatus}
+				</when>
+				<when test="yfykStatus==0">
+					and yfykstatus=#{yfykStatus}
+				</when>
+			</choose>
+		</if>
+		
+		<if test="startTime !=null and startTime != ''">
+			and createTime &gt;= STR_TO_DATE(#{startTime},'%Y-%m-%d')
+		</if>
+		<if test="endTime !=null and endTime != ''">
+			and createTime &lt;= DATE_ADD(STR_TO_DATE(#{endTime}, '%Y-%m-%d'),INTERVAL 1 DAY)
+		</if>
+		<if test="agentIds!=null">
+			and agentId in (${agentIds})
+		</if>
+	</select>
+	
+	<!-- 根据id查询充值金额 -->
+	<select id="getAmoutSetById" resultType="com.lifang.agentsm.model.LfYfykAmoutSet">
+		SELECT id,wkcoindenomination,price from lf_yfyk_amount_set where id=#{id}
+	</select>
+	
+	<select id="getFeeSetList" resultType="com.lifang.agentsm.model.LfAgentFeeSet" parameterType="int">
+		SELECT t.id,t.type,t.consumecoin,t.agentId,DATE_FORMAT(createTime,'%Y-%m-%d %H:%i:%s') as createTime from `lf_agent_fee_set`  t
+		where 1=1 
+		<if test="id!=null and id!=0">
+			and t.id=#{id}	
+		</if>
+	</select>
+	
+	<select id="getFeeSetLogList" resultType="com.lifang.agentsm.model.LfYfykAmoutSetLog">
+		select beforeValue,afterValue,operatorId,DATE_FORMAT(createTime,'%Y-%m-%d %H:%i:%s') as createTime from lf_yfyk_amount_set_log    where setId=#{setId} and type=2
+	</select>
+	
+	<select id="getCountNum" resultType="int">
+		select count(1) from lf_yfyk_amount_set where yfykStatus=#{status}
+	</select>
+	
+	<select id="getWkCoinConsumeList" resultType="com.lifang.agentsm.model.WkCoinDetailModel">
+		SELECT agentId,businessType,payId,price,DATE_FORMAT(createTime,'%Y-%m-%d %H:%i:%s') createTime FROM lf_agent_account_details where payStatus =1 and `status`=1
+		<if test="agentIds != null and agentIds!=''">
+	            and agentId in (${agentIds})
+		   </if>
+        <if test="startTime !=null and startTime != ''">
+			and createTime &gt;= STR_TO_DATE(#{startTime},'%Y-%m-%d')
+		</if>
+		<if test="endTime !=null and endTime != ''">
+			and createTime &lt;= DATE_ADD(STR_TO_DATE(#{endTime}, '%Y-%m-%d'),INTERVAL 1 DAY)
+		</if>
+		<if test="businessType!=null">
+			<choose>
+				<when test="businessType==2">
+					and businessType=#{businessType}
+				</when>
+				<when test="businessType==3">
+					and businessType=#{businessType}
+				</when>
+				<when test="businessType==4">
+					and businessType=#{businessType}
+				</when>
+				<otherwise> and businessType in (2,3,4)</otherwise>
+			</choose>
+		</if>
+		<if test="businessType==null or businessType==''">
+			and businessType in (2,3,4)
+		</if>	
+		order by id desc
+	</select>
+	
+	<select id="getWkCoinPayList" resultType="com.lifang.agentsm.model.WkCoinDetailModel">
+			SELECT
+			agentId,
+			 platform,
+		wuKongCoin,
+		price/100 as price,
+		payId,
+			DATE_FORMAT(
+				createTime,
+				'%Y-%m-%d %H:%i:%s'
+			) createTime
+		FROM
+			lf_agent_account_details
+		WHERE
+			 businessType =1 
+			and payStatus =1
+		AND `status` = 1
+		 <if test="agentIds != null and agentIds!=''">
+	            and agentId in (${agentIds})
+		   </if>
+        <if test="startTime !=null and startTime != ''">
+			and createTime &gt;= STR_TO_DATE(#{startTime},'%Y-%m-%d')
+		</if>
+		<if test="endTime !=null and endTime != ''">
+			and createTime &lt;= DATE_ADD(STR_TO_DATE(#{endTime}, '%Y-%m-%d'),INTERVAL 1 DAY)
+		</if>
+		<if test="platform!='-1' and platform!=null">
+			and platform=#{platform}
+		</if>
+		order by id desc
+	</select>
+	
+	
+	<select id="selectFranchiseeByName" resultType="com.lifang.agentsm.model.LfFranchiseeInfo">
+		SELECT id from lf_franchisee_info where abbreviation=#{companyName} and status=1;
+	</select>
+	
+	
+	<select id="getWkCoinGiveList" resultType="com.lifang.agentsm.model.WkCoinGivelModel">
+		SELECT agentId,coinNum,operatorId,DATE_FORMAT(createTime,'%Y-%m-%d %H:%i:%s') as createTime,giveReason from lf_wkcoin_give_record where 1=1 
+			<if test="agentIds != null and agentIds!=''">
+	            and agentId in (${agentIds})
+		   </if>
+	        <if test="startTime !=null and startTime != ''">
+				and createTime &gt;= STR_TO_DATE(#{startTime},'%Y-%m-%d')
+			</if>
+			<if test="endTime !=null and endTime != ''">
+				and createTime &lt;= DATE_ADD(STR_TO_DATE(#{endTime}, '%Y-%m-%d'),INTERVAL 1 DAY)
+			</if>
+			order by id desc
+	</select>
+	
+	<select id="getFranchiseeInfoList" resultType="com.lifang.agentsm.model.WkCoinGivelModel">
+		SELECT DISTINCT t.id,t.abbreviation as companyName from lf_franchisee_info t left join lf_franchisee_city c on t.id=c.franchiseeId where 1=1
+		and t.status=1 and c.status=1
+		<if test="companyName!=null">
+			and t.abbreviation like CONCAT('%',#{companyName},'%')
+		</if>
+		<if test="cityId!=null">
+			and c.cityId=#{cityId}
+		</if>
+	</select>
+	
+	<select id="getWkCoinGiveTotal" resultType="Long">
+		SELECT IFNULL(sum(coinNum),0) from lf_wkcoin_give_record where 1=1 
+			<if test="agentIds != null and agentIds!=''">
+	            and agentId in (${agentIds})
+		   </if>
+	        <if test="startTime !=null and startTime != ''">
+				and createTime &gt;= STR_TO_DATE(#{startTime},'%Y-%m-%d')
+			</if>
+			<if test="endTime !=null and endTime != ''">
+				and createTime &lt;= DATE_ADD(STR_TO_DATE(#{endTime}, '%Y-%m-%d'),INTERVAL 1 DAY)
+			</if>
+	</select>
+
+	<select id="getWkCoinPayTotal" resultType="Long">
+	SELECT IFNULL(sum(wuKongCoin),0)
+		FROM
+			lf_agent_account_details
+		WHERE
+			 businessType =1 
+			and payStatus =1
+		AND `status` = 1
+		 <if test="agentIds != null and agentIds!=''">
+	            and agentId in (${agentIds})
+		   </if>
+        <if test="startTime !=null and startTime != ''">
+			and createTime &gt;= STR_TO_DATE(#{startTime},'%Y-%m-%d')
+		</if>
+		<if test="endTime !=null and endTime != ''">
+			and createTime &lt;= DATE_ADD(STR_TO_DATE(#{endTime}, '%Y-%m-%d'),INTERVAL 1 DAY)
+		</if>
+		<if test="platform!='-1' and platform!=null">
+			and platform=#{platform}
+		</if>
+	</select>
+	
+	<select id="getWkCoinConsumeTotal" resultType="Long">
+	
+		SELECT IFNULL(sum(price),0)  FROM lf_agent_account_details where payStatus =1 and `status`=1
+		<if test="agentIds != null and agentIds!=''">
+	            and agentId in (${agentIds})
+		   </if>
+        <if test="startTime !=null and startTime != ''">
+			and createTime &gt;= STR_TO_DATE(#{startTime},'%Y-%m-%d')
+		</if>
+		<if test="endTime !=null and endTime != ''">
+			and createTime &lt;= DATE_ADD(STR_TO_DATE(#{endTime}, '%Y-%m-%d'),INTERVAL 1 DAY)
+		</if>
+		<if test="businessType!=null">
+			<choose>
+				<when test="businessType==2">
+					and businessType=#{businessType}
+				</when>
+				<when test="businessType==3">
+					and businessType=#{businessType}
+				</when>
+				<when test="businessType==4">
+					and businessType=#{businessType}
+				</when>
+				<otherwise> and businessType in (2,3,4)</otherwise>
+			</choose>
+		</if>
+		<if test="businessType==null or businessType==''">
+			and businessType in (2,3,4)
+		</if>	
+	</select>
+	
+	<select id="getFranchiseeListByCityId" resultType="com.lifang.agentsm.model.ComboModel">
+		SELECT lfi.id as id,lfi.abbreviation as text FROM lf_franchisee_info lfi 
+		where 1=1  and lfi.status=1
+	</select>
+	
+	<select id="getWkCoinReportList" resultType="com.lifang.agentsm.model.WkcoinReport">
+			  select t.guestId,t.data_dt,
+		    if(type=1,cashnum,0) AS xcCoin,
+		     if(type=2,cashnum,0) AS giveCoin,
+		     if(type=3,cashnum,0) AS payCoin,
+		     if(type=4,cashnum,0) AS consumeCoin
+		    from (
+				SELECT  SUM(cashNum) as cashNum,guestId,data_dt,type
+		 		from f_wkb_statistic t GROUP BY data_dt,guestId
+		) t
+	where 1=1 
+	<if test="agentIds != null and agentIds!=''">
+	            and guestId in (${agentIds})
+		   </if>
+        <if test="startTime !=null and startTime != ''">
+			and createTime &gt;= STR_TO_DATE(#{startTime},'%Y-%m-%d')
+		</if>
+		<if test="endTime !=null and endTime != ''">
+			and createTime &lt;= DATE_ADD(STR_TO_DATE(#{endTime}, '%Y-%m-%d'),INTERVAL 1 DAY)
+		</if>
+	</select>
+</mapper>

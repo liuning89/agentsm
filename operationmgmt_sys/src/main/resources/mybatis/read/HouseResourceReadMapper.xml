@@ -1,0 +1,597 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lifang.agentsm.dao.read.HouseResourceReadMapper">
+	<select id="getLfHouseFollowUpList" resultType="com.lifang.agentsm.model.LfHouseFollowUp">
+		SELECT
+	lh.id,
+	date_format(lh.createTime,'%Y-%m-%d %H:%i:%s') as createTime,
+	lh.type,
+	lh.note,
+	lh.agentId
+FROM
+	lf_house_follow_up lh
+where lh.`status` = 1
+ 	<if test="houseId != null">
+    	and lh.houseId = #{houseId,jdbcType=INTEGER}
+    </if>
+order by lh.createTime desc
+	</select>
+	
+	<!-- 房源跟进记录 -->
+	<select id="getLfHouseFollowUpListAll" resultType="com.lifang.agentsm.model.LfHouseFollowUp">
+
+		SELECT
+		city.cityid cityId,
+			es.initname,
+			lh.id,
+			lh.agentId,
+			<!-- la.`positionId`, -->
+			DATE_FORMAT(lh.createTime,'%Y-%m-%d %H:%i:%s') AS createTime,
+			lh.type,
+			lh.note,
+			<!-- la.`name` realName, -->
+<!-- 		lo.`name` storeName,
+ -->			
+ 			<!-- ssp.`name` storeName, -->
+ 			lh.houseId,
+		lh.shield
+
+		FROM
+			lf_house_follow_up lh
+		<!-- LEFT JOIN lf_employee la ON (
+			la.id = lh.agentId
+			AND la.`status` = 1
+		) -->
+		LEFT JOIN house_info hi ON hi.houseid=lh.houseId
+		LEFT JOIN estate_sub es ON hi.subEstateId = es.id
+		
+		<!-- 老的sql 两张表会删除   
+		 LEFT JOIN lf_position ls ON (ls.id = la.`positionId`)
+		LEFT JOIN lf_area_org lo ON ls.`areaOrgId` = lo.`id` -->
+		
+		<!-- LEFT JOIN sso_userPositionRelate ssu ON la.positionId = ssu.id and ssu.`status`=1  -->
+		<!-- LEFT JOIN sso_positioninfo ssp ON ssp.id = ssu.refPositionId and ssp.`status`=1 -->
+		left join dic_area_new city on city.id = hi.townid
+	WHERE lh.`status` = 1	
+	and lh.agentId in 
+	<foreach collection="agentIdList" item="item" index="index" open="(" separator="," close=")" >
+		        ${item.id}
+		    </foreach>
+	
+	and lh.createTime &gt; #{queryTimeBegin}  
+	and lh.createTime &lt; CONCAT(#{queryTimeEnd},' 23:59:59')
+ 	<!-- <if test="agentId != null and agentId != ''">
+    	and lh.agentId = #{agentId,jdbcType=INTEGER}
+    </if>
+    
+    <if test="storeId != null and storeId != ''">
+    	and lo.code = #{storeId,jdbcType=INTEGER}
+    </if>
+    <if test="cityId != null and cityId != ''">
+    	and lo.code = #{cityId,jdbcType=INTEGER}
+    </if> -->
+    <!--  <if test="orgCode != null and orgCode != ''">
+    	and lo.code like CONCAT(#{orgCode},'%')
+    </if> -->
+     <!-- <if test="agentId != null and agentId != ''">
+    	and lh.id = #{agentId}
+    </if> -->
+    <if test="houseId!=null">
+    	and lh.houseid like CONCAT('%',#{houseId},'%')
+    
+    </if>
+    
+  <!--   <choose>
+    	<when test="agentId != null and agentId != '' and agentId != 0">
+    		and lh.agentId = #{agentId,jdbcType=INTEGER}
+    	</when>
+    	<otherwise>
+    		<choose>
+    			<when test="storeId != null and storeId != '' and storeId != 0">
+    				and lo.code LIKE CONCAT(#{storeId,jdbcType=INTEGER},'%')
+    			</when>
+    			<otherwise>
+    				<choose>
+    					<when test="areaId != null and areaId != '' and areaId != 0">
+	    				and lo.code LIKE CONCAT(#{areaId,jdbcType=INTEGER},'%')
+	    			</when>
+	    			<otherwise>
+	    				<if test="cityId != null and cityId != '' and cityId != 0">
+	    					and lo.code LIKE CONCAT(#{cityId,jdbcType=INTEGER},'%')
+	    				</if>
+    				</otherwise>
+    				</choose>
+    			</otherwise>
+    		</choose>
+    	</otherwise>
+    </choose> -->
+    
+		order by lh.createTime desc
+	</select>
+	
+<select id="getAchievementOwnList" resultType="com.lifang.agentsm.model.LfHouseOwnReq">
+<!-- 	
+select s.pub,s.publishagent,
+s.houseId,
+CASE s.pub 
+		WHEN 1 THEN '发布人'
+		WHEN 2 THEN '钥匙人'
+		WHEN 3 THEN '独家人'
+		WHEN 4 THEN '实景人'
+	END as NAME 
+ from (
+	SELECT l.houseId, IFNULL(l.publishAgent,0) AS publishagent ,'1' as pub from lf_sell_house_agent l LEFT JOIN house_sell_resource r on r.houseid=l.houseId   where l.status=1 and l.houseid=#{houseId}
+	
+	union ALL
+	SELECT l.houseId, IFNULL(l.keyAgent,0)  AS publishagent  ,'2' as pub  from lf_sell_house_agent l  where l.status=1 and l.houseid=#{houseId}
+	
+	union ALL
+	SELECT l.houseId,IFNULL(l.commAgent,0)  AS publishagent ,'3' as pub  from lf_sell_house_agent l  where l.status=1 and l.houseid=#{houseId}  LIMIT 1
+	
+	union ALL
+	SELECT l.houseId, IFNULL(l.pictureAgent,0)  AS publishagent ,'4' as pub  from lf_sell_house_agent l where l.status=1  and l.houseid=#{houseId}
+
+) s -->   
+		SELECT
+			l.id,
+			l.houseId,
+			lfi.abbreviation,
+			IFNULL(l.publishAgent, 0) AS publishagent,
+			'1' AS pub,
+			'发布人' as name,
+			lfi.id as franchiseeId
+		FROM
+			lf_sell_house_agent l JOIN lf_franchisee_info lfi on l.franchiseeAreaOrgId=lfi.id
+		WHERE
+			l. STATUS = 1
+		AND l.houseid = #{houseId} 
+		UNION ALL
+			SELECT
+				l.id,
+				l.houseId,
+
+			lfi.abbreviation,
+				IFNULL(l.keyAgent, 0) AS publishagent,
+				'4' AS pub,
+				'钥匙人' as name,
+				lfi.id as franchiseeId
+			FROM
+				lf_sell_house_agent l JOIN lf_franchisee_info lfi on l.franchiseeAreaOrgId=lfi.id
+			WHERE
+				l. STATUS = 1
+			AND l.houseid = #{houseId}
+			UNION ALL
+				SELECT
+					l.id,
+					l.houseId,
+			lfi.abbreviation,
+					IFNULL(l.commAgent, 0) AS publishagent,
+					'3' AS pub,
+					'独家人' as name,
+					lfi.id as franchiseeId
+				FROM
+					lf_sell_house_agent l JOIN lf_franchisee_info lfi on l.franchiseeAreaOrgId=lfi.id
+				WHERE
+					l. STATUS = 1
+				AND l.houseid = #{houseId} LIMIT 1
+				UNION ALL
+					SELECT
+						l.id,
+						l.houseId,
+					lfi.abbreviation,
+						IFNULL(l.pictureAgent, 0) AS publishagent,
+						'5' AS pub,
+						'实景人' as name,
+						lfi.id as franchiseeId
+					FROM
+						lf_sell_house_agent l JOIN lf_franchisee_info lfi on l.franchiseeAreaOrgId=lfi.id
+					WHERE
+						l. STATUS = 1
+					AND l.houseid =#{houseId};
+
+	</select>
+	<select id="getAgentSupport" resultType="com.lifang.agentsm.model.AgentSupport">
+		SELECT IF(hasBad=1,1,0) as hasBad,if(hasSofa=1,2,0) as hasSofa,if(hasDesk=1,3,0) as hasDesk,if(hasTV=1,4,0)
+		as hasTV,if(hasInternet=1,5,0) as hasInternet,if(hasAirConditioning=1,6,0) as hasAirConditioning ,if(hasWashMachine=1,7,0) as hasWashMachine,
+		if(hasWardrobe=1,8,0) as hasWardrobe,if(hasCookerHood=1,9,0) as hasCookerHood,if(hasWaterHeater=1,10,0) as hasWaterHeater
+		 from  house_supporting where houseId=#{houseId} and `status`=1;
+	</select>
+	<select id="getStoreListByHouseId" resultType="com.lifang.agentsm.model.ComboModel">
+<!-- 	SELECT s.id,s.name as text from lf_area_org  s where s.level=60 
+ -->
+ 	SELECT id,`name` as text from lf_area_org WHERE parentId in (
+ 		SELECT areaId from lf_franchisee_area WHERE franchiseeId=#{franchiseeId}
+ 	 and `status`=1 
+ 	 <if test="cityId !=null and cityId !=1">
+		and  cityId=#{cityId}
+	</if>
+ 	 );
+ 	
+	<!--  where s.townid in  (
+		SELECT h.townid from house_info h where h.houseId=#{houseId}) -->
+	</select>
+	
+	<select id="getAgentListByStoreId" resultType="com.lifang.agentsm.model.ComboModel">
+	SELECT l.id, l.realName as text from lf_area_org  s  JOIN lf_agent l on l.storeId=s.id and s.status=1 and l.status=1
+		where 
+		<!-- s.townid in  (
+		SELECT h.townid from house_info h where  h.houseId=#{houseId}) and -->  s.id=#{storeId};
+	</select>
+	<select id="getLfHouseFollowUpDetail" resultType="com.lifang.agentsm.model.LfHouseFollowUp">
+		SELECT
+	lh.id,
+	date_format(lh.createTime,'%Y-%m-%d %H:%i:%s') as createTime,
+	lh.type,
+	lh.note,
+	la.realName,
+	ls.name as storeName
+FROM
+	lf_house_follow_up lh
+LEFT JOIN lf_agent la ON (
+	la.id = lh.agentId
+	AND la.`status` = 1
+)
+LEFT JOIN lf_area_org ls ON (ls.id = la.storeId)
+where lh.`status` = 1 and lh.id = #{id}
+	</select>
+	
+	<!-- 获取出售房源列表 ,ck-->
+	<select id="getSellHouseList" resultType="com.lifang.agentsm.model.SellHouseListModel">
+			select 
+				city.id as cityId,lsha.publishAgent as agentId, hsr.gefuPrice,
+			CONCAT(city.`name`,district.`name`,town.`name`,es.initName) as initName,
+			hi.houseid houseId,hi.room,hi.subEstateId,concat(es.estateName,if(es.subEstateName is not null and es.subEstateName != '',concat("(",es.subEstateName,")"),"")) estateName,
+			eb.buildingName,concat(hi.bedRoomSum,"室",hi.livingRoomSum,"厅",hi.wcSum,"卫") huxing,hi.spaceArea area,hsr.sellPrice price,hsr.unitPrice,hsr.checkPublishTime publishDate,hsr.houseState status
+			from house_info hi 
+			join house_sell_resource hsr on hsr.houseid = hi.houseid and hsr.isSole=2 
+			JOIN house_sell_resource_contact hsrc on hsrc.houseId= hi.houseId 
+			left join lf_sell_house_agent lsha on lsha.houseId = hi.houseid  and lsha.`status`=1
+			left join estate_sub es on hi.subEstateId = es.id
+			left join estate_building eb on eb.id = hi.buildingId
+			left join dic_area_new town on town.id = hi.townid
+			left join dic_area_new district on district.id = town.parentId
+			left join dic_area_new city on city.id = district.parentId
+			<if test="applyInvalid==1">
+				 join ( SELECT DISTINCT houseId from lf_audit_invalid lai  where lai.`status`=1
+				 	<choose>
+				 		<when test="auditStatus==-1"><!-- 全部 -->
+				 			 )  t on t.houseId= hi.houseId
+				 		</when>
+				 		<when test="auditStatus==0"> <!-- 未审核 -->
+				 			and auditStatus=0	)  t on t.houseId= hi.houseId
+				 		</when>
+				 		<when test="auditStatus==1"><!-- 审核成功 -->
+				 			and auditStatus=1	)  t on t.houseId= hi.houseId
+				 		</when>
+				 		<when test="auditStatus==2"><!-- 审核失败 -->
+				 			and auditStatus=2	)  t on t.houseId= hi.houseId
+				 		</when>
+				 	</choose>
+			</if>
+			where city.status = 1 and district.status = 1 and town.status = 1 
+			<if test="hostMobile!=null">
+				and	hsrc.hostMobile =#{hostMobile}
+			</if>
+			<choose>
+				<when test="agentType != null and  agentType != -1 and mobileOrName !=null and mobileOrName!='' ">
+					<choose>
+						<!-- 委托人 -->
+						<when test="agentType == 1  ">
+							and	lsha.commAgent in ( ${mobileOrName} )
+						</when>
+						<!-- 钥匙人 -->
+						<when test="agentType == 2 ">
+							and lsha.keyAgent in ( ${mobileOrName} )
+						</when>
+						<!--  发布人 -->
+						<when test="agentType == 3 " >
+							and	lsha.publishAgent in ( ${mobileOrName} )
+						</when>
+						<!-- 实景人  -->
+						<when test="agentType == 4">
+							and lsha.pictureAgent in ( ${mobileOrName} )
+						</when>
+					</choose>
+				</when>
+				<when test="agentType == -1 and mobileOrName !=null and mobileOrName!=''">
+					and (lsha.commAgent in ( ${mobileOrName} )  or lsha.keyAgent in ( ${mobileOrName} ) or  lsha.publishAgent in ( ${mobileOrName} ) or  lsha.pictureAgent in ( ${mobileOrName} ) )
+				</when>
+				<when test="agentType == 1 and  mobileOrName ==null and hasAgent==0">
+							and	lsha.commAgent 	is not null
+				</when>
+				<!-- 钥匙人 -->
+				<when test="agentType == 2  and  mobileOrName ==null and hasAgent==0">
+					and lsha.keyAgent is not null
+				</when>
+				<!--  发布人 -->
+				<when test="agentType == 3 and  mobileOrName ==null and hasAgent==0" >
+					and	lsha.publishAgent is not null 
+				</when>
+				<!-- 实景人  -->
+				<when test="agentType == 4 and  mobileOrName ==null and hasAgent==0">
+					and lsha.pictureAgent is not null
+				</when>
+				<!-- 无经纪人的 -->
+				<when test="agentType == 1 and  hasAgent ==1">
+							and	lsha.commAgent 	is  null
+				</when>
+				<!-- 钥匙人 -->
+				<when test="agentType == 2  and  hasAgent ==1">
+					and lsha.keyAgent is  null
+				</when>
+				<!--  发布人 -->
+				<when test="agentType == 3 and  hasAgent ==1" >
+					and	lsha.publishAgent is  null 
+				</when>
+				<!-- 实景人  -->
+				<when test="agentType == 4 and hasAgent ==1">
+					and lsha.pictureAgent is  null
+				</when>
+				<when test="agentType == -1 and hasAgent ==1">
+						and	(lsha.commAgent 	is  null or  lsha.keyAgent is  null or lsha.publishAgent is  null or lsha.pictureAgent is  null  )
+				</when>
+			</choose>
+			<if test="cityId!=null and cityId!=0">
+				and city.id = #{cityId}
+			</if>
+			 
+			  and eb.status = 1 
+			<if test="isOnlyOne != null and isOnlyOne !=0">
+				and hsr.isOnlyOne= #{isOnlyOne}
+			</if>
+			<if test="isFiveYears != null and isFiveYears !=0">
+				and hsr.isFiveYears= #{isFiveYears}
+			</if>
+			<choose>
+				<when test="publisher == 1">
+					and la.realName is not null
+				</when>
+				<when test="publisher==2">
+					and la.realName is  null
+				</when>
+			</choose>
+			<choose>
+				<when test="houseId != null and houseId != 0">
+					and hi.houseId = #{houseId}
+				</when>
+				<otherwise>
+					<choose>
+						<!-- 根据小区id精准匹配 -->
+						<when test="estateId != null and estateId != 0">
+							and es.id = #{estateId}
+							<if test="buildingId != null and buildingId != 0">
+								and hi.buildingId = #{buildingId}
+							</if>
+						</when>
+						<otherwise>
+							<!-- 根据小区名称模糊匹配 -->
+							<if test="estateName != null and estateName != ''">
+								and (es.subEstateName like concat('%',#{estateName},'%') or es.estateName like concat('%',#{estateName},'%')) 
+							</if>
+						</otherwise>
+					</choose>
+					<if test="startTime != null">
+						and hsr.checkPublishTime >= #{startTime,jdbcType=TIMESTAMP}
+					</if>
+					<if test="endTime != null">
+						and hsr.checkPublishTime &lt;= #{endTime,jdbcType=TIMESTAMP}
+					</if>
+				</otherwise>
+			</choose>
+			<if test="startSpaceArea !=null">
+				and hi.spaceArea >=#{startSpaceArea} 
+			</if>
+			<if test ="endSpaceArea !=null ">
+				and hi.spaceArea &lt;= #{endSpaceArea}
+			</if>
+			
+			<choose>
+				<when test="startSellPrice!=null and endSellPrice!=null">
+					and ((hsr.sellPrice >=#{startSellPrice}  and hsr.sellPrice &lt;=#{endSellPrice} ) or ( hsr.gefuPrice >=#{startSellPrice} and hsr.gefuPrice &lt;=#{endSellPrice}))
+				</when>
+				<when test="startSellPrice!=null and endSellPrice==null ">
+					and (hsr.sellPrice >=#{startSellPrice}  or hsr.gefuPrice >=#{startSellPrice} ) 
+				</when >
+				<when test="startSellPrice==null and endSellPrice!=null">
+				   and ( hsr.sellPrice  &lt;=#{startSellPrice} or hsr.gefuPrice &lt;=#{endSellPrice})
+				</when>
+			</choose>
+			<if test="room != null and room != ''">
+				and hi.room like concat('%',#{room},'%')
+			</if>
+			<choose>
+			<!--房源状态有效-->
+				<when test="status == 1">
+				and hi.status=1 and (((hsr.actionType = 1 and hsr.checkState = 1 and hsr.houseState = 2) or (hsr.actionType = 2 and hsr.checkState = 2 and hsr.houseState = 2)))
+				</when>
+				<!-- 房源状态无效 -->
+				<when test="status == 0">
+					and hsr.houseState = 4
+				</when>
+				<otherwise>
+					and (((hsr.actionType = 1 and hsr.checkState = 1 and hsr.houseState = 2) or (hsr.actionType = 2 and hsr.checkState = 2 and hsr.houseState = 2)) or  hsr.houseState = 4)
+				</otherwise>
+			</choose>
+			
+			group by hi.houseId
+	</select>
+
+    <select id="getHouseSellCheckRecordCount" resultType="java.lang.Integer" parameterType="java.util.Map">
+        select count(1) from house_sell_check_record r
+        LEFT JOIN house_sell_publish_record s ON (r.publishId = s.id)
+        where 1=1
+        <if test="houseId != null and houseId != ''">
+            and s.houseId = ${houseId}
+        </if>
+    </select>
+
+    <select id="getHouseSellCheckRecordList" resultType="java.util.HashMap" parameterType="java.util.Map">
+        SELECT r.id,r.resultTime,r.checkState,r.note,p.checkFaildType,p.operatorId
+		,ce.realName
+		FROM house_sell_check_record r
+        LEFT JOIN house_sell_publish_record p ON (r.publishId = p.id)
+		LEFT JOIN cc_employee ce on ce.id=r.operatorId
+		WHERE r.status = 1 and p.status = 1
+        <if test="houseId != null and houseId != 0">
+            and p.houseId = ${houseId}
+        </if>
+        ORDER BY r.resultTime DESC
+        LIMIT #{start,jdbcType=INTEGER},#{end,jdbcType=INTEGER}
+    </select>
+    
+    <select id="getOwnByHouseId" parameterType="int" resultType="com.lifang.agentsm.entity.LfSellHouseAgent">
+    	select * from lf_sell_house_agent where houseId=#{houseId} and status=1
+    </select>
+    
+    <!-- 取加盟商列表 -->
+    <select id="getFranchiseeList" resultType="com.lifang.agentsm.model.ComboModel">
+    	select hp.companyId as id,abbreviation as text from house_sell_publish_record hp
+			LEFT JOIN lf_franchisee_info li on hp.companyId = li.id
+			 where hp.houseid = #{houseId} and hp.`status` = 1 and hp.actionType = 1 GROUP BY hp.companyId ORDER BY hp.id DESC
+    </select>
+    
+    
+    <select id="getOperationList" resultType="com.lifang.agentsm.model.LfHouseOwnReq" parameterType="Map">
+SELECT  date_format(max(op.createTime) ,'%Y-%m-%d %H:%i:%s') as createTime,op.operator as publishagent,op.houseId,op.operationType as pub ,CASE op.operationType
+		WHEN 1 THEN '发布人'
+		WHEN 4 THEN '钥匙人'
+		WHEN 5 THEN '实景人'
+	END as NAME   from lf_agent_operation op   where op.houseid=#{houseId}
+    	and op.operator=#{operation} and op.operationType=#{operationType}
+    </select>
+    
+    <select id="getCommAgent" resultType="com.lifang.agentsm.model.LfHouseOwnReq">
+    	SELECT  date_format(max(op.createTime) ,'%Y-%m-%d %H:%i:%s') as createTime,op.operator as publishagent,op.operationType as pub ,op.houseId,
+		 '独家人' as NAME   from lf_agent_operation op where houseId=#{houseId}  and op.operator=#{operator} and operationType=3  LIMIT 1
+    </select>
+    
+    
+    <select id="findCityIdById" resultType="int" parameterType="int">
+    	select cityId from lf_area_org where id =#{cityCode} limit 1;
+    </select>
+    
+    <!-- 根据城市ID取加盟商 -->
+    <select id="getFranchiseeListByCityId" parameterType="int" resultType="com.lifang.agentsm.model.ComboModel">
+   		SELECT lfi.id as id,lfi.abbreviation as text FROM lf_franchisee_info lfi JOIN lf_area_org la on  ( la.id=lfi.cityId   and lfi.`status`=1)
+		where 1=1  
+		<if test="cityId!=null and cityId !=0">
+		 and	 la.cityId=#{cityId}
+		</if>
+		 and  la.`status`=1
+   </select>
+   
+    <!-- 查询申请无效原因列表 -->
+   
+   <select id="houseValidReasonList" parameterType="int" resultType="com.lifang.agentsm.model.LfAuditInvalid">
+   	SELECT content,DATE_FORMAT(createTime,'%Y-%m-%d %H:%i:%s') as createTime , agentId from lf_audit_invalid where houseId=#{houseId}
+   </select>
+   <!-- 无效原因列表 -->
+   
+   <select id="getReasionList" resultType="com.lifang.agentsm.model.MiniuiEntity">
+  	 SELECT id,reason as text from invalid_reason
+   </select>
+   
+   <select id="getInvalidReasonByHouseId" resultType="com.lifang.agentsm.model.HouseInvalidStatusReason">
+  		 SELECT reason,memo from house_invalid_reason_record where houseId=#{houseId}
+   </select>
+
+	
+	<!-- 房源无效原因列表 -->
+	<select id="invalidReasonList" resultType="com.lifang.agentsm.model.HouseInvalidReasonRecord">
+	select DATE_FORMAT(hr.createTime,'%Y-%m-%d %H:%i:%s') createTime,hr.memo,hr.reason,hr.agentName,hr.houseId,hr.cityId,
+			CONCAT(city.`name`,district.`name`,town.`name`,es.initName) as initName,
+			concat(es.estateName,if(es.subEstateName is not null and es.subEstateName != '',concat("(",es.subEstateName,")"),"")) estateName
+			from  house_invalid_reason_record hr
+		  LEFT JOIN house_info hi on hr.houseId=hi.houseId	
+			left join estate_sub es on hi.subEstateId = es.id
+			left join dic_area_new town on town.id = hi.townid
+			left join dic_area_new district on district.id = town.parentId
+			left join dic_area_new city on city.id = district.parentId
+			where 1=1 
+			<if test="agentName!=null and agentName!=''">
+				and hr.agentName =#{agentName}
+			</if>
+			<if test="startTime != null">
+				and hr.createTime >= #{startTime,jdbcType=TIMESTAMP}
+			</if>
+			<if test="endTime != null">
+				and hr.createTime &lt;= date_add(#{endTime,jdbcType=TIMESTAMP}, interval 1 day) 
+			</if>
+			<if test="cityId!=null and cityId!=0">
+				and city.id = #{cityId}
+			</if>
+	</select>
+	
+	
+	<!-- 查询发布人根据houseId -->
+	<select id="getPublisherList" resultType="com.lifang.agentsm.model.SellHouseListModel">
+		SELECT
+		DATE_FORMAT(
+			la.createTime,
+			'%Y-%m-%d %H:%i:%s'
+		) AS publishDate,
+	 la.operator AS agentId
+	FROM
+	 lf_agent_operation la
+	LEFT JOIN house_sell_resource hsr ON la.houseId = hsr.houseid
+	WHERE
+		la.houseId = ${houseId} and operationType=1
+	ORDER BY
+		la.createTime DESC;
+	</select>
+
+	<!-- 查询钥匙人根据houseId -->
+	<select id="getKeyList" resultType="com.lifang.agentsm.model.SellHouseListModel">
+		SELECT
+		DATE_FORMAT(
+		la.createTime,
+		'%Y-%m-%d %H:%i:%s'
+		) AS publishDate,
+		la.operator AS agentId
+		FROM
+		lf_agent_operation la
+		LEFT JOIN house_sell_resource hsr ON la.houseId = hsr.houseid
+		WHERE
+		la.houseId = ${houseId} and operationType=4
+		ORDER BY
+		la.createTime DESC;
+	</select>
+
+	<!-- 查询实景人根据houseId -->
+	<select id="getPictureList" resultType="com.lifang.agentsm.model.SellHouseListModel">
+		SELECT
+		DATE_FORMAT(
+		la.createTime,
+		'%Y-%m-%d %H:%i:%s'
+		) AS publishDate,
+		la.operator AS agentId
+		FROM
+		lf_agent_operation la
+		LEFT JOIN house_sell_resource hsr ON la.houseId = hsr.houseid
+		WHERE
+		la.houseId = ${houseId} and operationType=5
+		ORDER BY
+		la.createTime DESC;
+	</select>
+
+	<!-- 查询委托人根据houseId -->
+	<select id="getCommonList" resultType="com.lifang.agentsm.model.SellHouseListModel">
+		SELECT
+		DATE_FORMAT(
+		la.createTime,
+		'%Y-%m-%d %H:%i:%s'
+		) AS publishDate,
+		la.operator AS agentId
+		FROM
+		lf_agent_operation la
+		LEFT JOIN house_sell_resource hsr ON la.houseId = hsr.houseid
+		WHERE
+		la.houseId = ${houseId} and operationType=3
+		ORDER BY
+		la.createTime DESC;
+	</select>
+
+	<select id="getHouseContactDataByContactId" resultType="com.lifang.housesoa.model.HouseResourceConcact">
+		SELECT t.hostMobile,t.houseId from house_sell_resource_contact t where contactId=#{contactId};
+	</select>
+</mapper>

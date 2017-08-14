@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lifang.agentsm.dao.read.OperatingSystemMapper">
+	<select id="getAgentByPhoneNumberAndCompanyId" resultType="com.lifang.agent.model.Agent">
+		SELECT * 
+		FROM lf_agent 
+		WHERE  
+			companyId = #{companyId}
+			<if test="null != agentPhoneNumber">
+				AND mobile = #{agentPhoneNumber}
+			</if>
+	</select>
+	<select id="getAgentAccountDetailDTOs" resultType="com.lifang.agentsm.model.AgentAccountDetailDTO">
+		SELECT * from lf_agent_account_details 
+		WHERE businessType = 5 AND payStatus = 1 
+		AND agentId = #{agentId} 
+		<if test="null != startTime">
+				AND createTime BETWEEN #{startTime} AND #{endTime}
+		</if>
+	</select>
+	
+	<select id="queryAgentAccountDetatilDTOs" resultType="com.lifang.agentsm.model.AgentAccountDetailDTO">
+	SELECT * from lf_agent_account_details 
+		WHERE payStatus = 1
+		<if test="0 == rewardReson">
+			AND businessType in (6,7,8,9,10)
+		</if> 
+		<if test="0 != rewardReson">
+			AND businessType = #{rewardReson}
+		</if> 
+		<if test="null != startTime and null != endTime">
+			AND createTime BETWEEN #{startTime} AND #{endTime}
+		</if>
+		<if test="null != agentIds and '' != agentIds">
+			AND agentId  IN (${agentIds})
+		</if>
+		LIMIT #{startIndex},#{pageSize}
+	</select>
+	
+	<select id="countAgentAccountDetatilDTOs" resultType="int">
+	SELECT count(*) from lf_agent_account_details 
+		WHERE payStatus = 1
+		<if test="0 == rewardReson">
+			AND businessType in (6,7,8,9,10)
+		</if> 
+		<if test="0 != rewardReson">
+			AND businessType = #{rewardReson}
+		</if> 
+		<if test="null != startTime and null != endTime">
+				AND createTime BETWEEN #{startTime} AND #{endTime}
+		</if>
+		<if test="null != agentIds and '' != agentIds">
+			AND agentId  IN (${agentIds})
+		</if>
+	</select>
+</mapper>

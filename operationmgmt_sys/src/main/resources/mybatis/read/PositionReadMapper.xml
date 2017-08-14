@@ -1,0 +1,358 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lifang.agentsm.dao.read.PositionReadMapper">
+
+	<!-- 职位功能列表 -->
+	<resultMap type="com.lifang.agentsm.model.PriFunction" id="PositionPriFunctionMap">
+		<id column="id" property="id" jdbcType="DECIMAL"/>
+		<result column="name" property="name" jdbcType="VARCHAR"/>
+		<result column="appName" property="appName" jdbcType="VARCHAR"/>
+		<collection property="urls" ofType="com.lifang.agentsm.model.PriUrl">
+			<result column="urlName" property="name" jdbcType="VARCHAR"/>
+			<result column="url" property="url" jdbcType="VARCHAR"/>
+		</collection>
+	</resultMap>
+	
+	<!-- 列表 -->
+	<select id="list" resultType="com.lifang.agentsm.model.Position">
+		SELECT
+			a.id,
+			a.name,
+			a.memo,
+			a.createTime,
+			a.department,
+			a.cityId,
+			b.name cityName,
+			a.areaOrgId,
+			c.name parentName,
+			a.parentId
+		FROM
+			lf_position a
+			LEFT JOIN dic_area_new b ON a.cityId = b.id
+			LEFT JOIN lf_position c ON a.parentId = c.id AND c.status = 1
+		WHERE
+			a.status = 1
+			<if test="name != null and name != ''">
+				AND a.name LIKE CONCAT('%', #{name}, '%')
+			</if>
+			<if test="department != null">
+				AND a.department = #{department}
+			</if>
+			<if test="cityId != null">
+				AND a.cityId = #{cityId}
+			</if>
+			<if test="parentName != null and parentName != ''">
+				AND c.name LIKE CONCAT('%', #{parentName}, '%')
+			</if>
+	</select>
+	
+	<!-- 获取应用列表 -->
+	<select id="getAppnameByDepartment" parameterType="int"
+		resultType="com.lifang.agentsm.model.AppnameMiniuiEntity">
+		SELECT
+			name id,
+			alias text
+		FROM
+			lf_appname
+		WHERE
+			department = #{department}
+			AND status = 1
+	</select>
+	
+	<!-- 获取职位的功能列表 -->
+	<select id="getPositionPriFunctions" parameterType="int"
+		resultMap="PositionPriFunctionMap">
+		SELECT
+			a.id,
+			a.name,
+			b.name urlName,
+			b.url
+		FROM
+			lf_pri_function a
+			LEFT JOIN lf_pri_url b ON a.id = b.functionId AND b.status = 1
+		WHERE
+			a.status = 1
+			AND a.type = 2
+			AND EXISTS (SELECT 1 FROM lf_position_function_relation c WHERE a.id = c.functionId AND c.positionId = #{positionId} AND c.status = 1)
+	</select>
+	
+	<!-- 获取职位列表 -->
+	<select id="getPriFunctions" resultMap="PositionPriFunctionMap">
+		SELECT
+			a.id,
+			a.name,
+			b.name urlName,
+			b.url
+		FROM
+			lf_pri_function a
+			LEFT JOIN lf_pri_url b ON a.id = b.functionId AND b.status = 1
+		WHERE
+			a.status = 1
+			AND a.type = 2
+			AND a.appName = #{appName}
+			<if test="name != null and name != ''">
+				AND (
+					a.name LIKE CONCAT('%', #{name}, '%')
+					OR b.url LIKE CONCAT('%', #{name}, '%')
+				)
+			</if>
+	</select>
+	
+	<!-- 获取存在的functionid列表 -->
+	<select id="existsFunctionIds" resultType="int">
+		SELECT
+			functionId
+		FROM
+			lf_position_function_relation
+		WHERE
+			status = 1
+			AND positionId = #{positionId}
+			AND functionId IN 
+			<foreach collection="functionIds" index="index" item="item" open="(" close=")" separator=",">
+				#{item}
+			</foreach>
+	</select>
+	
+	<!-- 获取菜单列表 -->
+	<select id="getLeafMenuList" parameterType="string"
+		resultType="com.lifang.agentsm.model.Menu">
+		SELECT
+			a.id,
+			a.name,
+			a.parentId,
+			a.isLeaf
+		FROM
+			lf_menu a
+			JOIN lf_pri_function b ON a.functionId = b.id AND b.status = 1
+		WHERE
+			a.status = 1
+			AND b.type = 1
+			AND b.appName = #{appName}
+	</select>
+	
+	<!-- 获取职位菜单列表 -->
+	<select id="getPositionMenuList" parameterType="int"
+		resultType="com.lifang.agentsm.model.Menu">
+		SELECT
+			a.id,
+			a.name,
+			a.parentId,
+			a.isLeaf
+		FROM
+			lf_menu a
+			JOIN lf_pri_function b ON a.functionId = b.id AND b.status = 1
+			JOIN lf_position_function_relation c ON b.id = c.functionId AND c.status = 1
+		WHERE
+			a.status = 1
+			AND b.type = 1
+			AND c.positionId = #{positionId}
+	</select>
+	
+	<!-- 根据菜单列表获取功能列表 -->
+	<select id="getFunctionIdsByMenuIds" parameterType="java.util.List"
+		resultType="int">
+		SELECT DISTINCT 
+			a.id
+		FROM
+			lf_pri_function a
+			JOIN lf_menu b ON a.id = b.functionId AND b.status = 1
+		WHERE
+			a.status = 1
+			AND b.id IN 
+			<foreach collection="list" index="index" item="item" open="(" close=")" separator=",">
+				#{item}
+			</foreach>
+	</select>
+	
+	<!-- 获取存在的菜单列表 -->
+	<select id="existsFunctionIdsByMenuIds" resultType="int">
+		SELECT
+			a.id
+		FROM
+			lf_pri_function a
+			JOIN lf_position_function_relation b ON a.id = b.functionId
+			JOIN lf_menu c ON c.functionId = a.id
+		WHERE
+			a.status = 1
+			AND b.positionId = #{positionId}
+			AND c.id IN 
+			<foreach collection="menuIds" index="index" item="item" open="(" close=")" separator=",">
+				#{item}
+			</foreach>
+	</select>
+	
+	<!-- 获取不存在functionIds里面的关系列表 -->
+	<select id="getPositionFunctionRelationIdsAndNotExistsFunctionIds" resultType="int">
+		SELECT
+			a.id
+		FROM
+			lf_position_function_relation a
+			JOIN lf_pri_function b ON b.id = a.functionId AND b.status = 1
+		WHERE
+			a.status = 1
+			AND a.positionId = #{positionId}
+			AND b.type = #{type}
+			<if test="functionIds != null and functionIds.size() > 0">
+				AND b.id NOT IN 
+				<foreach collection="functionIds" index="index" close=")" item="item" open="(" separator=",">
+					#{item}
+				</foreach>
+			</if>
+	</select>
+
+	<!-- 根据部门和组织架构，获取职位ID -->
+	<select id="getPositionIdByDepartmentAndChildAreaOrgId" resultType="int">
+		SELECT
+			a.id
+		FROM
+			lf_position a
+		WHERE
+			a.status = 1
+			AND a.department = #{department}
+			AND a.areaOrgId = #{areaOrgId}
+	</select>
+
+	<!-- 获取职位下最大的code -->
+	<select id="getMaxCodeByParentId" resultType="string">
+		SELECT
+			MAX(a.code)
+		FROM
+			lf_position a
+		WHERE
+			a.parentId = #{parentId}
+	</select>
+
+	<!-- 获取code -->
+	<select id="getCodeById" resultType="string">
+		SELECT
+			code
+		FROM
+			lf_position
+		WHERE
+			id = #{id}
+	</select>
+
+	<!-- 列表 -->
+	<select id="list2" resultType="com.lifang.agentsm.model.Position">
+		SELECT
+			b.`level`,
+			a.`department`,
+			a.`cityId`,
+			c.`name` cityName,
+			a.`name`
+		FROM
+			lf_position a
+			JOIN lf_area_org b ON a.`areaOrgId` = b.`id`
+			JOIN dic_area_new c ON a.`cityId` = c.`id`
+		WHERE
+			a.status = 1
+			<if test="department != null">
+				AND a.department = #{department}
+			</if>
+			<choose>
+				<when test="isShowCountry == 1">
+					AND b.`level` = 100
+				</when>
+				<otherwise>
+					AND b.`level` != 100
+					<if test="cityId != null">
+						AND a.cityId = #{cityId}
+					</if>
+				</otherwise>
+			</choose>
+		GROUP BY b.`level`, a.`department`,a.`cityId`, c.`id`
+		ORDER BY b.`level` desc 
+	</select>
+
+	<!-- 获取职位URL列表 -->
+	<select id="getPositionPriFunctions2" resultMap="PositionPriFunctionMap">
+		SELECT
+			a.id,
+			a.name,
+			b.name urlName,
+			b.url
+		FROM
+			lf_pri_function a
+			LEFT JOIN lf_pri_url b ON a.id = b.functionId AND b.status = 1
+		WHERE
+			a.status = 1
+			AND a.type = 2
+			AND EXISTS (
+				SELECT 1 FROM 
+					lf_position_function_relation c 
+					JOIN lf_position d ON d.id = c.positionId
+					JOIN lf_area_org e ON d.areaOrgId = e.id 
+				WHERE 
+					a.id = c.functionId AND c.status = 1
+					AND d.department = #{department}
+					AND d.cityId = #{cityId}
+					AND e.`level` = #{level}
+			)
+	</select>
+
+	<!-- 获取职位列表 -->
+	<select id="getPositionIdsByDepAndLevelAndCityId" resultType="int">
+		SELECT 
+			a.id
+		FROM
+			lf_position a
+			JOIN lf_area_org b ON a.areaOrgId = b.id
+		WHERE
+			a.status
+			AND a.department = #{department}
+			AND a.cityId = #{cityId}
+			AND b.`level` = #{level}
+	</select>
+
+	<!-- 获取职位菜单列表 -->
+	<select id="getPositionMenuList2" resultType="com.lifang.agentsm.model.Menu">
+		SELECT DISTINCT 
+			a.id,
+			a.name,
+			a.parentId,
+			a.isLeaf
+		FROM
+			lf_menu a
+			JOIN lf_pri_function b ON a.functionId = b.id AND b.status = 1
+			JOIN lf_position_function_relation c ON b.id = c.functionId AND c.status = 1
+			JOIN lf_position d ON c.positionId = d.id AND d.status = 1
+			JOIN lf_area_org e ON d.areaOrgId = e.id AND e.status = 1
+		WHERE
+			a.status = 1
+			AND b.type = 1
+			AND d.department = #{department}
+			AND d.cityId = #{cityId}
+			AND e.`level` = #{level}
+			AND b.appName = #{appName}
+	</select>
+
+	<!-- 获取相同职位，城市，等级职位的权限列表 -->
+	<select id="getFunctionIdsByDepAndCityIdAndLevel" resultType="int">
+		SELECT DISTINCT 
+			a.functionId
+		FROM
+			lf_position_function_relation a
+			JOIN lf_position b ON a.positionId = b.id AND b.status = 1
+			JOIN lf_area_org c ON b.areaOrgId = c.id AND c.status = 1 
+		WHERE
+			a.status = 1
+			AND b.department = #{department}
+			AND b.cityId = #{cityId}
+			AND c.`level` = #{level}
+	</select>
+
+	<!-- 验证是否有人事经理 -->
+	<select id="validateAreaRenshiPositionIsExists" parameterType="int"
+		resultType="com.lifang.agentsm.model.Position">
+		SELECT
+			a.id,
+			a.status
+		FROM
+			lf_position a
+			JOIN lf_area_org b ON a.areaOrgId = b.id AND b.status = 1 AND b.`level` = 70
+		WHERE
+			b.id = #{id}
+			AND a.department = 3
+	</select>
+
+</mapper>

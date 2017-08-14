@@ -1,0 +1,31 @@
+.crmpanel{
+border: 1px solid #EEE;
+text-align: center;
+font-family: '微软雅黑';
+padding: 8px;
+height: 300px;
+}
+.crmpanel .paneltitle{
+	
+	height: 80px;
+	background-color: #3399FF ;
+	padding-top: 30px;
+    color: white;
+}
+.crmpanel .paneltitle h2{
+font-family: '微软雅黑';
+}
+.crmpanel .panelmain{
+	padding-top: 15px;
+	padding: 8px;
+}
+.crmpanel .panelmain .panelmainmodel a{
+	font-size: 14px;
+	text-decoration: none;
+}
+.crmpanel .panelmain .panelmainmodel a:hover{
+color: #66CCFF; 
+}
+.badge{
+	background-color: #66CCFF  ;
+}

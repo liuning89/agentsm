@@ -1,0 +1,380 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lifang.agentsm.dao.read.AreaOrgReadMapper">
+
+	<!-- 门店列表返回值 -->
+	<resultMap type="com.lifang.agentsm.model.AreaOrg" id="StoreListMap">
+		<id property="id" column="id" jdbcType="DECIMAL"/>
+		<result property="name" column="name" jdbcType="VARCHAR"/>
+		<result property="memo" column="memo" jdbcType="VARCHAR"/>
+		<result property="createTime" column="createTime" jdbcType="TIMESTAMP"/>
+		<result property="cityId" column="cityId" jdbcType="DECIMAL"/>
+		<result property="level" column="level" jdbcType="DECIMAL"/>
+		<result property="code" column="code" jdbcType="VARCHAR"/>
+		<result property="areaName" column="areaName" jdbcType="VARCHAR"/>
+		<result property="latitude" column="latitude" jdbcType="VARCHAR"/>
+		<result property="longitude" column="longitude" jdbcType="VARCHAR"/>
+		<collection property="townNames" ofType="java.lang.String">
+			<result column="townName" jdbcType="VARCHAR"/>
+		</collection>
+	</resultMap>
+
+	<!-- 获取城市列表 -->
+	<select id="list2City" resultType="com.lifang.agentsm.model.AreaOrg">
+		SELECT
+			a.id,
+			a.name,
+			a.memo,
+			a.createTime,
+			b.name cityName,
+			a.level,
+			a.code
+		FROM
+			lf_area_org a
+			LEFT JOIN dic_area_new b ON a.cityId = b.id
+		WHERE
+			a.status = 1
+			AND a.`level` = 90
+			<if test="name != null and name != ''">
+				AND a.NAME LIKE CONCAT('%', #{name}, '%')
+			</if>
+			<if test="cityId != null">
+				AND a.cityId = #{cityId}
+			</if>
+	</select>
+
+	<!-- 获取父级下最大的code -->
+	<select id="getParentMaxCode" parameterType="int"
+		resultType="string">
+		SELECT
+			MAX(code)
+		FROM
+			lf_area_org
+		WHERE
+			parentId = #{parentId}
+	</select>
+
+	<!-- 获取code -->
+	<select id="getCodeById" parameterType="int"
+		resultType="string">
+		SELECT
+			code
+		FROM
+			lf_area_org
+		WHERE
+			status = 1
+			AND id = #{id}
+	</select>
+
+	<!-- 城市详情 -->
+	<select id="city" parameterType="int"
+		resultType="com.lifang.agentsm.model.AreaOrg">
+		SELECT
+			a.id,
+			a.name,
+			a.cityId,
+			a.memo,
+			b.name cityName,
+			a.parentId,
+			a.code,
+			a.`level`
+		FROM
+			lf_area_org a
+			JOIN dic_area_new b ON a.cityId = b.id
+		WHERE
+			a.status = 1
+			AND a.id = #{id}
+	</select>
+
+	<!-- 验证有效门店 -->
+	<select id="validateStoreByCode" parameterType="string"
+		resultType="int">
+		SELECT
+			COUNT(*)
+		FROM
+			lf_area_org
+		WHERE
+			status = 1
+			AND code LIKE CONCAT(#{code}, '%')
+			AND `level` = 60
+	</select>
+
+	<!-- 区域列表 -->
+	<select id="list2Area" resultType="com.lifang.agentsm.model.AreaOrg">
+		SELECT
+			a.id,
+			a.name,
+			a.cityId,
+			b.name cityName,
+			a.createTime,
+			a.memo,
+			a.`level`,
+			a.code,
+			c.name areaName,
+			a.type,
+			e.abbreviation franchiseeName
+		FROM
+			lf_area_org a
+			JOIN dic_area_new b ON a.cityId = b.id
+			JOIN lf_area_org c on a.parentId = c.id
+			LEFT JOIN lf_franchisee_area d ON a.id = d.areaId AND d.status = 1
+			LEFT JOIN lf_franchisee_info e ON d.franchiseeId = e.id AND e.status = 1
+		WHERE
+			a.status = 1
+			AND a.`level` = 70
+			<if test="cityId != null">
+				AND a.cityId = #{cityId}
+			</if>
+			<if test="name != null and name != ''">
+				AND a.name LIKE CONCAT('%', #{name}, '%')
+			</if>
+			<if test="cityName != null and cityName != ''">
+				AND c.name LIKE CONCAT('%', #{cityName}, '%')
+			</if>
+			<if test="type != null">
+				AND a.type = #{type}
+			</if>
+			<if test="franchiseeName != null and franchiseeName != ''">
+				AND e.abbreviation = #{franchiseeName}
+			</if>
+	</select>
+
+	<!-- 下拉框列表 -->
+	<select id="simple" resultType="com.lifang.agentsm.model.AreaOrgMiniuiEntity">
+		SELECT
+			id,
+			name text,
+			cityId,
+			type type
+		FROM
+			lf_area_org
+		WHERE
+			status = 1
+			AND `level` = #{level}
+			<if test="cityId != null">
+				AND cityId = #{cityId}
+			</if>
+			<if test="parentId != null">
+				AND parentId = #{parentId}
+			</if>
+	</select>
+
+	<!-- 区域详情 -->
+	<select id="area" parameterType="int"
+		resultType="com.lifang.agentsm.model.AreaOrg">
+		SELECT
+			a.id,
+			a.parentId,
+			a.name,
+			a.cityId,
+			a.memo,
+			a.`level`,
+			a.code,
+			b.name parentName,
+			a.type,
+			c.franchiseeId
+		FROM
+			lf_area_org a
+			JOIN lf_area_org b ON a.parentId = b.id
+			JOIN lf_franchisee_area c ON a.id = c.areaId AND c.status = 1
+		WHERE
+			a.status = 1
+			AND a.id = #{id}
+	</select>
+
+	<!-- 门店列表总数 -->
+	<select id="list2StoreCount" resultType="int">
+		SELECT
+			COUNT(DISTINCT a.id)
+		FROM
+			lf_area_org a
+			JOIN lf_area_org c ON a.parentId = c.id
+			JOIN lf_area_org d ON c.parentId = d.id
+			LEFT JOIN lf_store_town_relation e ON a.id = e.storeId AND e.status = 1
+		<include refid="listSearch2Store"></include>
+	</select>
+
+	<!-- 门店列表搜索条件 -->
+	<sql id="listSearch2Store">
+		WHERE
+			a.status = 1
+			AND a.`level` = 60
+			<if test="cityId != null">
+				AND a.cityId = #{cityId}
+			</if>
+			<if test="districtId != null">
+				AND e.districtId = #{districtId}
+			</if>
+			<if test="townId != null">
+				AND e.townId = #{townId}
+			</if>
+			<if test="name != null and name != ''">
+				AND a.name LIKE CONCAT('%', #{name}, '%')
+			</if>
+			<if test="areaName != null and areaName != ''">
+				AND CONCAT(d.name, c.name) LIKE CONCAT('%', #{areaName}, '%')
+			</if>
+	</sql>
+
+	<!-- 门店列表 -->
+	<select id="list2Store" resultType="com.lifang.agentsm.model.AreaOrg">
+		SELECT
+			a.id,
+			a.name,
+			a.memo,
+			a.createTime,
+			a.cityId,
+			a.`level`,
+			a.code,
+			GROUP_CONCAT(IF(e.townId IS NOT NULL, CONCAT(b.name, f.name, g.name), b.name)) townNames,
+			CONCAT(d.name, c.name) areaName,
+			a.latitude,
+			a.longitude
+		FROM
+			lf_area_org a
+			JOIN dic_area_new b ON a.cityId = b.id
+			JOIN lf_area_org c ON a.parentId = c.id
+			JOIN lf_area_org d ON c.parentId = d.id
+			LEFT JOIN lf_store_town_relation e ON a.id = e.storeId AND e.status = 1
+			LEFT JOIN dic_area_new f ON e.districtId = f.id
+			LEFT JOIN dic_area_new g ON g.id = e.townId
+		<include refid="listSearch2Store"></include>
+		GROUP BY a.id
+		ORDER BY a.id
+		LIMIT #{page}, #{pageSize}
+	</select>
+
+	<!-- 门店详情 -->
+	<select id="store" parameterType="int" 
+		resultType="com.lifang.agentsm.model.AreaOrg">
+		SELECT
+			a.id,
+			a.name,
+			a.memo,
+			a.cityId,
+			a.parentId,
+			d.id cityAreaOrgId,
+			d.name cityAreaOrg,
+			a.code,
+			a.latitude,
+			a.longitude,
+			a.type
+		FROM
+			lf_area_org a
+			JOIN lf_area_org c ON a.parentId = c.id
+			JOIN lf_area_org d ON c.parentId = d.id
+		WHERE
+			a.status = 1
+			AND a.id = #{id}
+	</select>
+
+	<!-- 验证城市的架构数量 -->
+	<select id="validateCityHaveCount" parameterType="int"
+		resultType="int">
+		SELECT
+			COUNT(*)
+		FROM
+			lf_area_org
+		WHERE
+			status = 1
+			AND cityId = #{cityId}
+			AND `level` = 90
+	</select>
+
+	<!-- 根据父节点获取子列表 -->
+	<select id="getChildByParentId" parameterType="int"
+		resultType="com.lifang.agentsm.model.AreaOrg">
+		SELECT
+			id,
+			code
+		FROM
+			lf_area_org
+		WHERE
+			parentId = #{parentId}
+	</select>
+
+	<!-- 获取添加门店时，专属显示的区域列表 -->
+	<select id="getStorePageTownListByDistrictId" parameterType="int"
+		resultType="com.lifang.agentsm.entity.DicArea">
+		SELECT DISTINCT 
+			a.id townId,
+			a.parentId districtid,
+			IF(temp.`count` > 0, CONCAT(a.name, '(已分配)'), a.name) town,
+			b.name district
+		FROM
+			dic_area_new a
+			JOIN dic_area_new b ON a.parentId = b.id
+			LEFT JOIN (
+				SELECT
+					c.`townId`,
+					COUNT(c.`id`) `count`
+				FROM
+					lf_store_town_relation c
+					JOIN lf_area_org d ON c.`storeId` = d.`id` AND d.`status` = 1
+				WHERE
+					c.`status` = 1
+				GROUP BY c.`townId`
+			) temp ON a.`id` = temp.townId
+		WHERE
+			a.parentId = #{districtId}
+			AND a.status = 1
+	</select>
+
+	<!-- 获取门店的板块列表 -->
+	<select id="getStrowTownList" parameterType="int"
+		resultType="com.lifang.agentsm.entity.DicArea">
+		SELECT
+			a.id townId,
+			a.parentId districtid,
+			a.name town,
+			b.name district
+		FROM
+			dic_area_new a
+			JOIN dic_area_new b ON a.parentId = b.id
+			LEFT JOIN lf_store_town_relation c ON a.id = c.townId AND c.status = 1
+		WHERE
+			c.storeId = #{id}
+			AND a.status = 1
+	</select>
+
+	<!-- 验证名称是否存在 -->
+	<select id="validateNameIsExist" resultType="int">
+		SELECT
+			COUNT(*)
+		FROM
+			lf_area_org a
+		WHERE
+			a.parentId = #{parentId}
+			AND name = #{name}
+	</select>
+
+	<!-- 验证门店下面是否还有有效的经纪人 -->
+	<select id="validateStoreHaveEmployee" parameterType="string"
+		resultType="int">
+		SELECT
+			COUNT(c.id)
+		FROM
+			lf_area_org a
+			JOIN lf_position b ON b.areaOrgId = a.id AND b.status = 1
+			JOIN lf_employee c ON b.id = c.positionId AND c.status = 1
+		WHERE
+			a.code like CONCAT(#{code}, '%')
+	</select>
+
+	<!-- 根据code获取详情 -->
+	<select id="getAreaOrgByCode" parameterType="string"
+		resultType="com.lifang.agentsm.model.AreaOrg">
+		SELECT
+			id,
+			name,
+			`level`,
+			type,
+			parentId,
+			code
+		FROM
+			lf_area_org
+		WHERE
+			code = #{code}
+	</select>
+
+</mapper>

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lifang.bzsm.console.report.read.HouseDataReadMapper">
+
+
+    <!-- 查找列表-->
+    <select id="getHouseDataTownCount" resultType="int" parameterType="map">
+        select count(1) FROM lf_housecount_town
+        where 1=1
+        <if test="cityId != null and cityId != ''">
+            and cityId = #{cityId}
+        </if>
+        <if test="areaId != null and areaId != ''">
+            and areaId = #{areaId}
+        </if>
+        <if test="townId !=null and townId != ''">
+            and townId = #{townId}
+        </if>
+        <if test="queryTimeBegin != null and queryTimeBegin != ''">
+
+            AND createTime   &lt;= CONCAT(#{queryTimeBegin},' 23:59:59') and createTime   &gt;= CONCAT(#{queryTimeBegin},' 00:00:00')
+        </if>
+    </select>
+    <select id="getHouseDataTown" resultType="com.lifang.agentsm.model.HouseCountTown" parameterType="map">
+        select cityId
+        ,cityName
+        , areaId
+        ,areaName
+        , townId
+        ,townName
+        , IFNULL(sellcount,0) sellcount
+        , IFNULL(auditcount,0) auditcount
+        , IFNULL(picturecount,0) picturecount
+        , IFNULL(videocount,0) videocount
+        , IFNULL(sellPointcount,0) sellPointcount
+        , IFNULL(commcount,0) commcount
+        , IFNULL(keycount,0) keycount
+        , IFNULL(houseStatecount,0) houseStatecount FROM lf_housecount_town
+        where 1=1
+        <if test="cityId != null and cityId != ''">
+            and cityId = #{cityId}
+        </if>
+        <if test="areaId != null and areaId != ''">
+            and areaId = #{areaId}
+        </if>
+        <if test="townId !=null and townId != ''">
+            and townId = #{townId}
+        </if>
+        <if test="queryTimeBegin != null and queryTimeBegin != ''">
+
+            AND createTime   &lt;= CONCAT(#{queryTimeBegin},' 23:59:59') and createTime   &gt;= CONCAT(#{queryTimeBegin},' 00:00:00')
+        </if>
+	<if test="start != null">
+      LIMIT #{start,jdbcType=INTEGER},#{end,jdbcType=INTEGER}
+    </if>
+       <!--  LIMIT #{start,jdbcType=INTEGER},#{end,jdbcType=INTEGER} -->
+    </select>
+</mapper>

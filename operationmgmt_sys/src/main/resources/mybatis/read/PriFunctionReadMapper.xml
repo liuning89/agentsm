@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lifang.agentsm.dao.read.PriFunctionReadMapper">
+	
+	<!-- 列表 -->
+	<select id="list" resultType="com.lifang.agentsm.model.PriFunction">
+		SELECT
+			a.id,
+			a.name,
+			a.appName,
+			a.memo,
+			a.type,
+			a.createTime
+		FROM
+			lf_pri_function a
+		WHERE
+			a.status = 1
+			<if test="name != null and name != ''">
+				AND a.name LIKE CONCAT('%', #{name} ,'%')
+			</if>
+			<if test="appName != null and appName != ''">
+				AND a.appName LIKE CONCAT('%', #{appName} ,'%')
+			</if>
+			<if test="type != null">
+				AND a.type = #{type}
+			</if>
+	</select>
+
+	<!-- 详情 -->
+	<select id="priFunction" parameterType="int"
+		resultType="com.lifang.agentsm.model.PriFunction">
+		SELECT
+			a.id,
+			a.name,
+			a.appName,
+			a.memo
+		FROM
+			lf_pri_function a
+		WHERE
+			a.status = 1
+			AND a.id = #{id}
+	</select>
+
+	<!-- 获取app列表 -->
+	<select id="appSimpleList" resultType="com.lifang.agentsm.model.AppnameMiniuiEntity">
+		SELECT DISTINCT 
+			name id,
+			alias text
+		FROM
+			lf_appname
+		WHERE
+			status = 1
+	</select>
+
+	<!-- 获取URL列表 -->
+	<select id="urlList" resultType="com.lifang.agentsm.model.PriUrl">
+		SELECT
+			a.id,
+			a.name,
+			a.url,
+			a.memo
+		FROM
+			lf_pri_url a
+		WHERE
+			a.status = 1
+			AND a.functionId = #{functionId}
+			<if test="name != null and name != ''">
+				AND (
+					a.name LIKE CONCAT('%', #{name},'%')
+					OR a.url LIKE CONCAT('%', #{name},'%')
+				)
+			</if>
+	</select>
+
+	<!-- 获取非菜单的功能列表，在添加菜单页上使用 -->
+	<select id="getUrlFunctionList" resultType="com.lifang.agentsm.model.PriFunction">
+		SELECT
+			a.id,
+			a.name,
+			a.appName
+		FROM
+			lf_pri_function a
+		WHERE
+			a.status = 1
+			AND a.type = 2
+			<if test="name != null and name != ''">
+				AND a.name LIKE CONCAT('%', #{name}, '#')
+			</if>
+			<if test="appName != null and appName != ''">
+				AND a.appName LIKE CONCAT('%', #{appName}, '#')
+			</if>
+	</select>
+
+	<!-- 判断某个应用下，某个功能是否存在 -->
+	<select id="getMenuPriFunction" resultType="java.lang.Integer">
+		SELECT
+			id
+		FROM
+			lf_pri_function a
+		WHERE
+			a.status = 1
+			AND a.type = 1
+			AND a.appName = #{appName}
+			AND a.name = #{name}
+	</select>
+
+</mapper>

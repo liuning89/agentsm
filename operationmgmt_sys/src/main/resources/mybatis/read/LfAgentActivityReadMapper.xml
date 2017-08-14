@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lifang.agentsm.dao.read.LfAgentActivityReadMapper" >
+  <resultMap id="BaseResultMap" type="com.lifang.agentsm.entity.LfAgentActivity" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="activityName" property="activityName" jdbcType="VARCHAR" />
+    <result column="activityImgUrl" property="activityImgUrl" jdbcType="VARCHAR" />
+    <result column="activityLinkUrl" property="activityLinkUrl" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="TINYINT" />
+    <result column="createTime" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="updateTime" property="updateTime" jdbcType="TIMESTAMP" />
+    <result column="endTime" property="endTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, activityName, activityImgUrl, activityLinkUrl, status, createTime, updateTime, 
+    endTime
+  </sql>
+  <select id="selectByList" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from lf_agent_activity
+    where status =1
+    order by createtime
+  </select>
+  
+  
+  <select id="findById" resultMap="BaseResultMap" parameterType="map" >
+    select 
+    <include refid="Base_Column_List" />
+    from lf_agent_activity
+    where id = #{id}
+  </select>
+</mapper>

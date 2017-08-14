@@ -1,0 +1,14 @@
+/target
+/target/*
+/.settings/*
+.project
+.classpath
+/build
+/target/
+.externalToolBuilders/org.eclipse.wst.jsdt.core.javascriptValidator.launch
+.gitignore.bak
+src/main/webapp/WEB-INF/classes/
+.idea/
+*.iml
+/bin/
+src/main/resources/conf/local/*

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lifang.agentsm.dao.write.CommissionRuleWriteMapper">
+
+    <!-- 添加URL列表 -->
+    <insert id="addCRules">
+        INSERT INTO lf_commissiondist_role (role, dist_percent, islocked,createby, createTime, status) VALUES
+        <foreach collection="list" index="index" item="item" separator=",">
+            (#{item.role}, #{item.distpercent}, #{item.islocked}, #{item.createBy}, now(), 1)
+        </foreach>
+    </insert>
+
+    <!-- 更新 -->
+    <update id="update" parameterType="com.lifang.agentsm.model.CommissionRule">
+        UPDATE
+        lf_commissiondist_role
+        SET
+        role = #{role},
+        dist_percent = #{distpercent},
+        islocked = #{islocked}
+        WHERE
+        status = 1
+        AND id = #{id}
+    </update>
+
+    <!-- 删除URL列表 -->
+    <update id="delete">
+        UPDATE
+        lf_commissiondist_role
+        SET
+        status = 0,
+        islocked=0
+        WHERE
+        status = 1
+        AND id IN
+        <foreach collection="list" index="index" item="item" open="(" close=")" separator=",">
+            #{item.id}
+        </foreach>
+    </update>
+
+
+    <insert id="insertPercentage" parameterType="com.lifang.agentsm.model.CommissionRule" useGeneratedKeys="true"
+            keyProperty="id">
+        INSERT INTO lf_commissionplatform (commission,createby) values (#{commission},#{createby})
+    </insert>
+
+    <update id="updatePercentage" parameterType="com.lifang.agentsm.model.CommissionRule">
+        UPDATE
+        lf_commissionplatform
+        SET  commission = #{commission},updateby = #{updateby}, createby = #{createby}
+        WHERE  id = #{id}
+    </update>
+
+
+</mapper>

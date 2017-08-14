@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lifang.agentsm.dao.read.LfCustomerReadMapper">
+    <resultMap id="BaseResultMap" type="com.lifang.bzsm.console.entity.LfCustomer">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="name" property="name" jdbcType="VARCHAR"/>
+        <result column="gender" property="gender" jdbcType="TINYINT"/>
+        <result column="mobile" property="mobile" jdbcType="VARCHAR"/>
+        <result column="type" property="type" jdbcType="TINYINT"/>
+        <result column="cityId" property="cityId" jdbcType="INTEGER"/>
+        <result column="source" property="source" jdbcType="TINYINT"/>
+        <result column="remark" property="remark" jdbcType="VARCHAR"/>
+        <result column="createTime" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="updateTime" property="updateTime" jdbcType="TIMESTAMP"/>
+        <result column="status" property="status" jdbcType="TINYINT"/>
+        <result column="agentId" property="agentId" jdbcType="BIGINT"/>
+        <result column="cusLevel" property="cusLevel" jdbcType="TINYINT"/>
+        <result column="birthDay" property="birthDay" jdbcType="TIMESTAMP"/>
+        <result column="tempSource" property="tempSource" jdbcType="VARCHAR"/>
+        <result column="tempId" property="tempId" jdbcType="INTEGER"/>
+        <result column="isCallBackCus" property="isCallBackCus" jdbcType="INTEGER"/>
+        <result column="bonus" property="bonus" jdbcType="TINYINT"/>
+        <result column="wuKongWay" property="wuKongWay" jdbcType="TINYINT"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+    id, name, gender, mobile, type, cityId, source, remark, createTime, updateTime, status, 
+    agentId, cusLevel, birthDay, tempSource, tempId, isCallBackCus, bonus, wuKongWay
+  </sql>
+
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long">
+        select
+        <include refid="Base_Column_List"/>
+        from lf_customer
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+
+
+    <select id="selectCustomerList" resultType="com.lifang.bzsm.console.model.LfCustomerInfo"
+            parameterType="com.lifang.bzsm.console.model.LfCustomerRequest">
+        select
+        lf_customer.*,
+        (select count(*)
+        from lf_agent_3a
+        where lf_agent_3a.type = 2
+        and lf_agent_3a.businessId = lf_customer.id
+        and lf_agent_3a.`status` = 1) acus,
+        (select lf_agent_3a.createTime
+        from lf_agent_3a
+        where lf_agent_3a.type = 2
+        and lf_agent_3a.businessId = lf_customer.id
+        and lf_agent_3a.`status` = 1 limit 0, 1) acusTime,
+        lf_employee.`name` agentName
+        from lf_customer
+        left join lf_employee on lf_customer.agentId = lf_employee.id
+        where lf_customer.`status` = 1
+        <if test="agentId != null and  agentId !=0">
+            and lf_customer.agentId = #{agentId}
+        </if>
+        <!--<if test="agentId ==null or agentId ==0">-->
+            <!--and lf_area_org.`code` like CONCAT(#{orgCode}, '%')-->
+        <!--</if>-->
+        <if test="agentIds != null and agentIds.size() != 0">
+            and lf_employee.id in
+            <foreach collection="agentIds" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="cusLevel != null and cusLevel != 4">
+            and lf_customer.cusLevel = #{cusLevel}
+        </if>
+        <if test="cusLevel != null and cusLevel == 4">
+            and ifnull(lf_customer.cusLevel,0) not in (1,2,3)
+        </if>
+        <if test="cusFrom != null">
+            <if test="cusFrom == 1">
+                and lf_customer.source = 25
+            </if>
+            <if test="cusFrom == 2">
+                and (lf_customer.isCallBackCus = 1 and lf_customer.source != 25)
+            </if>
+            <if test="cusFrom == 3">
+                and ifnull(lf_customer.isCallBackCus,0) = 0
+            </if>
+        </if>
+        <if test="dateStart != null">
+            <![CDATA[ and lf_customer.createTime >= #{dateStart} ]]>
+        </if>
+        <if test="dateEnd != null">
+            <![CDATA[ and lf_customer.createTime < #{dateEnd} ]]>
+        </if>
+        <if test="agentStr != null">
+            and (lf_customer.`name` = #{agentStr} or lf_customer.mobile = #{agentStr} or lf_customer.id =#{agentStr})
+        </if>
+        <if test="is3A != null and is3A == 1">
+            and lf_customer.id in
+            (
+            select lf_agent_3a.businessId
+            from lf_agent_3a
+            where lf_agent_3a.type = 2
+            and lf_agent_3a.businessId = lf_customer.id
+            and lf_agent_3a.`status` = 1
+            )
+        </if>
+        order by lf_customer.id desc
+        limit #{pageIndex},#{pageSize}
+    </select>
+
+
+    <select id="selectCustomerListCount" resultType="int"
+            parameterType="com.lifang.bzsm.console.model.LfCustomerRequest">
+        select
+        Count(*)
+        from lf_customer
+        left join lf_employee on lf_customer.agentId = lf_employee.id
+        where lf_customer.`status` = 1
+        <if test="agentId != null and  agentId !=0">
+            and lf_customer.agentId = #{agentId}
+        </if>
+        <!--<if test="agentId ==null or agentId ==0">-->
+            <!--and lf_area_org.`code` like CONCAT(#{orgCode}, '%')-->
+        <!--</if>-->
+        <if test="agentIds != null and agentIds.size() != 0">
+            and lf_employee.id in
+            <foreach collection="agentIds" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="cusLevel != null and cusLevel != 4">
+            and lf_customer.cusLevel = #{cusLevel}
+        </if>
+        <if test="cusLevel != null and cusLevel == 4">
+            and ifnull(lf_customer.cusLevel,0) not in (1,2,3)
+        </if>
+        <if test="cusFrom != null">
+            <if test="cusFrom == 1">
+                and lf_customer.source = 25
+            </if>
+            <if test="cusFrom == 2">
+                and (lf_customer.isCallBackCus = 1 and lf_customer.source != 25)
+            </if>
+            <if test="cusFrom == 3">
+                and ifnull(lf_customer.isCallBackCus,0) = 0
+            </if>
+        </if>
+        <if test="dateStart != null">
+            <![CDATA[ and lf_customer.createTime >= #{dateStart} ]]>
+        </if>
+        <if test="dateEnd != null">
+            <![CDATA[ and lf_customer.createTime < #{dateEnd} ]]>
+        </if>
+        <if test="agentStr != null">
+            and (lf_customer.`name` = #{agentStr} or lf_customer.mobile = #{agentStr} or lf_customer.id =#{agentStr})
+        </if>
+        <if test="is3A != null and is3A == 1">
+            and lf_customer.id in
+            (
+            select lf_agent_3a.businessId
+            from lf_agent_3a
+            where lf_agent_3a.type = 2
+            and lf_agent_3a.businessId = lf_customer.id
+            and lf_agent_3a.`status` = 1
+            )
+        </if>
+
+    </select>
+
+    <select id="selectCustomerReq" resultType="com.lifang.bzsm.console.model.LfCustomerRequirementInfo"
+            parameterType="long">
+        select
+        lf_customer_requirement.*,
+        estate_sub.estateName,
+        dan.`name` townName,
+        danB.name areaName
+        from lf_customer_requirement
+        left join estate_sub on lf_customer_requirement.subEstateId = estate_sub.id
+        left join dic_area_new dan on lf_customer_requirement.townId = dan.id
+        left join dic_area_new danB on dan.districtId = danB.id
+        where lf_customer_requirement.`status` = 1
+        and lf_customer_requirement.cusId = #{_parameter}
+        limit 0, 1
+  </select>
+
+
+    <select id="selectCustomerAMarkList" resultType="com.lifang.bzsm.console.model.LfAgent3aInfo" parameterType="com.lifang.bzsm.console.model.LfCustomerRequest">
+        select
+        lf_agent_3a.*,
+        ifnull(lf_agent_3a_clog.createTime,lf_agent_3a.updateTime) logUpTime,
+        lf_employee.name name3A
+        from lf_agent_3a
+        left join lf_agent_3a_clog on lf_agent_3a_clog.sourceId = lf_agent_3a.id
+        left join lf_employee on lf_agent_3a.agentId = lf_employee.id
+        where lf_agent_3a.type = 2
+        and lf_agent_3a.businessId = #{customerId}
+        limit #{pageIndex},#{pageSize}
+  </select>
+
+    <select id="selectCustomerAMarkListCount" resultType="int" parameterType="com.lifang.bzsm.console.model.LfCustomerRequest">
+        select
+           count(0)
+        from lf_agent_3a
+        left join lf_agent_3a_clog on lf_agent_3a_clog.sourceId = lf_agent_3a.id
+        left join lf_employee on lf_agent_3a.agentId = lf_employee.id
+        where lf_agent_3a.type = 2
+        and lf_agent_3a.businessId = #{customerId}
+  </select>
+
+    <select id="selectCustomerHouseSee" resultType="com.lifang.bzsm.console.model.LfCustomerHouseSeeInfo"
+            parameterType="com.lifang.bzsm.console.model.LfCustomerRequest">
+      select lf_customer_house_see.*,lf_employee.`name` from lf_customer_house_see
+      left join lf_employee on lf_customer_house_see.agentId = lf_employee.id
+      where lf_customer_house_see.`status` = 1
+      and lf_customer_house_see.customerId = #{customerId}
+      limit #{pageIndex},#{pageSize}
+  </select>
+
+    <select id="selectCustomerHouseSeeCount" resultType="int" parameterType="com.lifang.bzsm.console.model.LfCustomerRequest">
+        select count(*) from lf_customer_house_see
+        left join lf_employee on lf_customer_house_see.agentId = lf_employee.id
+        where lf_customer_house_see.`status` = 1
+        and lf_customer_house_see.customerId = #{customerId}
+    </select>
+
+    <select id="selectCustomerFollow" resultType="com.lifang.bzsm.console.model.LfCustomerFollowUpInfo"
+            parameterType="com.lifang.bzsm.console.model.LfCustomerRequest">
+      select lf_customer_follow_up.*, lf_employee.`name`
+      from lf_customer_follow_up
+      left join lf_employee on lf_customer_follow_up.agentId = lf_employee.id
+      where lf_customer_follow_up.`status` = 1
+      and lf_customer_follow_up.customerId = #{customerId}
+      limit #{pageIndex},#{pageSize}
+  </select>
+
+
+    <select id="selectCustomerFollowCount" resultType="int" parameterType="com.lifang.bzsm.console.model.LfCustomerRequest">
+        select count(*)
+        from lf_customer_follow_up
+        left join lf_employee on lf_customer_follow_up.agentId = lf_employee.id
+        where lf_customer_follow_up.`status` = 1
+        and lf_customer_follow_up.customerId = #{customerId}
+    </select>
+
+    <select id="selectAgentCustomer" resultType="int" parameterType="map">
+        select count(0)
+        from lf_customer
+        where lf_customer.agentId = #{agentId}
+        and lf_customer.mobile = #{mobile}
+        and lf_customer.`status` = 1
+    </select>
+
+</mapper>

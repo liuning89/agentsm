@@ -1,0 +1,356 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lifang.agentsm.dao.read.LfAgentReadMapper" >
+  <resultMap id="BaseResultMap" type="com.lifang.agentsm.entity.LfAgent" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="cityId" property="cityId" jdbcType="BIGINT" />
+    <result column="companyId" property="companyId" jdbcType="BIGINT" />
+    <result column="storeId" property="storeId" jdbcType="BIGINT" />
+    <result column="realName" property="realName" jdbcType="VARCHAR" />
+    <result column="password" property="password" jdbcType="VARCHAR" />
+    <result column="mobile" property="mobile" jdbcType="VARCHAR" />
+    <result column="idNumber" property="idNumber" jdbcType="VARCHAR" />
+    <result column="photoHeadUrl" property="photoHeadUrl" jdbcType="VARCHAR" />
+    <result column="photoIdUrl" property="photoIdUrl" jdbcType="VARCHAR" />
+    <result column="photoCardUrl" property="photoCardUrl" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="TINYINT" />
+    <result column="accountType" property="accountType" jdbcType="TINYINT" />
+    <result column="teamType" property="teamType" jdbcType="TINYINT" />
+    <result column="levelType" property="levelType" jdbcType="TINYINT" />
+    <result column="uid" property="uid" jdbcType="BIGINT" />
+    <result column="gender" property="gender" jdbcType="TINYINT" />
+    <result column="bizType" property="bizType" jdbcType="TINYINT" />
+    <result column="createTime" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="updateTime" property="updateTime" jdbcType="TIMESTAMP" />
+    <result column="memo" property="memo" jdbcType="VARCHAR" />
+    <result column="sourceId" property="sourceId" jdbcType="INTEGER" />
+    <result column="dept_name" property="dept_name" jdbcType="VARCHAR" />
+    <result column="company_name" property="company_name" jdbcType="VARCHAR" />
+    <result column="token" property="token" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, cityId, companyId, storeId, realName, password, mobile, idNumber, photoHeadUrl, 
+    photoIdUrl, photoCardUrl, status, accountType, teamType, levelType, uid, gender, 
+    bizType, createTime, updateTime, memo, sourceId, dept_name, company_name, token
+  </sql>
+  
+  <resultMap id="LfAgentAllInfo" type="com.lifang.agentsm.model.LfAgentAllInfo">
+  	<id column="id" property="id" jdbcType="BIGINT" />
+  	<result column="cityId" property="cityId" jdbcType="BIGINT" />
+    <result column="companyId" property="companyId" jdbcType="BIGINT" />
+    <result column="storeId" property="storeId" jdbcType="BIGINT" />
+    <result column="realName" property="realName" jdbcType="VARCHAR" />
+    <result column="password" property="password" jdbcType="VARCHAR" />
+    <result column="mobile" property="mobile" jdbcType="VARCHAR" />
+    <result column="idNumber" property="idNumber" jdbcType="VARCHAR" />
+    <result column="photoHeadUrl" property="photoHeadUrl" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="TINYINT" />
+    <result column="gender" property="gender" jdbcType="TINYINT" />
+    <result column="createTime" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="companyName" property="companyName" jdbcType="VARCHAR" />
+    <result column="cityName" property="cityName" jdbcType="VARCHAR" />
+    <result column="storeName" property="storeName" jdbcType="VARCHAR" />
+  </resultMap>
+  
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from lf_agent
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  
+  <select id="getAgentCount" resultType="java.lang.Integer" parameterType="java.util.Map">
+  		select 
+			count(1)
+		from lf_agent a where 1=1
+		<include refid="searchCondition" />
+  </select>
+  
+  <select id="getAgentList" resultType="com.lifang.agentsm.model.LfAgentAllInfo" parameterType="java.util.Map">
+	   SELECT a.id,a.cityId,a.companyId,a.storeId,a.realName,a.mobile,a.idNumber,a.photoHeadUrl,a.status,a.gender,
+        DATE_FORMAT(a.createTime,'%Y-%m-%d %T') AS createTime,com.companyName,dic.name cityName,sto.storeName,
+        isCrownAgent,agentNum,
+         (SELECT COUNT(DISTINCT(lac.id)) 
+        FROM lf_agent_comment lac 
+        WHERE lac.status=1
+        AND lac.agentId=a.`id`
+        AND 1 = (SELECT lact.type FROM lf_agent_comment_tag_relation lactr INNER JOIN lf_agent_comment_tag lact ON lactr.tagId=lact.id WHERE lactr.status=1 AND lactr.commentId=lac.id ORDER BY lact.type DESC LIMIT 0, 1) ) highPercentage,
+        (SELECT COUNT(DISTINCT(lac.id)) 
+        FROM lf_agent_comment lac 
+        WHERE lac.status=1
+        AND lac.agentId=a.`id`) highPercentageTotal
+        FROM lf_agent a  
+        LEFT JOIN lf_company com ON a.companyId = com.id
+        LEFT JOIN dic_area_new dic ON a.cityId = dic.id
+        LEFT JOIN lf_store sto ON a.storeId = sto.id
+        WHERE 1=1
+	    <include refid="searchCondition" />
+		order by a.id desc
+		limit #{start,jdbcType=INTEGER},#{end,jdbcType=INTEGER}
+  </select>
+  
+  <select id="getAgentById" resultType="com.lifang.agentsm.model.LfAgentAllInfo" parameterType="int">
+        select a.id,a.cityId,a.companyId,a.storeId,a.realName,a.mobile,a.idNumber,a.photoHeadUrl,a.status,a.gender,
+        date_format(a.createTime,'%Y-%m-%d %T') as createTime,com.companyName,dic.name cityName,sto.storeName,
+        isCrownAgent,agentNum
+        from lf_agent a  
+        left join lf_company com on a.companyId = com.id
+        left join dic_area_new dic on a.cityId = dic.id
+        left join lf_store sto on a.storeId = sto.id
+        where a.id = #{_prameter}
+  </select>
+  
+  <select id="selectAgentListByPars" resultMap="BaseResultMap" parameterType="java.util.Map" >
+  	select 
+    <include refid="Base_Column_List" />
+    from lf_agent
+    where status = 1
+    <if test="storeId != null">
+    	and storeId = #{storeId,jdbcType=INTEGER}
+    </if>
+    <if test="companyId != null">
+    	and companyId = #{companyId,jdbcType=INTEGER}
+    </if>
+  </select>
+  
+  <sql id="searchCondition">
+  		<if test="agentNum != null and agentNum !=''">
+			and a.agentNum = #{agentNum,jdbcType=VARCHAR}
+		</if>
+		<if test="realName != null and realName !=''">
+			and a.realName like concat('%',#{realName,jdbcType=VARCHAR},"%")
+		</if>
+		<if test="mobile != null and mobile !=''">
+			and a.mobile = #{mobile,jdbcType=VARCHAR}
+		</if>
+		<if test="cityId != null and cityId !=''">
+			and a.cityId = #{cityId,jdbcType=INTEGER}
+		</if>
+		<if test="companyId != null and companyId !=''">
+			and a.companyId = #{companyId,jdbcType=INTEGER}
+		</if>
+		<if test="storeId != null and storeId !=''">
+			and a.storeId = #{storeId,jdbcType=INTEGER}
+		</if>
+		<if test="status != null and status !=''">
+			and a.status = #{status,jdbcType=INTEGER}
+		</if>
+		<if test="isCrownAgent!=null and isCrownAgent!=''">
+			and a.isCrownAgent = #{isCrownAgent,jdbcType=INTEGER}
+		</if>
+  </sql>
+
+    <select id="getAgentRecentlySeeCount" resultType="java.lang.Integer" parameterType="java.util.Map">
+        select count(1) from lf_customer_house_see chs
+        LEFT JOIN lf_customer c ON(chs.customerId = c.id)
+        LEFT JOIN lf_employee e ON(e.`id` = c.agentId)
+        where 1=1
+        <if test="houseId != null and houseId != ''">
+            and chs.houseId = ${houseId}
+        </if>
+        <if test="agentId != null and agentId != ''">
+            AND e.id = ${agentId}
+        </if>
+        <if test="queryTimeBegin != null and queryTimeBegin != ''">
+            <![CDATA[AND chs.seeTime >= #{queryTimeBegin}]]>
+        </if>
+        <if test="queryTimeEnd != null and queryTimeEnd != ''">
+            <![CDATA[AND chs.seeTime <= #{queryTimeEnd}]]>
+        </if>
+        <if test="agents != null and agents.size() > 0">
+            and e.id in
+            <foreach collection="agents" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+    </select>
+
+    <select id="getAgentRecentlySeeList" resultType="java.util.HashMap" parameterType="java.util.Map">
+       
+        SELECT chs.id,chs.houseId,chs.customerId,chs.agentId,chs.seeTime,chs.agreementNo,chs.agreementKey,c.name AS customerName,chs.mark
+        FROM lf_customer_house_see chs
+        LEFT JOIN lf_customer c ON(chs.customerId = c.id)
+        LEFT JOIN lf_employee e ON(e.`id` = c.agentId)
+        where 1=1
+        <if test="houseId != null and houseId != ''">
+            and chs.houseId = ${houseId}
+        </if>
+        <if test="agentId != null and agentId != ''">
+            AND e.id = ${agentId}
+        </if>
+        <if test="queryTimeBegin != null and queryTimeBegin != ''">
+            <![CDATA[AND chs.seeTime >= #{queryTimeBegin}]]>
+        </if>
+        <if test="queryTimeEnd != null and queryTimeEnd != ''">
+            <![CDATA[AND chs.seeTime <= #{queryTimeEnd}]]>
+        </if>
+        <if test="agents != null and agents.size() > 0">
+            and e.id in
+            <foreach collection="agents" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        order by chs.id desc
+        LIMIT #{start,jdbcType=INTEGER},#{end,jdbcType=INTEGER}
+    </select>
+    
+    <!-- 获取门店经纪人简单信息列表 -->
+    <select id="getAgentSimpleListByStoreId" resultType="com.lifang.agentsm.model.MiniuiEntity">
+    	select la.id,la.realName text from lf_agent la
+    		left join lf_store ls on ls.id = la.storeId
+    	 where la.status = 1 and ls.status = 1 and ls.id = #{storeId}
+    </select>
+    
+    <!-- 经纪人评价明细sql条件 -->
+    <sql id="searchEvaluete">
+  		<if test="agentid != null and agentid !=''">
+			and a.agentid = #{agentid,jdbcType=VARCHAR}
+		</if>
+		<if test="startTime != null and startTime != ''">
+			and a.updateTime &gt; #{startTime}  
+		</if>
+		<if test="endTime != null and endTime != ''">
+			and a.updateTime &lt; #{endTime}
+		</if>
+		
+ 	 </sql>
+    <!-- 获取经纪人评价明细信息 -->
+     <select id="getAgentEvaluete" resultType="com.lifang.agentsm.model.LfAgentEvalueteInfo" parameterType="java.util.Map">
+		select a.id, b.updateTime,a.comment,d.name,a.guestPhoneNum,c.type,CONCAT(type,'-',c.label) label from lf_agent_comment a 
+			LEFT JOIN lf_agent_comment_tag_relation b on a.id = b.commentid
+			LEFT JOIN lf_agent_comment_tag c on b.tagId = c.id
+			LEFT JOIN cus_guest d ON a.guestId = d.id  
+		where a.guestPhoneNum != 'initdata'
+					
+		<include refid="searchEvaluete" />
+		order by b.updateTime desc
+		limit #{start,jdbcType=INTEGER},#{end,jdbcType=INTEGER}
+  </select>
+  <!-- 查询评价明细总数 -->
+   <select id="getAgentEvalueteCount" resultType="java.lang.Integer" parameterType="java.util.Map">
+  		
+		select count(1) from lf_agent_comment a 
+			LEFT JOIN lf_agent_comment_tag_relation b on a.id = b.commentid
+			LEFT JOIN lf_agent_comment_tag c on b.tagId = c.id
+			LEFT JOIN cus_guest d ON a.guestId = d.id 
+		 where a.guestPhoneNum != 'initdata'
+		<include refid="searchEvaluete" />
+  </select>
+  
+  
+    <select id="getAgentLogListCount" resultType="java.lang.Integer" parameterType="java.util.Map">
+		
+		SELECT count(1) FROM `house_edit_record` a
+		
+		where a.editType != 7 and a.`agentId` in 
+			
+			<foreach collection="agentCityList" item="item" index="index" open="(" separator="," close=")" >
+		        ${item.id}
+		    </foreach>
+		   <!--  <if test="agentId != null and agentId !=''">
+				and a.agentid = #{agentId,jdbcType=VARCHAR}
+			</if> -->
+			
+			<if test="houseId != null and houseId !=''">
+				and a.houseId = #{houseId}
+			</if>
+			
+  </select>
+  
+  
+     <select id="getAgentLogList" resultType="com.lifang.agentsm.model.LfAgentLogListInfo" parameterType="java.util.Map">
+		
+SELECT a.`createTime` ,a.`before`,a.`after`,a.editType,a.agentId,a.houseId FROM `house_edit_record` a
+
+		where a.editType != 7 and a.`agentId` in 
+			
+			<foreach collection="agentCityList" item="item" index="index" open="(" separator="," close=")" >
+		        ${item.id}
+		    </foreach>
+			<if test="houseId != null and houseId !=''">
+				and a.houseId = #{houseId}
+			</if>
+		order by a.createTime desc
+		limit #{start,jdbcType=INTEGER},#{end,jdbcType=INTEGER}
+  </select>
+  
+  <!-- 通过门店的组织ID查找经纪人 -->
+  <select id="getAgentByStoreOrg" parameterType="map" resultType="com.lifang.agentsm.model.Employee">
+     SELECT * FROM lf_employee
+     INNER JOIN lf_position ON lf_employee.`positionId` = lf_position.`id`
+     INNER JOIN lf_area_org ON lf_position.`areaOrgId` = lf_area_org.`id`
+     WHERE lf_employee.`department` = 1
+     AND lf_employee.status = 1
+     AND lf_area_org.`code` LIKE CONCAT(#{orgCode},'%')
+     AND lf_area_org.`level` = 40
+  </select>
+
+    <!-- 通过组织结构查询经纪人列表 -->
+    <select id="getAgentListByOrg" parameterType="com.lifang.bzsm.console.model.AgentRequest" resultType="com.lifang.bzsm.console.model.LfAgentAllInfo">
+        SELECT
+        lf_employee.id,
+        lf_employee.`workNumber`,
+        lf_employee.name realName,
+        lf_employee.`gender`,
+        lf_employee.`mobile`,
+        lf_agent.`isCrownAgent`,
+        (
+        SELECT COUNT(DISTINCT(lac.id))
+        FROM lf_agent_comment lac
+        WHERE lac.status=1
+        AND lac.agentId=lf_agent.`id`
+        AND lac.commentType = 1
+        AND lac.guestPhoneNum != 'initdata'
+        ) highPercentage,
+        (
+        SELECT COUNT(DISTINCT(lac.id))
+        FROM lf_agent_comment lac
+        WHERE lac.status=1
+        AND lac.agentId=lf_agent.`id`
+        ) highPercentageTotal
+        FROM lf_agent
+        INNER JOIN lf_employee ON lf_agent.`id` = lf_employee.`id`
+        WHERE  lf_employee.`status` = 1
+        <!-- AND lf_area_org.level = 40 -->
+        AND (SELECT COUNT(*)
+        FROM lf_leave_application
+        WHERE lf_leave_application.`employeeId` = lf_employee.`id`
+        AND lf_leave_application.`checkStatus` = 2)  = 0
+        <if test="agentIds != null and agentIds.size() != 0">
+            and lf_employee.id in
+            <foreach collection="agentIds" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="agentName != null and agentName != ''">
+            AND lf_employee.`name` LIKE CONCAT('%',#{agentName},'%')
+        </if>
+        limit #{pageIndex},#{pageSize}
+    </select>
+    <!-- 通过组织结构查询经纪人列表 -->
+    <select id="getAgentListByOrgCount" parameterType="com.lifang.bzsm.console.model.AgentRequest" resultType="int">
+        SELECT
+        count(*)
+        FROM lf_agent
+        INNER JOIN lf_employee ON lf_agent.`id` = lf_employee.`id`
+        WHERE lf_employee.`status` = 1
+        <!-- AND lf_area_org.level = 40 -->
+        AND (SELECT COUNT(*)
+        FROM lf_leave_application
+        WHERE lf_leave_application.`employeeId` = lf_employee.`id`
+        AND lf_leave_application.`checkStatus` = 2)  = 0
+        <!--<if test="orgCode != null and orgCode != ''">-->
+        <!--AND lf_area_org.`code` LIKE CONCAT(#{orgCode},'%')-->
+        <!--AND lf_area_org.`code` != #{orgCode}-->
+        <!--</if>-->
+        <if test="agentIds != null and agentIds.size() != 0">
+            and lf_employee.id in
+            <foreach collection="agentIds" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="agentName != null and agentName != ''">
+            AND lf_employee.`name` LIKE CONCAT('%',#{agentName},'%')
+        </if>
+    </select>
+</mapper>
