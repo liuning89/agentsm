@@ -17,7 +17,7 @@
      http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-4.0.xsd
      http://www.springframework.org/schema/oxm http://www.springframework.org/schema/oxm/spring-oxm-4.0.xsd">
 
-	<context:property-placeholder location="classpath:redis.properties" />
+	<context:property-placeholder location="classpath:redis.properties" ignore-unresolvable="true" />
 
 	<bean name="genericObjectPoolConfig" class="org.apache.commons.pool2.impl.GenericObjectPoolConfig">
 		<property name="maxTotal" value="${redis.maxTotal}" />
